@@ -1,0 +1,123 @@
+{
+  "summary": {
+    "target": "http://15.164.60.79",
+    "total_checks": 10,
+    "vulnerable_count": 9,
+    "weak_count": 1,
+    "good_count": 0,
+    "na_count": 0,
+    "overall_comment": "수집된 응답 데이터 기준으로 SQL Injection, XSS, 민감정보 노출, 관리자 페이지 노출, Tomcat 기본/Manager 페이지 노출, HTTPS 미적용 등 다수의 고위험 취약점이 확인된다. 일부 보안 헤더는 설정되어 있으나 CSP에 'unsafe-inline'이 포함되어 있고 HSTS가 HTTP 응답에만 관찰되는 등 헤더 설정은 미흡하다."
+  },
+  "findings": [
+    {
+      "check_id": "WEB-001",
+      "item": "보안 헤더 미설정",
+      "category": "Security Headers",
+      "gpt_result": "미흡",
+      "risk": "Low",
+      "evidence": "기본 페이지 http://15.164.60.79/ 응답 상태코드 200에서 X-Frame-Options: DENY, Content-Security-Policy, X-Content-Type-Options: nosniff, Strict-Transport-Security, Referrer-Policy가 확인된다. 다만 CSP가 \"default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline';\"로 인라인 스크립트/스타일을 허용하며, HTTPS 접속은 timeout으로 사용 불가한 상태에서 HTTP 응답에 HSTS가 포함되어 있다.",
+      "impact": "주요 보안 헤더는 일부 적용되어 있어 기본적인 방어는 존재하지만, CSP의 'unsafe-inline' 허용은 XSS 방어 효과를 약화시킬 수 있다. HTTPS가 제공되지 않는 상태에서 HSTS 헤더는 실질적인 보호 효과를 기대하기 어렵다.",
+      "recommendation": "CSP에서 'unsafe-inline'을 제거하고 nonce 또는 hash 기반 정책으로 전환하라. HTTPS를 정상 적용한 뒤 HSTS를 HTTPS 응답에서만 유효하게 운영하고 필요한 보안 헤더를 일관되게 적용하라.",
+      "confidence": "High"
+    },
+    {
+      "check_id": "WEB-002",
+      "item": "서버 정보 노출",
+      "category": "Information Disclosure",
+      "gpt_result": "취약",
+      "risk": "Low",
+      "evidence": "기본 페이지 응답 헤더에 Server: nginx/1.28.3 (Ubuntu)가 노출된다. 기본 페이지 및 404 오류 페이지 본문에는 <title>Apache Tomcat/9.0.118</title>, <h1>Apache Tomcat/9.0.118</h1>, 오류 페이지 하단 <h3>Apache Tomcat/9.0.118</h3>가 포함되어 있다.",
+      "impact": "공격자가 웹서버와 WAS의 제품명 및 버전 정보를 파악하여 해당 버전에 알려진 취약점이나 설정 취약점을 우선적으로 탐색할 수 있다.",
+      "recommendation": "nginx의 server_tokens를 비활성화하고 오류 페이지 및 기본 페이지에서 Tomcat 버전 문자열이 노출되지 않도록 커스텀 오류 페이지와 배너 제거 설정을 적용하라.",
+      "confidence": "High"
+    },
+    {
+      "check_id": "WEB-003",
+      "item": "SQL Injection",
+      "category": "Injection",
+      "gpt_result": "취약",
+      "risk": "High",
+      "evidence": "http://15.164.60.79/vulnapp/login.jsp?id=%27%20OR%20%271%27%3D%271%27%20--%20&pw=test 응답 상태코드 200 본문에 \"Login Success - Welcome admin / role=admin\"이 확인된다. 또한 id=admin'--&pw=test 요청에서는 \"You have an error in your SQL syntax; ... MariaDB ... near 'test'' at line 1\" 오류가 노출된다. pw 파라미터에 \"' OR '1'='1' -- \"를 입력한 요청도 동일하게 \"Login Success - Welcome admin / role=admin\"을 반환한다.",
+      "impact": "인증 우회가 가능하며 데이터베이스 조회, 변조, 삭제 또는 추가 정보 탈취로 이어질 수 있다. SQL 오류 메시지가 노출되어 공격자가 DBMS와 쿼리 구조를 추정하기 쉽다.",
+      "recommendation": "Prepared Statement/파라미터 바인딩을 적용하고 입력값을 쿼리 문자열에 직접 연결하지 않도록 수정하라. DB 오류 메시지는 사용자에게 노출하지 말고 서버 로그에만 기록하도록 예외 처리를 개선하라.",
+      "confidence": "High"
+    },
+    {
+      "check_id": "WEB-004",
+      "item": "XSS",
+      "category": "Cross-Site Scripting",
+      "gpt_result": "취약",
+      "risk": "High",
+      "evidence": "http://15.164.60.79/vulnapp/search.jsp?q=%3Cscript%3Ealert%281%29%3C/script%3E 응답 상태코드 200 본문에 \"<p>검색어: <script>alert(1)</script></p>\"가 그대로 반영된다. 추가로 페이로드 '\"><script>alert(1)</script>' 및 '<img src=x onerror=alert(1)>'도 각각 본문에 이스케이프 없이 반영된다.",
+      "impact": "공격자가 피해자 브라우저에서 임의의 스크립트를 실행하여 세션 탈취, 피싱, 화면 변조, 사용자 권한으로의 요청 수행 등을 유발할 수 있다. 현재 CSP에 'unsafe-inline'이 포함되어 있어 반사형 XSS 방어 효과도 제한적이다.",
+      "recommendation": "사용자 입력을 HTML 컨텍스트에 출력할 때 HTML 엔티티 인코딩을 적용하고, 속성/스크립트/URL 등 출력 위치별 인코딩을 구분하라. CSP에서 'unsafe-inline'을 제거하고 nonce/hash 기반 스크립트 허용 정책을 적용하라.",
+      "confidence": "High"
+    },
+    {
+      "check_id": "WEB-005",
+      "item": "민감정보 노출",
+      "category": "Sensitive Information Disclosure",
+      "gpt_result": "취약",
+      "risk": "High",
+      "evidence": "http://15.164.60.79/vulnapp/debug.jsp 응답 상태코드 200, Content-Type: application/json;charset=UTF-8이며 본문에 \"debug\": true, \"db_user\": \"vulnuser\", \"db_password\": \"vulnpass1234\", \"api_key\": \"TEST-API-KEY-123456\", \"internal_ip\": \"10.0.0.5\"가 노출된다.",
+      "impact": "DB 계정, 비밀번호, API 키, 내부 IP 정보가 외부에 노출되어 시스템 침해, 내부망 정찰, 자격증명 재사용 공격으로 이어질 수 있다.",
+      "recommendation": "debug.jsp와 같은 디버그 엔드포인트를 운영 환경에서 제거하거나 인증 및 접근제어를 적용하라. 노출된 DB 비밀번호와 API 키는 즉시 폐기 및 재발급하고 비밀정보는 환경변수나 보안 저장소로 관리하라.",
+      "confidence": "High"
+    },
+    {
+      "check_id": "WEB-006",
+      "item": "관리자 페이지 노출",
+      "category": "Access Control",
+      "gpt_result": "취약",
+      "risk": "High",
+      "evidence": "http://15.164.60.79/vulnapp/admin.jsp 응답 상태코드 200이며 본문에 \"Admin Page\", \"이 페이지는 관리자만 접근해야 하지만 현재는 로그인 없이 접근 가능합니다.\", \"User List\", \"System Config\", \"Backup Download\"가 포함되어 있다.",
+      "impact": "인증 없이 관리자 기능 또는 관리 정보에 접근 가능할 수 있으며 사용자 목록, 시스템 설정, 백업 다운로드 등 민감 기능 악용으로 이어질 수 있다.",
+      "recommendation": "관리자 페이지에는 강제 인증과 서버 측 권한 검사를 적용하고, 비인가 사용자는 401/403으로 차단하라. 관리자 경로는 외부 공개를 최소화하고 IP 제한, MFA, 감사 로깅을 추가하라.",
+      "confidence": "High"
+    },
+    {
+      "check_id": "WEB-007",
+      "item": "Tomcat 기본 페이지 노출",
+      "category": "Default Page Exposure",
+      "gpt_result": "취약",
+      "risk": "Medium",
+      "evidence": "http://15.164.60.79:8080/ 및 http://15.164.60.79/ 모두 상태코드 200으로 Tomcat 기본 페이지를 반환한다. 본문에 \"Apache Tomcat/9.0.118\", \"If you're seeing this, you've successfully installed Tomcat. Congratulations!\", /docs/, /examples/ 링크가 포함되어 있다.",
+      "impact": "기본 설치 페이지와 예제/문서 경로가 외부에 노출되어 서버 구성 정보 수집과 추가 공격 표면 탐색이 쉬워진다. Tomcat 버전 정보도 함께 노출된다.",
+      "recommendation": "ROOT 기본 애플리케이션, docs, examples 등 불필요한 기본 리소스를 제거하고 실제 서비스 페이지만 배포하라. 8080 포트가 외부에 필요하지 않다면 방화벽 또는 보안그룹으로 접근을 제한하라.",
+      "confidence": "High"
+    },
+    {
+      "check_id": "WEB-008",
+      "item": "Tomcat Manager 페이지 노출",
+      "category": "Management Interface Exposure",
+      "gpt_result": "취약",
+      "risk": "High",
+      "evidence": "http://15.164.60.79:8080/manager/html 응답 상태코드 403 본문에 \"403 Access Denied\", \"By default the Manager is only accessible...\"가 표시된다. http://15.164.60.79/manager/html 응답 상태코드 401이며 헤더에 WWW-Authenticate: Basic realm=\"Tomcat Manager Application\"가 포함되고 본문에 \"401 Unauthorized\" 및 \"conf/tomcat-users.xml\" 문구가 노출된다.",
+      "impact": "Tomcat Manager 관리 인터페이스의 존재가 외부에서 식별 가능하며, 비밀번호 추측/크리덴셜 스터핑/취약한 계정 악용 대상이 될 수 있다. 인증 우회 또는 계정 탈취 시 애플리케이션 배포를 통한 서버 장악으로 이어질 수 있다.",
+      "recommendation": "Tomcat Manager는 운영 환경에서 제거하거나 관리자 전용 네트워크/VPN/IP allowlist로 제한하라. Basic 인증만 의존하지 말고 강력한 계정 정책과 MFA, 접근 로그 모니터링을 적용하라.",
+      "confidence": "High"
+    },
+    {
+      "check_id": "WEB-009",
+      "item": "HTTPS 미적용",
+      "category": "Transport Security",
+      "gpt_result": "취약",
+      "risk": "High",
+      "evidence": "https_status에서 HTTP http://15.164.60.79/는 상태코드 200으로 응답하지만, HTTPS https://15.164.60.79는 \"Connection to 15.164.60.79 timed out. (connect timeout=5)\" 오류가 발생했다. https_available은 false, redirect_to_https는 false로 수집되었다.",
+      "impact": "통신 구간 암호화가 적용되지 않아 로그인 정보, 세션 쿠키, 민감 데이터가 평문으로 노출되거나 중간자 공격에 취약할 수 있다. HTTP에서 HTTPS로의 강제 전환도 확인되지 않는다.",
+      "recommendation": "유효한 TLS 인증서를 적용해 443 포트를 정상 서비스하고 모든 HTTP 요청을 HTTPS로 301/308 리다이렉트하라. HTTPS 적용 후 Secure 쿠키와 HSTS를 함께 운영하라.",
+      "confidence": "High"
+    },
+    {
+      "check_id": "WEB-010",
+      "item": "쿠키 보안 속성 미설정",
+      "category": "Cookie Security",
+      "gpt_result": "취약",
+      "risk": "Medium",
+      "evidence": "SQL Injection 테스트 중 http://15.164.60.79/vulnapp/login.jsp?id=admin%27--&pw=test 응답 헤더에 Set-Cookie: JSESSIONID=C5895408B04C8CC0503A534D05B793A4; Path=/vulnapp; HttpOnly가 확인된다. 해당 쿠키에는 HttpOnly는 있으나 Secure 및 SameSite 속성이 없다. 별도 cookie_status의 /vulnapp/ 및 /vulnapp/login.jsp 응답에서는 Set-Cookie가 없다고 수집되었지만, 실제 sqli_tests 응답에서 JSESSIONID 발급이 확인된다.",
+      "impact": "Secure 속성이 없어 HTTP 통신에서 세션 쿠키가 평문 전송될 수 있고, SameSite 미설정으로 CSRF 공격 위험이 증가할 수 있다. 현재 HTTPS 미적용 상태와 결합되면 세션 탈취 위험이 커진다.",
+      "recommendation": "세션 쿠키에 Secure, HttpOnly, SameSite=Lax 또는 Strict를 명시적으로 설정하라. HTTPS를 우선 적용하고 HTTP 환경에서는 세션 쿠키가 발급되지 않도록 구성하라.",
+      "confidence": "High"
+    }
+  ]
+}
