@@ -3,7 +3,6 @@
 <%
 String id = request.getParameter("id");
 String pw = request.getParameter("pw");
-
 String result = "";
 
 if (id != null && pw != null) {
@@ -27,9 +26,12 @@ if (id != null && pw != null) {
         rs = stmt.executeQuery(sql);
 
         if (rs.next()) {
-            result = "Login Success - Welcome " + rs.getString("username") + " / role=" + rs.getString("role");
+            // 로그인 성공 시: DB에서 가져온 id(고유번호)를 URL 파라미터로 넘겨서 리다이렉트
+            String loggedInIdx = rs.getString("id");
+            response.sendRedirect("profile.jsp?user_idx=" + loggedInIdx);
+            return; // 리다이렉트 후 아래 HTML이 그려지지 않도록 종료
         } else {
-            result = "Login Failed";
+            result = "Login Failed: Check your ID or Password.";
         }
 
     } catch (Exception e) {
@@ -44,18 +46,18 @@ if (id != null && pw != null) {
 
 <html>
 <head>
-<title>SQL Injection Test</title>
+    <title>SQL Injection Test</title>
 </head>
 <body>
-<h2>SQL Injection Test</h2>
+    <h2>SQL Injection Test</h2>
 
-<form method="GET"action="login.jsp">
-<input type="text"name="id"placeholder="ID">
-<input type="text"name="pw"placeholder="Password">
-<button type="submit">Login</button>
-</form>
+    <form method="GET" action="login.jsp">
+        <input type="text" name="id" placeholder="ID">
+        <input type="text" name="pw" placeholder="Password">
+        <button type="submit">Login</button>
+    </form>
 
-<hr>
-<p><%= result %></p>
+    <hr>
+    <p><%= result %></p>
 </body>
 </html>

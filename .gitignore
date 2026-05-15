@@ -1,6 +1,9 @@
 .env
+<<<<<<< HEAD
 docs/
 examples/
 host-manager/
 manager/
 ROOT/
+=======
+>>>>>>> bf3e8c4262fbcd4f3ebb7e514202a8d0f700a314
