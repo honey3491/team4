@@ -28,10 +28,17 @@
             rs = stmt.executeQuery(sql);
 
             if (rs.next()) {
+		String role = rs.getString("role");
                 // 💡 로그인 성공: DB의 username을 세션에 저장하고 메인으로 이동
                 session.setAttribute("userId", rs.getString("username"));
 		session.setAttribute("userNo", rs.getString("id"));
-                response.sendRedirect("");
+                session.setAttribute("userRole", rs.getString("role"));
+		if("admin".equalsIgnoreCase(role)) {
+			response.sendRedirect("admin.jsp");
+		}
+		else{
+			response.sendRedirect("");
+		}
                 return; // HTML을 더 이상 그리지 않고 종료
             } else {
                 // 💡 로그인 실패

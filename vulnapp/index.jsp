@@ -63,6 +63,12 @@
                 <p class="test-desc">인가되지 않은 사용자가 취약한 접근 제어를 뚫고 관리자 전용 페이지에 접근하는 실습입니다.</p>
             </a>
         </li>
+	<li>
+            <a href="upload.jsp" class="test-card">
+                <div class="test-title" style="color: #8e44ad;">📝 File upload Test</div>
+                <p class="test-desc">파일 업로드 취약점(Unrestricted File Upload) 과 저장형 XSS(Stored XSS) 를 동시에 실습입니다.</p>
+            </a>
+        </li>
     </ul>
 
 <%@ include file="footer.jsp" %>

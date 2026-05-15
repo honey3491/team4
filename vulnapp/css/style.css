@@ -42,3 +42,16 @@ a { text-decoration: none; color: inherit; }
 /* 결과 영역 */
 .result-area { margin-top: 1.5rem; padding: 1.2rem; background-color: #e8f4f8; border-left: 5px solid #3498db; border-radius: 4px; }
 footer { text-align: center; padding: 2rem 0; color: #95a5a6; font-size: 0.9rem; }
+
+/* 로고 링크 스타일 초기화 */
+.logo a {
+    text-decoration: none;
+    color: inherit;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.logo a:hover {
+    opacity: 0.8; /* 마우스를 올렸을 때 살짝 흐려지는 효과 */
+}
