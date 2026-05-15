@@ -1,113 +1,59 @@
-<%@ page import="java.io.*, java.nio.file.Files, java.util.Base64" %>
+<%@ page import="java.io.*" %>
 <%@ page contentType="text/html; charset=UTF-8" %>
 <%
     String fileName = request.getParameter("filename");
-    String savePath = "/opt/tomcat/webapps/vulnapp/backup/"; 
+    // 💡 웹에서 접근 가능한 경로로 설정 (취약점 포인트)
+    String relativePath = "backup/" + fileName; 
+    String fullPath = "/opt/tomcat/webapps/vulnapp/backup/" + fileName;
     
-    String fileContent = "";
-    String base64Image = "";
-    String mimeType = "";
     boolean isImage = false;
-
-    if (fileName != null && !fileName.trim().isEmpty()) {
-        // 파일명 앞뒤 공백 제거
-        fileName = fileName.trim();
-        File f = new File(savePath + fileName);
-
-        if (f.exists() && f.isFile()) {
-            try {
-                String lowerName = fileName.toLowerCase();
-                
-                // 1. 지원하는 이미지 확장자 체크 (.jpg, .jpeg, .png, .gif)
-                if (lowerName.endsWith(".jpg") || lowerName.endsWith(".jpeg") || 
-                    lowerName.endsWith(".png") || lowerName.endsWith(".gif")) {
-                    
-                    isImage = true;
-                    
-                    // MIME 타입 설정
-                    if (lowerName.endsWith(".png")) mimeType = "image/png";
-                    else if (lowerName.endsWith(".gif")) mimeType = "image/gif";
-                    else mimeType = "image/jpeg"; // jpg, jpeg
-
-                    // 파일을 바이트 배열로 읽어 Base64로 인코딩
-                    byte[] fileBytes = Files.readAllBytes(f.toPath());
-                    base64Image = Base64.getEncoder().encodeToString(fileBytes);
-                } 
-                // 2. 텍스트 파일 처리
-                else {
-                    BufferedReader br = new BufferedReader(new InputStreamReader(new FileInputStream(f), "UTF-8"));
-                    String line;
-                    StringBuilder sb = new StringBuilder();
-                    while ((line = br.readLine()) != null) {
-                        sb.append(line).append("\n");
-                    }
-                    br.close();
-                    fileContent = sb.toString();
-                }
-            } catch (Exception e) {
-                isImage = false;
-                fileContent = "파일 처리 중 에러 발생: " + e.getMessage();
-            }
-        } else {
-            fileContent = "파일을 찾을 수 없습니다: " + f.getAbsolutePath();
+    if (fileName != null) {
+        String lower = fileName.toLowerCase();
+        if (lower.endsWith(".jpg") || lower.endsWith(".png") || lower.endsWith(".gif") || lower.endsWith(".jpeg")) {
+            isImage = true;
         }
     }
 %>
 
 <html>
-<head>
-    <title>File Viewer (Vulnerable App)</title>
-    <style>
-        .content-box { background-color: #1e1e1e; color: #00ff00; padding: 15px; border-radius: 5px; font-family: monospace; white-space: pre-wrap; word-wrap: break-word; }
-        .image-box { background-color: #fff; padding: 10px; border: 2px solid #ccc; text-align: center; }
-        .image-box img { max-width: 100%; height: auto; box-shadow: 0 4px 8px rgba(0,0,0,0.2); }
-        .error-text { color: #ff4444; font-weight: bold; }
-    </style>
-</head>
+<head><title>File Viewer</title></head>
 <body>
-    <h2>자료실 (File Viewer)</h2>
-    <hr>
+    <h2>자료실 (Simple Viewer)</h2>
     
     <form action="download.jsp" method="GET">
-        <table border="1" cellpadding="10" style="border-collapse: collapse;">
-            <tr bgcolor="#eeeeee"><th>선택</th><th>파일명</th></tr>
-            <%
-                File dir = new File(savePath);
-                File[] files = dir.listFiles();
-                if (files != null && files.length > 0) {
-                    for (File file : files) {
-                        if (file.isFile()) {
-            %>
-            <tr>
-                <td><input type="radio" name="filename" value="<%= file.getName() %>" required></td>
-                <td><%= file.getName() %></td>
-            </tr>
-            <% 
-                        }
-                    }
-                } else {
-            %>
-            <tr><td colspan="2">파일이 없습니다. (경로: <%= savePath %>)</td></tr>
-            <% } %>
-        </table><br>
-        <button type="submit">내용 보기</button>
+        <select name="filename">
+            <option value="resized-수달.jpg">수달 사진</option>
+            <option value="memo.txt">메모 파일</option>
+        </select>
+        <button type="submit">확인</button>
     </form>
-    
+
+    <hr>
+
     <% if (fileName != null) { %>
-        <hr>
-        <h3>조회된 파일: <%= fileName %></h3>
+        <h3>조회 파일: <%= fileName %></h3>
         
-        <% if (isImage && !base64Image.isEmpty()) { %>
-            <div class="image-box">
-                <img src="data:<%= mimeType %>;base64,1<%= base64Image %>" alt="Image Content">
+        <% if (isImage) { %>
+            <div style="border: 1px solid #ccc;">
+                <img src="backup/<%= fileName %>" style="max-width: 500px;">
             </div>
-        <% } else if (isImage && base64Image.isEmpty()) { %>
-            <p class="error-text">이미지 데이터를 인코딩하지 못했습니다.</p>
+            <p>경로: backup/<%= fileName %></p>
         <% } else { %>
-            <div class="content-box"><%= fileContent.replace("<", "&lt;").replace(">", "&gt;") %></div>
+            <pre style="background: #eee; padding: 10px;">
+<%
+    try {
+        BufferedReader br = new BufferedReader(new FileReader(fullPath));
+        String line;
+        while ((line = br.readLine()) != null) {
+            out.println(line);
+        }
+        br.close();
+    } catch (Exception e) {
+        out.println("파일을 읽을 수 없습니다.");
+    }
+%>
+            </pre>
         <% } %>
     <% } %>
-    <br>
-    <a href="javascript:history.back()">[ 돌아가기 ]</a>
 </body>
 </html>
