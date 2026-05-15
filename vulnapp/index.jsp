@@ -12,6 +12,7 @@
 			<li><a href="search.jsp">XSS Test</a></li>
 			<li><a href="debug.jsp">Sensitive Info Exposure Test</a></li>
 			<li><a href="admin.jsp">Admin Page Exposure Test</a></li>
+			<li><a href="download.jsp">💾 자료실 가기</a></li>
 		</ul>
 	</body>	
 </html>
