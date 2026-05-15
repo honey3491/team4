@@ -50,10 +50,14 @@
         <p><%= userInfo %></p>
     <% } else { %>
         <ul>
-            <li><strong>회원 번호 (idx):</strong> <%= userIdx %></li>
+            <li><strong>회원 번호 (id):</strong> <%= userIdx %></li>
             <li><strong>사용자 ID:</strong> <%= userInfo %></li>
             <li><strong>권한 레벨:</strong> <%= userRole %></li>
         </ul>
+        
+        <br>
+        </fieldset>
+
     <% } %>
 </body>
 </html>
