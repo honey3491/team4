@@ -1,56 +1,19 @@
 {
   "project": "4악다 생성형 AI 기반 웹 취약점 자동 진단",
   "target": "http://15.164.60.79",
-  "collected_at": "2026-05-14 18:27:41",
-  "diagnosis_items": [
-    {
-      "check_id": "WEB-001",
-      "item": "보안 헤더 미설정"
-    },
-    {
-      "check_id": "WEB-002",
-      "item": "서버 정보 노출"
-    },
-    {
-      "check_id": "WEB-003",
-      "item": "SQL Injection"
-    },
-    {
-      "check_id": "WEB-004",
-      "item": "XSS"
-    },
-    {
-      "check_id": "WEB-005",
-      "item": "민감정보 노출"
-    },
-    {
-      "check_id": "WEB-006",
-      "item": "관리자 페이지 노출"
-    },
-    {
-      "check_id": "WEB-007",
-      "item": "Tomcat 기본 페이지 노출"
-    },
-    {
-      "check_id": "WEB-008",
-      "item": "Tomcat Manager 페이지 노출"
-    },
-    {
-      "check_id": "WEB-009",
-      "item": "HTTPS 미적용"
-    },
-    {
-      "check_id": "WEB-010",
-      "item": "쿠키 보안 속성 미설정"
-    }
-  ],
+  "collected_at": "2026-05-15T01:46:27Z",
+  "analysis_policy": {
+    "phase_1": "GPT first analyzes collected HTTP evidence only.",
+    "phase_2": "If GPT marks a finding as 보류 or low confidence, signature-based result.json may be used as supporting evidence.",
+    "final_output": "Signature-compatible JSON structure using WEB-Axx-xxx and OWASP 2025 labels."
+  },
   "collected_evidence": {
     "basic_page": {
       "url": "http://15.164.60.79/",
       "status_code": 200,
       "headers": {
         "Server": "nginx/1.28.3 (Ubuntu)",
-        "Date": "Thu, 14 May 2026 09:27:41 GMT",
+        "Date": "Fri, 15 May 2026 01:46:27 GMT",
         "Content-Type": "text/html;charset=UTF-8",
         "Transfer-Encoding": "chunked",
         "Connection": "keep-alive",
@@ -68,7 +31,7 @@
       "status_code": 404,
       "headers": {
         "Server": "nginx/1.28.3 (Ubuntu)",
-        "Date": "Thu, 14 May 2026 09:27:41 GMT",
+        "Date": "Fri, 15 May 2026 01:46:27 GMT",
         "Content-Type": "text/html;charset=utf-8",
         "Transfer-Encoding": "chunked",
         "Connection": "keep-alive",
@@ -89,7 +52,7 @@
         "headers": {
           "Content-Type": "text/html;charset=UTF-8",
           "Transfer-Encoding": "chunked",
-          "Date": "Thu, 14 May 2026 09:27:41 GMT",
+          "Date": "Fri, 15 May 2026 01:46:27 GMT",
           "Keep-Alive": "timeout=20",
           "Connection": "keep-alive"
         },
@@ -100,7 +63,7 @@
         "status_code": 200,
         "headers": {
           "Server": "nginx/1.28.3 (Ubuntu)",
-          "Date": "Thu, 14 May 2026 09:27:41 GMT",
+          "Date": "Fri, 15 May 2026 01:46:27 GMT",
           "Content-Type": "text/html;charset=UTF-8",
           "Transfer-Encoding": "chunked",
           "Connection": "keep-alive",
@@ -121,7 +84,7 @@
         "headers": {
           "Content-Type": "text/html;charset=ISO-8859-1",
           "Content-Length": "3523",
-          "Date": "Thu, 14 May 2026 09:27:41 GMT",
+          "Date": "Fri, 15 May 2026 01:46:27 GMT",
           "Keep-Alive": "timeout=20",
           "Connection": "keep-alive"
         },
@@ -132,7 +95,7 @@
         "status_code": 401,
         "headers": {
           "Server": "nginx/1.28.3 (Ubuntu)",
-          "Date": "Thu, 14 May 2026 09:27:41 GMT",
+          "Date": "Fri, 15 May 2026 01:46:27 GMT",
           "Content-Type": "text/html;charset=ISO-8859-1",
           "Content-Length": "2576",
           "Connection": "keep-alive",
@@ -153,11 +116,11 @@
         "status_code": 200,
         "headers": {
           "Server": "nginx/1.28.3 (Ubuntu)",
-          "Date": "Thu, 14 May 2026 09:27:41 GMT",
+          "Date": "Fri, 15 May 2026 01:46:27 GMT",
           "Content-Type": "text/html;charset=UTF-8",
           "Transfer-Encoding": "chunked",
           "Connection": "keep-alive",
-          "Set-Cookie": "JSESSIONID=C5895408B04C8CC0503A534D05B793A4; Path=/vulnapp; HttpOnly",
+          "Set-Cookie": "JSESSIONID=B6DEC48F6E69EFB22AF0138C804A1D0A; Path=/vulnapp; HttpOnly",
           "X-Frame-Options": "DENY",
           "Content-Security-Policy": "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline';",
           "X-Content-Type-Options": "nosniff",
@@ -165,7 +128,8 @@
           "Referrer-Policy": "no-referrer-when-downgrade",
           "Content-Encoding": "gzip"
         },
-        "body_sample": "\n\n\n\n<html>\n<head>\n<title>SQL Injection Test</title>\n</head>\n<body>\n<h2>SQL Injection Test</h2>\n\n<form method=\"GET\"action=\"login.jsp\">\n<input type=\"text\"name=\"id\"placeholder=\"ID\">\n<input type=\"text\"name=\"pw\"placeholder=\"Password\">\n<button type=\"submit\">Login</button>\n</form>\n\n<hr>\n<p>Error: (conn=14) You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 'test'' at line 1</p>\n</body>\n</html>\n",
+        "body_sample": "\n\n\n\n<html>\n<head>\n    <title>SQL Injection Test</title>\n</head>\n<body>\n    <h2>SQL Injection Test</h2>\n\n    <form method=\"GET\" action=\"login.jsp\">\n        <input type=\"text\" name=\"id\" placeholder=\"ID\">\n        <input type=\"text\" name=\"pw\" placeholder=\"Password\">\n        <button type=\"submit\">Login</button>\n    </form>\n\n    <hr>\n    <p>Error: (conn=137) You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 'test'' at line 1</p>\n</body>\n</html>\n",
+        "test_type": "SQL Injection authentication bypass test",
         "test_payload": {
           "id": "admin'--",
           "pw": "test"
@@ -173,42 +137,82 @@
         "signature_hints": {
           "contains_login_success": false,
           "contains_welcome": false,
+          "contains_logout": false,
+          "contains_admin": false,
+          "contains_dashboard": false,
           "contains_role_admin": false
         }
       },
       {
         "url": "http://15.164.60.79/vulnapp/login.jsp?id=%27%20OR%20%271%27%3D%271%27%20--%20&pw=test",
-        "status_code": 200,
+        "status_code": 302,
         "headers": {
           "Server": "nginx/1.28.3 (Ubuntu)",
-          "Date": "Thu, 14 May 2026 09:27:41 GMT",
+          "Date": "Fri, 15 May 2026 01:46:27 GMT",
           "Content-Type": "text/html;charset=UTF-8",
-          "Transfer-Encoding": "chunked",
+          "Content-Length": "0",
           "Connection": "keep-alive",
+          "Location": "http://15.164.60.79/vulnapp/profile.jsp?user_idx=1",
           "X-Frame-Options": "DENY",
           "Content-Security-Policy": "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline';",
           "X-Content-Type-Options": "nosniff",
           "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
-          "Referrer-Policy": "no-referrer-when-downgrade",
-          "Content-Encoding": "gzip"
+          "Referrer-Policy": "no-referrer-when-downgrade"
         },
-        "body_sample": "\n\n\n\n<html>\n<head>\n<title>SQL Injection Test</title>\n</head>\n<body>\n<h2>SQL Injection Test</h2>\n\n<form method=\"GET\"action=\"login.jsp\">\n<input type=\"text\"name=\"id\"placeholder=\"ID\">\n<input type=\"text\"name=\"pw\"placeholder=\"Password\">\n<button type=\"submit\">Login</button>\n</form>\n\n<hr>\n<p>Login Success - Welcome admin / role=admin</p>\n</body>\n</html>\n",
+        "body_sample": "",
+        "test_type": "SQL Injection authentication bypass test",
         "test_payload": {
           "id": "' OR '1'='1' -- ",
           "pw": "test"
         },
         "signature_hints": {
-          "contains_login_success": true,
-          "contains_welcome": true,
-          "contains_role_admin": true
+          "contains_login_success": false,
+          "contains_welcome": false,
+          "contains_logout": false,
+          "contains_admin": false,
+          "contains_dashboard": false,
+          "contains_role_admin": false
         }
       },
       {
         "url": "http://15.164.60.79/vulnapp/login.jsp?id=admin&pw=%27%20OR%20%271%27%3D%271%27%20--%20",
+        "status_code": 302,
+        "headers": {
+          "Server": "nginx/1.28.3 (Ubuntu)",
+          "Date": "Fri, 15 May 2026 01:46:27 GMT",
+          "Content-Type": "text/html;charset=UTF-8",
+          "Content-Length": "0",
+          "Connection": "keep-alive",
+          "Location": "http://15.164.60.79/vulnapp/profile.jsp?user_idx=1",
+          "X-Frame-Options": "DENY",
+          "Content-Security-Policy": "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline';",
+          "X-Content-Type-Options": "nosniff",
+          "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
+          "Referrer-Policy": "no-referrer-when-downgrade"
+        },
+        "body_sample": "",
+        "test_type": "SQL Injection authentication bypass test",
+        "test_payload": {
+          "id": "admin",
+          "pw": "' OR '1'='1' -- "
+        },
+        "signature_hints": {
+          "contains_login_success": false,
+          "contains_welcome": false,
+          "contains_logout": false,
+          "contains_admin": false,
+          "contains_dashboard": false,
+          "contains_role_admin": false
+        }
+      }
+    ],
+    "xss_tests": [
+      {
+        "url": "http://15.164.60.79/vulnapp/search.jsp?q=%3Cscript%3Ealert%281337%29%3C/script%3E",
         "status_code": 200,
         "headers": {
           "Server": "nginx/1.28.3 (Ubuntu)",
-          "Date": "Thu, 14 May 2026 09:27:41 GMT",
+          "Date": "Fri, 15 May 2026 01:46:27 GMT",
           "Content-Type": "text/html;charset=UTF-8",
           "Transfer-Encoding": "chunked",
           "Connection": "keep-alive",
@@ -219,25 +223,19 @@
           "Referrer-Policy": "no-referrer-when-downgrade",
           "Content-Encoding": "gzip"
         },
-        "body_sample": "\n\n\n\n<html>\n<head>\n<title>SQL Injection Test</title>\n</head>\n<body>\n<h2>SQL Injection Test</h2>\n\n<form method=\"GET\"action=\"login.jsp\">\n<input type=\"text\"name=\"id\"placeholder=\"ID\">\n<input type=\"text\"name=\"pw\"placeholder=\"Password\">\n<button type=\"submit\">Login</button>\n</form>\n\n<hr>\n<p>Login Success - Welcome admin / role=admin</p>\n</body>\n</html>\n",
-        "test_payload": {
-          "id": "admin",
-          "pw": "' OR '1'='1' -- "
-        },
+        "body_sample": "\n\n<html>\n\t<head>\n\t<title>XSS Test</title>\n\t</head>\n\t<body>\t\n\t\t<h2>XSS Test</h2>\n\n\t\t\t<form method=\"GET\" action=\"search.jsp\">\n\t\t\t<input type=\"text\"name=\"q\" placeholder=\"검색어 입력\">\n\t\t\t<button type=\"submit\">검색</button>\n\t\t</form>\n\n\t\t<hr>\n\t\t<p>검색어: <script>alert(1337)</script></p>\n\t</body>\n\t\n</html>\n",
+        "test_type": "Reflected XSS test",
+        "test_payload": "<script>alert(1337)</script>",
         "signature_hints": {
-          "contains_login_success": true,
-          "contains_welcome": true,
-          "contains_role_admin": true
+          "payload_reflected": true
         }
-      }
-    ],
-    "xss_tests": [
+      },
       {
         "url": "http://15.164.60.79/vulnapp/search.jsp?q=%3Cscript%3Ealert%281%29%3C/script%3E",
         "status_code": 200,
         "headers": {
           "Server": "nginx/1.28.3 (Ubuntu)",
-          "Date": "Thu, 14 May 2026 09:27:41 GMT",
+          "Date": "Fri, 15 May 2026 01:46:27 GMT",
           "Content-Type": "text/html;charset=UTF-8",
           "Transfer-Encoding": "chunked",
           "Connection": "keep-alive",
@@ -249,6 +247,7 @@
           "Content-Encoding": "gzip"
         },
         "body_sample": "\n\n<html>\n\t<head>\n\t<title>XSS Test</title>\n\t</head>\n\t<body>\t\n\t\t<h2>XSS Test</h2>\n\n\t\t\t<form method=\"GET\" action=\"search.jsp\">\n\t\t\t<input type=\"text\"name=\"q\" placeholder=\"검색어 입력\">\n\t\t\t<button type=\"submit\">검색</button>\n\t\t</form>\n\n\t\t<hr>\n\t\t<p>검색어: <script>alert(1)</script></p>\n\t</body>\n\t\n</html>\n",
+        "test_type": "Reflected XSS test",
         "test_payload": "<script>alert(1)</script>",
         "signature_hints": {
           "payload_reflected": true
@@ -259,7 +258,7 @@
         "status_code": 200,
         "headers": {
           "Server": "nginx/1.28.3 (Ubuntu)",
-          "Date": "Thu, 14 May 2026 09:27:41 GMT",
+          "Date": "Fri, 15 May 2026 01:46:27 GMT",
           "Content-Type": "text/html;charset=UTF-8",
           "Transfer-Encoding": "chunked",
           "Connection": "keep-alive",
@@ -271,6 +270,7 @@
           "Content-Encoding": "gzip"
         },
         "body_sample": "\n\n<html>\n\t<head>\n\t<title>XSS Test</title>\n\t</head>\n\t<body>\t\n\t\t<h2>XSS Test</h2>\n\n\t\t\t<form method=\"GET\" action=\"search.jsp\">\n\t\t\t<input type=\"text\"name=\"q\" placeholder=\"검색어 입력\">\n\t\t\t<button type=\"submit\">검색</button>\n\t\t</form>\n\n\t\t<hr>\n\t\t<p>검색어: \"><script>alert(1)</script></p>\n\t</body>\n\t\n</html>\n",
+        "test_type": "Reflected XSS test",
         "test_payload": "\"><script>alert(1)</script>",
         "signature_hints": {
           "payload_reflected": true
@@ -281,7 +281,7 @@
         "status_code": 200,
         "headers": {
           "Server": "nginx/1.28.3 (Ubuntu)",
-          "Date": "Thu, 14 May 2026 09:27:41 GMT",
+          "Date": "Fri, 15 May 2026 01:46:27 GMT",
           "Content-Type": "text/html;charset=UTF-8",
           "Transfer-Encoding": "chunked",
           "Connection": "keep-alive",
@@ -293,6 +293,7 @@
           "Content-Encoding": "gzip"
         },
         "body_sample": "\n\n<html>\n\t<head>\n\t<title>XSS Test</title>\n\t</head>\n\t<body>\t\n\t\t<h2>XSS Test</h2>\n\n\t\t\t<form method=\"GET\" action=\"search.jsp\">\n\t\t\t<input type=\"text\"name=\"q\" placeholder=\"검색어 입력\">\n\t\t\t<button type=\"submit\">검색</button>\n\t\t</form>\n\n\t\t<hr>\n\t\t<p>검색어: <img src=x onerror=alert(1)></p>\n\t</body>\n\t\n</html>\n",
+        "test_type": "Reflected XSS test",
         "test_payload": "<img src=x onerror=alert(1)>",
         "signature_hints": {
           "payload_reflected": true
@@ -304,7 +305,7 @@
       "status_code": 200,
       "headers": {
         "Server": "nginx/1.28.3 (Ubuntu)",
-        "Date": "Thu, 14 May 2026 09:27:41 GMT",
+        "Date": "Fri, 15 May 2026 01:46:27 GMT",
         "Content-Type": "application/json;charset=UTF-8",
         "Content-Length": "144",
         "Connection": "keep-alive",
@@ -331,7 +332,7 @@
       "status_code": 200,
       "headers": {
         "Server": "nginx/1.28.3 (Ubuntu)",
-        "Date": "Thu, 14 May 2026 09:27:41 GMT",
+        "Date": "Fri, 15 May 2026 01:46:27 GMT",
         "Content-Type": "text/html;charset=UTF-8",
         "Transfer-Encoding": "chunked",
         "Connection": "keep-alive",
@@ -344,7 +345,8 @@
       },
       "body_sample": "\n<html>\n<head>\n<title>Admin Page</title>\n</head>\n<body>\n<h2>Admin Page</h2>\n<p>이 페이지는 관리자만 접근해야 하지만 현재는 로그인 없이 접근 가능합니다.</p>\n\n<ul>\n<li>User List</li>\n<li>System Config</li>\n<li>Backup Download</li>\n</ul>\n</body>\n</html>\n",
       "signature_hints": {
-        "contains_admin_keywords": true
+        "contains_admin_keywords": true,
+        "contains_login_keyword": false
       }
     },
     "https_status": {
@@ -353,7 +355,7 @@
         "status_code": 200,
         "headers": {
           "Server": "nginx/1.28.3 (Ubuntu)",
-          "Date": "Thu, 14 May 2026 09:27:41 GMT",
+          "Date": "Fri, 15 May 2026 01:46:27 GMT",
           "Content-Type": "text/html;charset=UTF-8",
           "Transfer-Encoding": "chunked",
           "Connection": "keep-alive",
@@ -367,12 +369,23 @@
       },
       "https": {
         "url": "https://15.164.60.79",
-        "error": "HTTPSConnectionPool(host='15.164.60.79', port=443): Max retries exceeded with url: / (Caused by ConnectTimeoutError(<HTTPSConnection(host='15.164.60.79', port=443) at 0x1ca83fe0c10>, 'Connection to 15.164.60.79 timed out. (connect timeout=5)'))"
+        "error": "HTTPSConnectionPool(host='15.164.60.79', port=443): Max retries exceeded with url: / (Caused by ConnectTimeoutError(<HTTPSConnection(host='15.164.60.79', port=443) at 0x1b0f679e210>, 'Connection to 15.164.60.79 timed out. (connect timeout=5)'))"
       },
       "https_available": false,
       "redirect_to_https": false
     },
     "cookie_status": [
+      {
+        "url": "http://15.164.60.79/",
+        "status_code": 200,
+        "set_cookie": "",
+        "cookie_flags": {
+          "has_cookie": false,
+          "httponly": false,
+          "secure": false,
+          "samesite": false
+        }
+      },
       {
         "url": "http://15.164.60.79/vulnapp/",
         "status_code": 200,
@@ -394,6 +407,182 @@
           "secure": false,
           "samesite": false
         }
+      }
+    ],
+    "rate_limit": {
+      "url": "http://15.164.60.79/vulnapp/login.jsp",
+      "attempt_count": 8,
+      "blocked": false,
+      "attempts": [
+        {
+          "url": "http://15.164.60.79/vulnapp/login.jsp",
+          "status_code": 200,
+          "body_sample": "\n\n\n\n<html>\n<head>\n    <title>SQL Injection Test</title>\n</head>\n<body>\n    <h2>SQL Injection Test</h2>\n\n    <form method=\"GET\" action=\"login.jsp\">\n        <input type=\"text\" name=\"id\" placeholder=\"ID\">\n        <input type=\"text\" name=\"pw\" placeholder=\"Password\">\n        <button type=\"submit\">Login</"
+        },
+        {
+          "url": "http://15.164.60.79/vulnapp/login.jsp",
+          "status_code": 200,
+          "body_sample": "\n\n\n\n<html>\n<head>\n    <title>SQL Injection Test</title>\n</head>\n<body>\n    <h2>SQL Injection Test</h2>\n\n    <form method=\"GET\" action=\"login.jsp\">\n        <input type=\"text\" name=\"id\" placeholder=\"ID\">\n        <input type=\"text\" name=\"pw\" placeholder=\"Password\">\n        <button type=\"submit\">Login</"
+        },
+        {
+          "url": "http://15.164.60.79/vulnapp/login.jsp",
+          "status_code": 200,
+          "body_sample": "\n\n\n\n<html>\n<head>\n    <title>SQL Injection Test</title>\n</head>\n<body>\n    <h2>SQL Injection Test</h2>\n\n    <form method=\"GET\" action=\"login.jsp\">\n        <input type=\"text\" name=\"id\" placeholder=\"ID\">\n        <input type=\"text\" name=\"pw\" placeholder=\"Password\">\n        <button type=\"submit\">Login</"
+        },
+        {
+          "url": "http://15.164.60.79/vulnapp/login.jsp",
+          "status_code": 200,
+          "body_sample": "\n\n\n\n<html>\n<head>\n    <title>SQL Injection Test</title>\n</head>\n<body>\n    <h2>SQL Injection Test</h2>\n\n    <form method=\"GET\" action=\"login.jsp\">\n        <input type=\"text\" name=\"id\" placeholder=\"ID\">\n        <input type=\"text\" name=\"pw\" placeholder=\"Password\">\n        <button type=\"submit\">Login</"
+        },
+        {
+          "url": "http://15.164.60.79/vulnapp/login.jsp",
+          "status_code": 200,
+          "body_sample": "\n\n\n\n<html>\n<head>\n    <title>SQL Injection Test</title>\n</head>\n<body>\n    <h2>SQL Injection Test</h2>\n\n    <form method=\"GET\" action=\"login.jsp\">\n        <input type=\"text\" name=\"id\" placeholder=\"ID\">\n        <input type=\"text\" name=\"pw\" placeholder=\"Password\">\n        <button type=\"submit\">Login</"
+        },
+        {
+          "url": "http://15.164.60.79/vulnapp/login.jsp",
+          "status_code": 200,
+          "body_sample": "\n\n\n\n<html>\n<head>\n    <title>SQL Injection Test</title>\n</head>\n<body>\n    <h2>SQL Injection Test</h2>\n\n    <form method=\"GET\" action=\"login.jsp\">\n        <input type=\"text\" name=\"id\" placeholder=\"ID\">\n        <input type=\"text\" name=\"pw\" placeholder=\"Password\">\n        <button type=\"submit\">Login</"
+        },
+        {
+          "url": "http://15.164.60.79/vulnapp/login.jsp",
+          "status_code": 200,
+          "body_sample": "\n\n\n\n<html>\n<head>\n    <title>SQL Injection Test</title>\n</head>\n<body>\n    <h2>SQL Injection Test</h2>\n\n    <form method=\"GET\" action=\"login.jsp\">\n        <input type=\"text\" name=\"id\" placeholder=\"ID\">\n        <input type=\"text\" name=\"pw\" placeholder=\"Password\">\n        <button type=\"submit\">Login</"
+        },
+        {
+          "url": "http://15.164.60.79/vulnapp/login.jsp",
+          "status_code": 200,
+          "body_sample": "\n\n\n\n<html>\n<head>\n    <title>SQL Injection Test</title>\n</head>\n<body>\n    <h2>SQL Injection Test</h2>\n\n    <form method=\"GET\" action=\"login.jsp\">\n        <input type=\"text\" name=\"id\" placeholder=\"ID\">\n        <input type=\"text\" name=\"pw\" placeholder=\"Password\">\n        <button type=\"submit\">Login</"
+        }
+      ]
+    },
+    "account_lockout": {
+      "url": "http://15.164.60.79/vulnapp/login.jsp",
+      "attempt_count": 10,
+      "blocked": false,
+      "attempts": [
+        {
+          "url": "http://15.164.60.79/vulnapp/login.jsp",
+          "status_code": 200,
+          "body_sample": "\n\n\n\n<html>\n<head>\n    <title>SQL Injection Test</title>\n</head>\n<body>\n    <h2>SQL Injection Test</h2>\n\n    <form method=\"GET\" action=\"login.jsp\">\n        <input type=\"text\" name=\"id\" placeholder=\"ID\">\n        <input type=\"text\" name=\"pw\" placeholder=\"Password\">\n        <button type=\"submit\">Login</"
+        },
+        {
+          "url": "http://15.164.60.79/vulnapp/login.jsp",
+          "status_code": 200,
+          "body_sample": "\n\n\n\n<html>\n<head>\n    <title>SQL Injection Test</title>\n</head>\n<body>\n    <h2>SQL Injection Test</h2>\n\n    <form method=\"GET\" action=\"login.jsp\">\n        <input type=\"text\" name=\"id\" placeholder=\"ID\">\n        <input type=\"text\" name=\"pw\" placeholder=\"Password\">\n        <button type=\"submit\">Login</"
+        },
+        {
+          "url": "http://15.164.60.79/vulnapp/login.jsp",
+          "status_code": 200,
+          "body_sample": "\n\n\n\n<html>\n<head>\n    <title>SQL Injection Test</title>\n</head>\n<body>\n    <h2>SQL Injection Test</h2>\n\n    <form method=\"GET\" action=\"login.jsp\">\n        <input type=\"text\" name=\"id\" placeholder=\"ID\">\n        <input type=\"text\" name=\"pw\" placeholder=\"Password\">\n        <button type=\"submit\">Login</"
+        },
+        {
+          "url": "http://15.164.60.79/vulnapp/login.jsp",
+          "status_code": 200,
+          "body_sample": "\n\n\n\n<html>\n<head>\n    <title>SQL Injection Test</title>\n</head>\n<body>\n    <h2>SQL Injection Test</h2>\n\n    <form method=\"GET\" action=\"login.jsp\">\n        <input type=\"text\" name=\"id\" placeholder=\"ID\">\n        <input type=\"text\" name=\"pw\" placeholder=\"Password\">\n        <button type=\"submit\">Login</"
+        },
+        {
+          "url": "http://15.164.60.79/vulnapp/login.jsp",
+          "status_code": 200,
+          "body_sample": "\n\n\n\n<html>\n<head>\n    <title>SQL Injection Test</title>\n</head>\n<body>\n    <h2>SQL Injection Test</h2>\n\n    <form method=\"GET\" action=\"login.jsp\">\n        <input type=\"text\" name=\"id\" placeholder=\"ID\">\n        <input type=\"text\" name=\"pw\" placeholder=\"Password\">\n        <button type=\"submit\">Login</"
+        },
+        {
+          "url": "http://15.164.60.79/vulnapp/login.jsp",
+          "status_code": 200,
+          "body_sample": "\n\n\n\n<html>\n<head>\n    <title>SQL Injection Test</title>\n</head>\n<body>\n    <h2>SQL Injection Test</h2>\n\n    <form method=\"GET\" action=\"login.jsp\">\n        <input type=\"text\" name=\"id\" placeholder=\"ID\">\n        <input type=\"text\" name=\"pw\" placeholder=\"Password\">\n        <button type=\"submit\">Login</"
+        },
+        {
+          "url": "http://15.164.60.79/vulnapp/login.jsp",
+          "status_code": 200,
+          "body_sample": "\n\n\n\n<html>\n<head>\n    <title>SQL Injection Test</title>\n</head>\n<body>\n    <h2>SQL Injection Test</h2>\n\n    <form method=\"GET\" action=\"login.jsp\">\n        <input type=\"text\" name=\"id\" placeholder=\"ID\">\n        <input type=\"text\" name=\"pw\" placeholder=\"Password\">\n        <button type=\"submit\">Login</"
+        },
+        {
+          "url": "http://15.164.60.79/vulnapp/login.jsp",
+          "status_code": 200,
+          "body_sample": "\n\n\n\n<html>\n<head>\n    <title>SQL Injection Test</title>\n</head>\n<body>\n    <h2>SQL Injection Test</h2>\n\n    <form method=\"GET\" action=\"login.jsp\">\n        <input type=\"text\" name=\"id\" placeholder=\"ID\">\n        <input type=\"text\" name=\"pw\" placeholder=\"Password\">\n        <button type=\"submit\">Login</"
+        },
+        {
+          "url": "http://15.164.60.79/vulnapp/login.jsp",
+          "status_code": 200,
+          "body_sample": "\n\n\n\n<html>\n<head>\n    <title>SQL Injection Test</title>\n</head>\n<body>\n    <h2>SQL Injection Test</h2>\n\n    <form method=\"GET\" action=\"login.jsp\">\n        <input type=\"text\" name=\"id\" placeholder=\"ID\">\n        <input type=\"text\" name=\"pw\" placeholder=\"Password\">\n        <button type=\"submit\">Login</"
+        },
+        {
+          "url": "http://15.164.60.79/vulnapp/login.jsp",
+          "status_code": 200,
+          "body_sample": "\n\n\n\n<html>\n<head>\n    <title>SQL Injection Test</title>\n</head>\n<body>\n    <h2>SQL Injection Test</h2>\n\n    <form method=\"GET\" action=\"login.jsp\">\n        <input type=\"text\" name=\"id\" placeholder=\"ID\">\n        <input type=\"text\" name=\"pw\" placeholder=\"Password\">\n        <button type=\"submit\">Login</"
+        }
+      ]
+    },
+    "debug_true": {
+      "url": "http://15.164.60.79/vulnapp/?debug=true",
+      "status_code": 200,
+      "headers": {
+        "Server": "nginx/1.28.3 (Ubuntu)",
+        "Date": "Fri, 15 May 2026 01:46:32 GMT",
+        "Content-Type": "text/html;charset=UTF-8",
+        "Transfer-Encoding": "chunked",
+        "Connection": "keep-alive",
+        "X-Frame-Options": "DENY",
+        "Content-Security-Policy": "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline';",
+        "X-Content-Type-Options": "nosniff",
+        "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
+        "Referrer-Policy": "no-referrer-when-downgrade",
+        "Content-Encoding": "gzip"
+      },
+      "body_sample": "\n<html>\n\t<head>\n\t\t<title>4악다 Vulnerable Web App</title>\n\t</head>\n\t<body>\n\t\t<h1>4악다 Vulnerable Web App</h1>\n\t\t<p>수동 진단과 자동 진단 비교를 위한 테스트 웹앱입니다.</p>\n\n\t\t<ul>\n\t\t\t<li><a href=\"login.jsp\">SQL Injection Test</a></li>\n\t\t\t<li><a href=\"search.jsp\">XSS Test</a></li>\n\t\t\t<li><a href=\"debug.jsp\">Sensitive Info Exposure Test</a></li>\n\t\t\t<li><a href=\"admin.jsp\">Admin Page Exposure Test</a></li>\n\t\t</ul>\n\t</body>\t\n</html>\n",
+      "signature_hints": {
+        "contains_debug_keywords": true
+      }
+    },
+    "optional_endpoint_status": [
+      {
+        "endpoint": "/vulnapp/upload.jsp",
+        "url": "http://15.164.60.79/vulnapp/upload.jsp",
+        "reachable": true,
+        "status_code": 404,
+        "body_sample": "<!doctype html><html lang=\"en\"><head><title>HTTP Status 404 – Not Found</title><style type=\"text/css\">body {font-family:Tahoma,Arial,sans-serif;} h1, h2, h3, b {color:white;background-color:#525D76;} h1 {font-size:22px;} h2 {font-size:16px;} h3 {font-size:14px;} p {font-size:12px;} a {color:black;} "
+      },
+      {
+        "endpoint": "/vulnapp/board.jsp",
+        "url": "http://15.164.60.79/vulnapp/board.jsp",
+        "reachable": true,
+        "status_code": 404,
+        "body_sample": "<!doctype html><html lang=\"en\"><head><title>HTTP Status 404 – Not Found</title><style type=\"text/css\">body {font-family:Tahoma,Arial,sans-serif;} h1, h2, h3, b {color:white;background-color:#525D76;} h1 {font-size:22px;} h2 {font-size:16px;} h3 {font-size:14px;} p {font-size:12px;} a {color:black;} "
+      },
+      {
+        "endpoint": "/fetch",
+        "url": "http://15.164.60.79/fetch",
+        "reachable": true,
+        "status_code": 404,
+        "body_sample": "<!doctype html><html lang=\"en\"><head><title>HTTP Status 404 – Not Found</title><style type=\"text/css\">body {font-family:Tahoma,Arial,sans-serif;} h1, h2, h3, b {color:white;background-color:#525D76;} h1 {font-size:22px;} h2 {font-size:16px;} h3 {font-size:14px;} p {font-size:12px;} a {color:black;} "
+      },
+      {
+        "endpoint": "/vulnapp/user.jsp?id=1",
+        "url": "http://15.164.60.79/vulnapp/user.jsp?id=1",
+        "reachable": true,
+        "status_code": 404,
+        "body_sample": "<!doctype html><html lang=\"en\"><head><title>HTTP Status 404 – Not Found</title><style type=\"text/css\">body {font-family:Tahoma,Arial,sans-serif;} h1, h2, h3, b {color:white;background-color:#525D76;} h1 {font-size:22px;} h2 {font-size:16px;} h3 {font-size:14px;} p {font-size:12px;} a {color:black;} "
+      },
+      {
+        "endpoint": "/vulnapp/ping.jsp",
+        "url": "http://15.164.60.79/vulnapp/ping.jsp",
+        "reachable": true,
+        "status_code": 404,
+        "body_sample": "<!doctype html><html lang=\"en\"><head><title>HTTP Status 404 – Not Found</title><style type=\"text/css\">body {font-family:Tahoma,Arial,sans-serif;} h1, h2, h3, b {color:white;background-color:#525D76;} h1 {font-size:22px;} h2 {font-size:16px;} h3 {font-size:14px;} p {font-size:12px;} a {color:black;} "
+      },
+      {
+        "endpoint": "/vulnapp/register.jsp",
+        "url": "http://15.164.60.79/vulnapp/register.jsp",
+        "reachable": true,
+        "status_code": 404,
+        "body_sample": "<!doctype html><html lang=\"en\"><head><title>HTTP Status 404 – Not Found</title><style type=\"text/css\">body {font-family:Tahoma,Arial,sans-serif;} h1, h2, h3, b {color:white;background-color:#525D76;} h1 {font-size:22px;} h2 {font-size:16px;} h3 {font-size:14px;} p {font-size:12px;} a {color:black;} "
+      },
+      {
+        "endpoint": "/vulnapp/api/profile",
+        "url": "http://15.164.60.79/vulnapp/api/profile",
+        "reachable": true,
+        "status_code": 404,
+        "body_sample": "<!doctype html><html lang=\"en\"><head><title>HTTP Status 404 – Not Found</title><style type=\"text/css\">body {font-family:Tahoma,Arial,sans-serif;} h1, h2, h3, b {color:white;background-color:#525D76;} h1 {font-size:22px;} h2 {font-size:16px;} h3 {font-size:14px;} p {font-size:12px;} a {color:black;} "
       }
     ]
   }
