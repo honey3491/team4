@@ -3,15 +3,16 @@ import json
 import os
 import subprocess
 import time
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from urllib.parse import urljoin, urlparse
 
 import requests
 from bs4 import BeautifulSoup
 
 
-TIMEOUT = 5
+TIMEOUT = 20
 HEADERS = {"User-Agent": "SignatureBasedWebVulnScanner/2.0"}
+KST = timezone(timedelta(hours=9))
 
 SQL_ERRORS = [
     "SQL syntax",
@@ -70,14 +71,15 @@ def make_scan_id():
 
 
 def now_utc():
-    return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    return datetime.now(KST).strftime("%Y-%m-%dT%H:%M:%S+09:00")
 
 
-def result(check_id, owasp, name, severity, evidence, recommendation):
+def result(check_id, owasp, name, severity, evidence, recommendation, url=""):
     return {
         "check_id": check_id,
         "owasp": owasp,
         "name": name,
+        "url": url,
         "severity": severity,
         "evidence": evidence,
         "recommendation": recommendation
@@ -93,6 +95,7 @@ def add_result_ids(results):
             "check_id": r["check_id"],
             "owasp": r["owasp"],
             "name": r["name"],
+            "url": r.get("url", ""),
             "severity": r["severity"],
             "evidence": r["evidence"],
             "recommendation": r["recommendation"]
@@ -146,8 +149,8 @@ def check_admin_page(base):
 
 
 def check_idor(base):
-    url1 = urljoin(base, "/vulnapp/user.jsp?id=1")
-    url2 = urljoin(base, "/vulnapp/user.jsp?id=2")
+    url1 = urljoin(base, "/vulnapp/profile.jsp?user_idx=1")
+    url2 = urljoin(base, "/vulnapp/profile.jsp?user_idx=2")
 
     r1 = req("GET", url1)
     r2 = req("GET", url2)
@@ -170,7 +173,7 @@ def check_idor(base):
             "A01:2025 Broken Access Control",
             "IDOR로 타 사용자 정보 조회",
             "medium",
-            "id 파라미터 변경으로 다른 사용자 정보 응답 확인",
+            "user_idx 파라미터 변경으로 다른 사용자 정보 응답 확인",
             "서버 측에서 요청 사용자와 자원 소유자 권한 검증"
         )
 
@@ -452,7 +455,7 @@ def check_sqli(base, run_sqlmap=False):
                     form["action"],
                     data=data,
                     headers=HEADERS,
-                    timeout=10,
+                    timeout=30,
                     verify=False,
                     allow_redirects=False
                 )
@@ -461,7 +464,7 @@ def check_sqli(base, run_sqlmap=False):
                     form["action"],
                     params=data,
                     headers=HEADERS,
-                    timeout=10,
+                    timeout=30,
                     verify=False,
                     allow_redirects=False
                 )
@@ -470,9 +473,12 @@ def check_sqli(base, run_sqlmap=False):
 
         elapsed = time.time() - start
         body = r.text[:3000].lower()
+        location = r.headers.get("Location", "")
+        redirected = r.status_code in [301, 302, 303, 307, 308] and bool(location)
+        login_failed_absent = "login failed" not in body
 
         error_hit = any(e.lower() in body for e in SQL_ERRORS)
-        auth_bypass = any(k in body for k in ["welcome", "logout", "admin", "dashboard"])
+        auth_bypass = redirected or login_failed_absent
         time_based = elapsed > 3
 
         if error_hit or auth_bypass or time_based:
@@ -485,6 +491,9 @@ def check_sqli(base, run_sqlmap=False):
                 "payload": payload,
                 "error_based": error_hit,
                 "auth_bypass": auth_bypass,
+                "redirected": redirected,
+                "redirect_location": location,
+                "login_failed_absent": login_failed_absent,
                 "time_based": time_based,
                 "delay": round(elapsed, 2),
                 "sqlmap": sqlmap_info
@@ -949,20 +958,20 @@ def check_stacktrace(base):
     return None
 
 
-def check_ssrf(base):
-    url = urljoin(base, "/fetch")
-    payload = "http://169.254.169.254/latest/meta-data/"
-    r = req("GET", url, params={"url": payload})
+def check_file_read(base):
+    url = urljoin(base, "/vulnapp/download.jsp")
+    payload = "../../../../etc/passwd"
+    r = req("GET", url, params={"filename": payload})
 
     if not r:
         return None
 
     indicators = [
-        "ami-id",
-        "instance-id",
-        "hostname",
-        "iam/",
-        "security-credentials"
+        "root:x:",
+        "/bin/bash",
+        "/bin/sh",
+        "daemon:x:",
+        "nobody:x:"
     ]
 
     body = r.text[:3000].lower()
@@ -972,10 +981,10 @@ def check_ssrf(base):
         return result(
             "WEB-A10-002",
             "A10:2025 Mishandling of Exceptional Conditions",
-            "SSRF",
+            "임의 파일 읽기",
             "high",
-            f"AWS Metadata 응답 키워드 탐지: {hits}",
-            "내부 IP, localhost, 메타데이터 주소 접근 차단"
+            f"download.jsp filename 조작으로 시스템 파일 내용 탐지: {hits}",
+            "다운로드 대상 파일을 허용 목록으로 제한하고 경로 정규화 및 상위 디렉터리 접근 차단"
         )
 
     return None
@@ -1017,7 +1026,7 @@ def scan(base_url, output, run_sqlmap):
         check_admin_logging(base_url),
 
         check_stacktrace(base_url),
-        check_ssrf(base_url)
+        check_file_read(base_url)
     ]
 
     findings = [c for c in checks if c is not None]
