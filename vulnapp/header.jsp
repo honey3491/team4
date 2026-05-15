@@ -3,6 +3,7 @@
     // 💡 1. 세션에서 사용자 정보(예: userId)를 가져와 로그인 여부를 확인합니다.
     String userId = (String) session.getAttribute("userId");
     String userNo = (String) session.getAttribute("userNo");
+    String userRole = (String) session.getAttribute("userRole");
     boolean isLoggedIn = (userId != null);
 %>
 
