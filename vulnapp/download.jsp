@@ -22,8 +22,9 @@
     
     <form action="download.jsp" method="GET">
         <select name="filename">
-            <option value="resized-수달.jpg">수달 사진</option>
-            <option value="memo.txt">메모 파일</option>
+            <option value="수달.jpg">수달 사진</option>
+            <option value="마눌.jpg">마눌고양이 사진</option>
+            <option value="람쥐.jpg">다람쥐 사진</option>
         </select>
         <button type="submit">확인</button>
     </form>
