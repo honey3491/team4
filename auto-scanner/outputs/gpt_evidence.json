@@ -1,7 +1,7 @@
 {
   "project": "4악다 생성형 AI 기반 웹 취약점 자동 진단",
   "target": "http://15.164.60.79",
-  "collected_at": "2026-05-17T18:58:06+09:00",
+  "collected_at": "2026-05-17T23:16:57+09:00",
   "analysis_policy": {
     "phase_1": "GPT first analyzes collected HTTP evidence only.",
     "phase_2": "If GPT marks a finding as 보류 or low confidence, signature-based result.json may be used as supporting evidence.",
@@ -9,31 +9,31 @@
   },
   "collected_evidence": {
     "basic_page": {
-      "url": "http://15.164.60.79/",
+      "url": "http://15.164.60.79/vulnapp/",
       "status_code": 200,
       "headers": {
         "Server": "nginx/1.28.3 (Ubuntu)",
-        "Date": "Sun, 17 May 2026 09:58:06 GMT",
+        "Date": "Sun, 17 May 2026 14:16:57 GMT",
+        "Content-Type": "text/html;charset=UTF-8",
+        "Transfer-Encoding": "chunked",
+        "Connection": "keep-alive",
+        "Set-Cookie": "JSESSIONID=796329BA178B8BB91F3D105B0A1D7EA0; Path=/vulnapp; HttpOnly",
+        "Content-Encoding": "gzip"
+      },
+      "body_sample": "\n\n<style>\n    .test-list { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 15px; }\n    .test-card { \n        display: block; padding: 20px; background-color: #fff; border: 1px solid #e0e0e0; \n        border-radius: 8px; transition: all 0.2s ease-in-out; text-decoration: none; color: inherit;\n    }\n    .test-card:hover { \n        border-color: #3498db; box-shadow: 0 4px 12px rgba(52, 152, 219, 0.15); transform: translateY(-2px);\n    }\n    .test-title { font-size: 1.25rem; font-weight: bold; margin-bottom: 5px; }\n    .test-desc { color: #7f8c8d; font-size: 0.95rem; margin: 0; }\n</style>\n\n\n\n\n<!DOCTYPE html>\n<html lang=\"ko\">\n<head>\n    <meta charset=\"UTF-8\">\n    <link rel=\"stylesheet\" href=\"/vulnapp/css/style.css\">\n</head>\n<body>\n    <nav class=\"navbar\">\n        <div class=\"logo\" href=\"index.jsp\">\n\t\t<a href=\"/vulnapp/\" style=\"text-decoration: none; color: inherit;\">\n\t\t\t🛡️ VulnApp\n\t\t</a>\n\t</div>\n        <ul class=\"nav-links\">\n            <li><a href=\"search.jsp\">통합 검색</a></li>\n            <li><a href=\"download.jsp\">자료실</a></li>\n            \n            \n                <li><a href=\"login.jsp\">로그인</a></li>\n            \n        </ul>\n    </nav>\n    <main class=\"container\">\n        <div class=\"card\">\n\n\n    <div style=\"text-align: center; margin-bottom: 2.5rem; padding-top: 1rem;\">\n        <h1 style=\"color: #2c3e50; font-size: 2.2rem; margin-bottom: 10px;\">🛡️ 4악다 Vulnerable Web App</h1>\n        <p style=\"color: #7f8c8d; font-size: 1.1rem;\">\n            수동 진단과"
+    },
+    "error_page": {
+      "url": "http://15.164.60.79/vulnapp/not_exist_4akda_404_test",
+      "status_code": 404,
+      "headers": {
+        "Server": "nginx/1.28.3 (Ubuntu)",
+        "Date": "Sun, 17 May 2026 14:16:57 GMT",
         "Content-Type": "text/html;charset=UTF-8",
         "Transfer-Encoding": "chunked",
         "Connection": "keep-alive",
         "Content-Encoding": "gzip"
       },
-      "body_sample": "\n\n\n<!DOCTYPE html>\n<html lang=\"en\">\n    <head>\n        <meta charset=\"UTF-8\" />\n        <title>Apache Tomcat/9.0.118</title>\n        <link href=\"favicon.ico\" rel=\"icon\" type=\"image/x-icon\" />\n        <link href=\"tomcat.css\" rel=\"stylesheet\" type=\"text/css\" />\n    </head>\n\n    <body>\n        <div id=\"wrapper\">\n            <div id=\"navigation\" class=\"curved container\">\n                <span id=\"nav-home\"><a href=\"https://tomcat.apache.org/\">Home</a></span>\n                <span id=\"nav-hosts\"><a href=\"/docs/\">Documentation</a></span>\n                <span id=\"nav-config\"><a href=\"/docs/config/\">Configuration</a></span>\n                <span id=\"nav-examples\"><a href=\"/examples/\">Examples</a></span>\n                <span id=\"nav-wiki\"><a href=\"https://cwiki.apache.org/confluence/display/TOMCAT/\">Wiki</a></span>\n                <span id=\"nav-lists\"><a href=\"https://tomcat.apache.org/lists.html\">Mailing Lists</a></span>\n                <span id=\"nav-help\"><a href=\"https://tomcat.apache.org/findhelp.html\">Find Help</a></span>\n                <br class=\"separator\" />\n            </div>\n            <div id=\"asf-box\">\n                <h1>Apache Tomcat/9.0.118</h1>\n            </div>\n            <div id=\"upper\" class=\"curved container\">\n                <div id=\"congrats\" class=\"curved container\">\n                    <h2>If you're seeing this, you've successfully installed Tomcat. Congratulations!</h2>\n                </div>\n                <div id=\"notice\">\n                    <img id="
-    },
-    "error_page": {
-      "url": "http://15.164.60.79/not_exist_4akda_404_test",
-      "status_code": 404,
-      "headers": {
-        "Server": "nginx/1.28.3 (Ubuntu)",
-        "Date": "Sun, 17 May 2026 09:58:06 GMT",
-        "Content-Type": "text/html;charset=utf-8",
-        "Transfer-Encoding": "chunked",
-        "Connection": "keep-alive",
-        "Content-Language": "en",
-        "Content-Encoding": "gzip"
-      },
-      "body_sample": "<!doctype html><html lang=\"en\"><head><title>HTTP Status 404 – Not Found</title><style type=\"text/css\">body {font-family:Tahoma,Arial,sans-serif;} h1, h2, h3, b {color:white;background-color:#525D76;} h1 {font-size:22px;} h2 {font-size:16px;} h3 {font-size:14px;} p {font-size:12px;} a {color:black;} .line {height:1px;background-color:#525D76;border:none;}</style></head><body><h1>HTTP Status 404 – Not Found</h1><hr class=\"line\" /><p><b>Type</b> Status Report</p><p><b>Message</b> The requested resource [&#47;not_exist_4akda_404_test] is not available</p><p><b>Description</b> The origin server did not find a current representation for the target resource or is not willing to disclose that one exists.</p><hr class=\"line\" /><h3>Apache Tomcat/9.0.118</h3></body></html>"
+      "body_sample": "\n\n\n\n\n<!DOCTYPE html>\n<html lang=\"ko\">\n<head>\n    <meta charset=\"UTF-8\">\n    <link rel=\"stylesheet\" href=\"/vulnapp/css/style.css\">\n</head>\n<body>\n    <nav class=\"navbar\">\n        <div class=\"logo\" href=\"index.jsp\">\n\t\t<a href=\"/vulnapp/\" style=\"text-decoration: none; color: inherit;\">\n\t\t\t🛡️ VulnApp\n\t\t</a>\n\t</div>\n        <ul class=\"nav-links\">\n            <li><a href=\"search.jsp\">통합 검색</a></li>\n            <li><a href=\"download.jsp\">자료실</a></li>\n            \n            \n                <li><a href=\"login.jsp\">로그인</a></li>\n            \n        </ul>\n    </nav>\n    <main class=\"container\">\n        <div class=\"card\">\n\n\n    <section class=\"command-hero\">\n        <div class=\"command-hero-main\">\n            <span class=\"board-badge\">Service Error</span>\n            <h2>요청을 처리하지 못했습니다</h2>\n            <p>일시적인 오류가 발생했습니다. 잠시 후 다시 시도해 주세요. 문제가 계속되면 운영 담당자에게 문의해 주세요.</p>\n        </div>\n        <aside class=\"command-hero-side\">\n            <div class=\"command-hero-side-label\">Status</div>\n            <strong>HTTP 404</strong>\n            <p>/vulnapp/not_exist_4akda_404_test 요청 처리 중 오류가 발생했습니다.</p>\n        </aside>\n    </section>\n\n    <section class=\"command-guidance\">\n        <h3>다음 단계</h3>\n        <ul>\n            <li>입력값이나 접근 경로를 다시 확인한 뒤 재시도해 주세요.</li>\n            <li>동일한 오류가 반복되면 서버 로그와 애플리케이션 설정을 점검해 주세요.</li>\n            <li>메인 페이지로 돌아가 다른 기능은 정상 동작하는지 확인할 수 있습니다.</li>\n        </ul>\n    </section>\n\n    <div class=\"board-form-panel command-panel\">\n        <div class=\"board-panel-heading\">\n            <h3>바로가기</h3>\n            <p>필요한 페이지로 이동해 작업을 계속할 수 있습니다.</p>\n        </div>\n        <div class=\"command-code-list\">\n            <span><a href=\"/vulnapp/\">메인 페이지</a></span>\n            <span><a href=\"/vulnapp/board.jsp\">안전 게시판</a></span>\n            <span><a href=\"/vulnapp/command.jsp\">운영 상태 센터</a></span>\n        </div>\n    </div>\n\n</div> </main>\n    <footer>\n        &copy; 2026 VulnApp Security Test Environment. All rights reserved.\n    </footer>\n</body>\n</html>\n\n\n"
     },
     "tomcat_default_page": [
       {
@@ -42,7 +42,7 @@
         "headers": {
           "Content-Type": "text/html;charset=UTF-8",
           "Transfer-Encoding": "chunked",
-          "Date": "Sun, 17 May 2026 09:58:06 GMT",
+          "Date": "Sun, 17 May 2026 14:16:57 GMT",
           "Keep-Alive": "timeout=20",
           "Connection": "keep-alive"
         },
@@ -53,7 +53,7 @@
         "status_code": 200,
         "headers": {
           "Server": "nginx/1.28.3 (Ubuntu)",
-          "Date": "Sun, 17 May 2026 09:58:06 GMT",
+          "Date": "Sun, 17 May 2026 14:16:57 GMT",
           "Content-Type": "text/html;charset=UTF-8",
           "Transfer-Encoding": "chunked",
           "Connection": "keep-alive",
@@ -69,7 +69,7 @@
         "headers": {
           "Content-Type": "text/html;charset=ISO-8859-1",
           "Content-Length": "3523",
-          "Date": "Sun, 17 May 2026 09:58:06 GMT",
+          "Date": "Sun, 17 May 2026 14:16:57 GMT",
           "Keep-Alive": "timeout=20",
           "Connection": "keep-alive"
         },
@@ -80,7 +80,7 @@
         "status_code": 401,
         "headers": {
           "Server": "nginx/1.28.3 (Ubuntu)",
-          "Date": "Sun, 17 May 2026 09:58:06 GMT",
+          "Date": "Sun, 17 May 2026 14:16:57 GMT",
           "Content-Type": "text/html;charset=ISO-8859-1",
           "Content-Length": "2576",
           "Connection": "keep-alive",
@@ -96,11 +96,11 @@
         "status_code": 302,
         "headers": {
           "Server": "nginx/1.28.3 (Ubuntu)",
-          "Date": "Sun, 17 May 2026 09:58:06 GMT",
+          "Date": "Sun, 17 May 2026 14:16:57 GMT",
           "Content-Type": "text/html;charset=UTF-8",
           "Content-Length": "0",
           "Connection": "keep-alive",
-          "Set-Cookie": "JSESSIONID=97AFEF1490B2709B183BE6F1D9A36750; Path=/vulnapp; HttpOnly",
+          "Set-Cookie": "JSESSIONID=0BF395D052BCD77802353BB186CA669E; Path=/vulnapp; HttpOnly",
           "Location": "http://15.164.60.79/vulnapp/admin.jsp"
         },
         "body_sample": "",
@@ -122,11 +122,11 @@
         "status_code": 302,
         "headers": {
           "Server": "nginx/1.28.3 (Ubuntu)",
-          "Date": "Sun, 17 May 2026 09:58:06 GMT",
+          "Date": "Sun, 17 May 2026 14:16:57 GMT",
           "Content-Type": "text/html;charset=UTF-8",
           "Content-Length": "0",
           "Connection": "keep-alive",
-          "Set-Cookie": "JSESSIONID=7842F357F5497609728C191FF8340FAC; Path=/vulnapp; HttpOnly",
+          "Set-Cookie": "JSESSIONID=ADD1161BFC6CC97E501B0A43D20F51B1; Path=/vulnapp; HttpOnly",
           "Location": "http://15.164.60.79/vulnapp/admin.jsp"
         },
         "body_sample": "",
@@ -148,11 +148,11 @@
         "status_code": 302,
         "headers": {
           "Server": "nginx/1.28.3 (Ubuntu)",
-          "Date": "Sun, 17 May 2026 09:58:06 GMT",
+          "Date": "Sun, 17 May 2026 14:16:57 GMT",
           "Content-Type": "text/html;charset=UTF-8",
           "Content-Length": "0",
           "Connection": "keep-alive",
-          "Set-Cookie": "JSESSIONID=9DF645D257A68E797CD46C26E7EC6960; Path=/vulnapp; HttpOnly",
+          "Set-Cookie": "JSESSIONID=46B4788A7111A9031EA525CC3A4866E2; Path=/vulnapp; HttpOnly",
           "Location": "http://15.164.60.79/vulnapp/admin.jsp"
         },
         "body_sample": "",
@@ -176,11 +176,10 @@
         "status_code": 200,
         "headers": {
           "Server": "nginx/1.28.3 (Ubuntu)",
-          "Date": "Sun, 17 May 2026 09:58:06 GMT",
+          "Date": "Sun, 17 May 2026 14:16:57 GMT",
           "Content-Type": "text/html;charset=UTF-8",
           "Transfer-Encoding": "chunked",
           "Connection": "keep-alive",
-          "Set-Cookie": "JSESSIONID=3E1EAA1E91B17095FDA8BC1FB6952DB8; Path=/vulnapp; HttpOnly",
           "Content-Encoding": "gzip"
         },
         "body_sample": "\n\n\n\n\n\n\n<!DOCTYPE html>\n<html lang=\"ko\">\n<head>\n    <meta charset=\"UTF-8\">\n    <link rel=\"stylesheet\" href=\"/vulnapp/css/style.css\">\n</head>\n<body>\n    <nav class=\"navbar\">\n        <div class=\"logo\" href=\"index.jsp\">\n\t\t<a href=\"/vulnapp/\" style=\"text-decoration: none; color: inherit;\">\n\t\t\t🛡️ VulnApp\n\t\t</a>\n\t</div>\n        <ul class=\"nav-links\">\n            <li><a href=\"search.jsp\">통합 검색</a></li>\n            <li><a href=\"download.jsp\">자료실</a></li>\n            \n            \n                <li><a href=\"login.jsp\">로그인</a></li>\n            \n        </ul>\n    </nav>\n    <main class=\"container\">\n        <div class=\"card\">\n\n\n\n\n    <div style=\"border-bottom: 2px solid #ecf0f1; padding-bottom: 10px; margin-bottom: 20px;\">\n        <h2 style=\"margin: 0; color: #2980b9;\">🔍 통합 검색 및 게시판</h2>\n    </div>\n\n    <div style=\"margin-bottom: 30px; background: #f8f9fa; padding: 20px; border-radius: 8px;\">\n        <form action=\"search.jsp\" method=\"GET\" style=\"display: flex; gap: 10px;\">\n            <input type=\"text\" name=\"keyword\" value=\"<script>alert(1337)</script>\" placeholder=\"검색어를 입력하세요...\" \n                   style=\"flex-grow: 1; padding: 10px; border: 1px solid #ccc; border-radius: 4px;\">\n            <button type=\"submit\" style=\"background: #3498db; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-weight: bold;\">\n                검색\n            </button>\n        </form>\n        \n        \n            <p style=\"margin-top: 15px; color: #555;\">\n                <strong>'<script>alert(1337)</script>'</strong> 에 대한 검색 결과입니다. \n                <span style=\"col",
@@ -196,7 +195,7 @@
         "status_code": 200,
         "headers": {
           "Server": "nginx/1.28.3 (Ubuntu)",
-          "Date": "Sun, 17 May 2026 09:58:06 GMT",
+          "Date": "Sun, 17 May 2026 14:16:57 GMT",
           "Content-Type": "text/html;charset=UTF-8",
           "Transfer-Encoding": "chunked",
           "Connection": "keep-alive",
@@ -215,7 +214,7 @@
         "status_code": 200,
         "headers": {
           "Server": "nginx/1.28.3 (Ubuntu)",
-          "Date": "Sun, 17 May 2026 09:58:06 GMT",
+          "Date": "Sun, 17 May 2026 14:16:57 GMT",
           "Content-Type": "text/html;charset=UTF-8",
           "Transfer-Encoding": "chunked",
           "Connection": "keep-alive",
@@ -234,7 +233,7 @@
         "status_code": 200,
         "headers": {
           "Server": "nginx/1.28.3 (Ubuntu)",
-          "Date": "Sun, 17 May 2026 09:58:06 GMT",
+          "Date": "Sun, 17 May 2026 14:16:57 GMT",
           "Content-Type": "text/html;charset=UTF-8",
           "Transfer-Encoding": "chunked",
           "Connection": "keep-alive",
@@ -254,7 +253,7 @@
       "status_code": 200,
       "headers": {
         "Server": "nginx/1.28.3 (Ubuntu)",
-        "Date": "Sun, 17 May 2026 09:58:06 GMT",
+        "Date": "Sun, 17 May 2026 14:16:57 GMT",
         "Content-Type": "application/json;charset=UTF-8",
         "Content-Length": "144",
         "Connection": "keep-alive"
@@ -277,11 +276,11 @@
         "status_code": 302,
         "headers": {
           "Server": "nginx/1.28.3 (Ubuntu)",
-          "Date": "Sun, 17 May 2026 09:58:06 GMT",
+          "Date": "Sun, 17 May 2026 14:16:57 GMT",
           "Content-Type": "text/html;charset=UTF-8",
           "Content-Length": "0",
           "Connection": "keep-alive",
-          "Set-Cookie": "JSESSIONID=61301C926582273658B9D9DE1EB6A3DA; Path=/vulnapp; HttpOnly",
+          "Set-Cookie": "JSESSIONID=63F52623456BB9EC0380F69AD08D5B5E; Path=/vulnapp; HttpOnly",
           "Location": "http://15.164.60.79/vulnapp/login.jsp"
         },
         "body_sample": "",
@@ -297,11 +296,11 @@
         "status_code": 302,
         "headers": {
           "Server": "nginx/1.28.3 (Ubuntu)",
-          "Date": "Sun, 17 May 2026 09:58:06 GMT",
+          "Date": "Sun, 17 May 2026 14:16:57 GMT",
           "Content-Type": "text/html;charset=UTF-8",
           "Content-Length": "0",
           "Connection": "keep-alive",
-          "Set-Cookie": "JSESSIONID=6AEE2B6A1B5495D53334E932D4193EBD; Path=/vulnapp; HttpOnly",
+          "Set-Cookie": "JSESSIONID=11BD4DE76B0CB7DBBC393B8AB572817C; Path=/vulnapp; HttpOnly",
           "Location": "http://15.164.60.79/vulnapp/"
         },
         "body_sample": "",
@@ -313,7 +312,7 @@
         "status_code": 200,
         "headers": {
           "Server": "nginx/1.28.3 (Ubuntu)",
-          "Date": "Sun, 17 May 2026 09:58:06 GMT",
+          "Date": "Sun, 17 May 2026 14:16:58 GMT",
           "Content-Type": "text/html;charset=UTF-8",
           "Transfer-Encoding": "chunked",
           "Connection": "keep-alive",
@@ -335,7 +334,7 @@
         "status_code": 200,
         "headers": {
           "Server": "nginx/1.28.3 (Ubuntu)",
-          "Date": "Sun, 17 May 2026 09:58:06 GMT",
+          "Date": "Sun, 17 May 2026 14:16:58 GMT",
           "Content-Type": "text/html;charset=UTF-8",
           "Transfer-Encoding": "chunked",
           "Connection": "keep-alive",
@@ -344,23 +343,12 @@
       },
       "https": {
         "url": "https://15.164.60.79",
-        "error": "HTTPSConnectionPool(host='15.164.60.79', port=443): Max retries exceeded with url: / (Caused by ConnectTimeoutError(<HTTPSConnection(host='15.164.60.79', port=443) at 0x27a089c1950>, 'Connection to 15.164.60.79 timed out. (connect timeout=5)'))"
+        "error": "HTTPSConnectionPool(host='15.164.60.79', port=443): Max retries exceeded with url: / (Caused by ConnectTimeoutError(<HTTPSConnection(host='15.164.60.79', port=443) at 0x1bba562a510>, 'Connection to 15.164.60.79 timed out. (connect timeout=5)'))"
       },
       "https_available": false,
       "redirect_to_https": false
     },
     "cookie_status": [
-      {
-        "url": "http://15.164.60.79/",
-        "status_code": 200,
-        "set_cookie": "",
-        "cookie_flags": {
-          "has_cookie": false,
-          "httponly": false,
-          "secure": false,
-          "samesite": false
-        }
-      },
       {
         "url": "http://15.164.60.79/vulnapp/",
         "status_code": 200,
@@ -504,7 +492,7 @@
         "status_code": 200,
         "headers": {
           "Server": "nginx/1.28.3 (Ubuntu)",
-          "Date": "Sun, 17 May 2026 09:58:12 GMT",
+          "Date": "Sun, 17 May 2026 14:17:03 GMT",
           "Content-Type": "application/json;charset=UTF-8",
           "Content-Length": "144",
           "Connection": "keep-alive"
@@ -519,7 +507,7 @@
         "status_code": 200,
         "headers": {
           "Server": "nginx/1.28.3 (Ubuntu)",
-          "Date": "Sun, 17 May 2026 09:58:12 GMT",
+          "Date": "Sun, 17 May 2026 14:17:03 GMT",
           "Content-Type": "application/json;charset=UTF-8",
           "Content-Length": "144",
           "Connection": "keep-alive"
@@ -543,7 +531,7 @@
         "url": "http://15.164.60.79/vulnapp/upload_process.jsp",
         "reachable": true,
         "status_code": 500,
-        "body_sample": "<!doctype html><html lang=\"en\"><head><title>HTTP Status 500 – Internal Server Error</title><style type=\"text/css\">body {font-family:Tahoma,Arial,sans-serif;} h1, h2, h3, b {color:white;background-color:#525D76;} h1 {font-size:22px;} h2 {font-size:16px;} h3 {font-size:14px;} p {font-size:12px;} a {co"
+        "body_sample": "\n\n\n\n\n<!DOCTYPE html>\n<html lang=\"ko\">\n<head>\n    <meta charset=\"UTF-8\">\n    <link rel=\"stylesheet\" href=\"/vulnapp/css/style.css\">\n</head>\n<body>\n    <nav class=\"navbar\">\n        <div class=\"logo\" href=\"index.jsp\">\n\t\t<a href=\"/vulnapp/\" style=\"text-decoration: none; color: inherit;\">\n\t\t\t🛡️ VulnApp\n\t\t"
       },
       {
         "endpoint": "/vulnapp/search.jsp",
@@ -553,39 +541,46 @@
         "body_sample": "\n\n\n\n\n\n\n<!DOCTYPE html>\n<html lang=\"ko\">\n<head>\n    <meta charset=\"UTF-8\">\n    <link rel=\"stylesheet\" href=\"/vulnapp/css/style.css\">\n</head>\n<body>\n    <nav class=\"navbar\">\n        <div class=\"logo\" href=\"index.jsp\">\n\t\t<a href=\"/vulnapp/\" style=\"text-decoration: none; color: inherit;\">\n\t\t\t🛡️ VulnApp\n"
       },
       {
+        "endpoint": "/vulnapp/board.jsp",
+        "url": "http://15.164.60.79/vulnapp/board.jsp",
+        "reachable": true,
+        "status_code": 200,
+        "body_sample": "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n<!DOCTYPE html>\n<html lang=\"ko\">\n<head>\n    <meta charset=\"UTF-8\">\n    <link rel=\"stylesheet\" href=\"/vulnapp/css/style.css\">\n</head>\n<body>\n    <nav class=\"navbar\">\n        <div class=\"logo\" href=\"index.jsp\">\n\t\t<a href=\"/vulnapp/\" style=\"text-decoration: none; color: inherit;\">\n\t\t\t"
+      },
+      {
         "endpoint": "/vulnapp/profile.jsp?user_idx=1",
         "url": "http://15.164.60.79/vulnapp/profile.jsp?user_idx=1",
         "reachable": true,
         "status_code": 200,
-        "body_sample": "\n\n\n\n\n\n<!DOCTYPE html>\n<html lang=\"ko\">\n<head>\n    <meta charset=\"UTF-8\">\n    <link rel=\"stylesheet\" href=\"/vulnapp/css/style.css\">\n</head>\n<body>\n    <nav class=\"navbar\">\n        <div class=\"logo\" href=\"index.jsp\">\n\t\t<a href=\"/vulnapp/\" style=\"text-decoration: none; color: inherit;\">\n\t\t\t🛡️ VulnApp\n\t"
+        "body_sample": "\n\n\n\n\n\n\n<!DOCTYPE html>\n<html lang=\"ko\">\n<head>\n    <meta charset=\"UTF-8\">\n    <link rel=\"stylesheet\" href=\"/vulnapp/css/style.css\">\n</head>\n<body>\n    <nav class=\"navbar\">\n        <div class=\"logo\" href=\"index.jsp\">\n\t\t<a href=\"/vulnapp/\" style=\"text-decoration: none; color: inherit;\">\n\t\t\t🛡️ VulnApp\n"
       },
       {
-        "endpoint": "/vulnapp/ping.jsp",
-        "url": "http://15.164.60.79/vulnapp/ping.jsp",
+        "endpoint": "/vulnapp/command.jsp",
+        "url": "http://15.164.60.79/vulnapp/command.jsp",
         "reachable": true,
-        "status_code": 404,
-        "body_sample": "<!doctype html><html lang=\"en\"><head><title>HTTP Status 404 – Not Found</title><style type=\"text/css\">body {font-family:Tahoma,Arial,sans-serif;} h1, h2, h3, b {color:white;background-color:#525D76;} h1 {font-size:22px;} h2 {font-size:16px;} h3 {font-size:14px;} p {font-size:12px;} a {color:black;} "
+        "status_code": 200,
+        "body_sample": "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n<!DOCTYPE html>\n<html lang=\"ko\">\n<head>\n    <meta charset=\"UTF-8\">\n    <link rel=\"stylesheet\" href=\"/vulnapp/css/style.css\">\n</head>\n<body>\n    <nav class=\"navbar\">\n        <div class=\"logo\" href=\"index.jsp\">\n\t\t<a href=\"/vulnapp/\" style=\"text-decoration: none; color: inherit;\">\n\t"
       },
       {
         "endpoint": "/vulnapp/register.jsp",
         "url": "http://15.164.60.79/vulnapp/register.jsp",
         "reachable": true,
-        "status_code": 404,
-        "body_sample": "<!doctype html><html lang=\"en\"><head><title>HTTP Status 404 – Not Found</title><style type=\"text/css\">body {font-family:Tahoma,Arial,sans-serif;} h1, h2, h3, b {color:white;background-color:#525D76;} h1 {font-size:22px;} h2 {font-size:16px;} h3 {font-size:14px;} p {font-size:12px;} a {color:black;} "
+        "status_code": 200,
+        "body_sample": "\n\n\n\n\n\n\n\n\n\n<!DOCTYPE html>\n<html lang=\"ko\">\n<head>\n    <meta charset=\"UTF-8\">\n    <link rel=\"stylesheet\" href=\"/vulnapp/css/style.css\">\n</head>\n<body>\n    <nav class=\"navbar\">\n        <div class=\"logo\" href=\"index.jsp\">\n\t\t<a href=\"/vulnapp/\" style=\"text-decoration: none; color: inherit;\">\n\t\t\t🛡️ VulnA"
       },
       {
         "endpoint": "/vulnapp/fetch.jsp",
         "url": "http://15.164.60.79/vulnapp/fetch.jsp",
         "reachable": true,
-        "status_code": 404,
-        "body_sample": "<!doctype html><html lang=\"en\"><head><title>HTTP Status 404 – Not Found</title><style type=\"text/css\">body {font-family:Tahoma,Arial,sans-serif;} h1, h2, h3, b {color:white;background-color:#525D76;} h1 {font-size:22px;} h2 {font-size:16px;} h3 {font-size:14px;} p {font-size:12px;} a {color:black;} "
+        "status_code": 200,
+        "body_sample": "\n\n\n\n\n\n\n<!DOCTYPE html>\n<html lang=\"ko\">\n<head>\n    <meta charset=\"UTF-8\">\n    <link rel=\"stylesheet\" href=\"/vulnapp/css/style.css\">\n</head>\n<body>\n    <nav class=\"navbar\">\n        <div class=\"logo\" href=\"index.jsp\">\n\t\t<a href=\"/vulnapp/\" style=\"text-decoration: none; color: inherit;\">\n\t\t\t🛡️ VulnApp\n"
       },
       {
         "endpoint": "/vulnapp/internal/secret.jsp",
         "url": "http://15.164.60.79/vulnapp/internal/secret.jsp",
         "reachable": true,
-        "status_code": 404,
-        "body_sample": "<!doctype html><html lang=\"en\"><head><title>HTTP Status 404 – Not Found</title><style type=\"text/css\">body {font-family:Tahoma,Arial,sans-serif;} h1, h2, h3, b {color:white;background-color:#525D76;} h1 {font-size:22px;} h2 {font-size:16px;} h3 {font-size:14px;} p {font-size:12px;} a {color:black;} "
+        "status_code": 403,
+        "body_sample": "\n\n        <div style=\"padding:20px; border:2px solid #e74c3c; background:#fdf2f2; border-radius:8px; font-family:sans-serif;\">\n            <h3 style=\"color:#c0392b; margin-top:0;\">❌ Access Denied (403 Forbidden)</h3>\n            <p>외부망에서의 직접적인 접근은 보안 정책에 의해 엄격히 금지됩니다.</p>\n            <p style=\"font-"
       }
     ]
   }
