@@ -7,10 +7,11 @@
 <%
     request.setCharacterEncoding("UTF-8");
     
-    // 세션에서 현재 로그인한 사용자의 권한 정보 가져오기
-    String userRole = (String) session.getAttribute("userRole");
+    // 💡 세션 유실 방어: 세션이 없거나 유저 권한이 없는 경우 안전하게 guest 처리
+    // ⭕ 수정된 view.jsp 코드
+    // 새로 선언(String)하지 않고, header.jsp가 만든 userRole이 null인지만 체크합니다.
     if (userRole == null) {
-        userRole = "guest";
+        userRole = "guest"; 
     }
     
     String idParam = request.getParameter("postid");
@@ -24,19 +25,19 @@
     boolean hasPost = false;
     String errorMsg = null;
 
-    // 💡 방어 코드 1: postid 파라미터가 숫자가 맞는지 미리 검증 (NumberFormatException 방지)
+    // 💡 방어 코드 1: postid 파라미터가 비어있거나 숫자가 아닌 경우 예외 처리
     int postId = -1;
     if (idParam != null && !idParam.trim().isEmpty()) {
         try {
             postId = Integer.parseInt(idParam.trim());
         } catch (NumberFormatException nfe) {
-            errorMsg = "올바르지 않은 게시글 번호 형식입니다. (숫자만 입력 가능)";
+            errorMsg = "올바르지 않은 게시글 번호 형식입니다. (전달된 값: " + idParam + ")";
         }
     } else {
-        errorMsg = "잘못된 접근입니다. 게시글 번호(postid)가 필요합니다.";
+        errorMsg = "잘못된 접근입니다. URL에 postid 파라미터가 누락되었습니다. (예: view.jsp?postid=1)";
     }
 
-    // 🛑 관리자 전용 게시글 삭제 처리 로직 (에러가 나도 서버가 안 터지도록 전체 try-catch)
+    // 🛑 [관리자 전용] 게시글 삭제 처리 로직
     if (errorMsg == null && "delete".equals(action) && postId != -1) {
         if ("admin".equalsIgnoreCase(userRole)) {
             Connection conn = null;
@@ -54,10 +55,10 @@
                     out.println("<script>alert('🗑️ 관리자 권한으로 게시글이 삭제되었습니다.'); location.href='search.jsp';</script>");
                     return;
                 } else {
-                    errorMsg = "삭제할 게시글을 찾을 수 없습니다.";
+                    errorMsg = "삭제할 게시글(" + postId + ")을 찾을 수 없습니다.";
                 }
             } catch (Exception e) {
-                errorMsg = "삭제 중 데이터베이스 오류 발생: " + e.getMessage();
+                errorMsg = "🔴 [삭제 에러] DB 처리 중 오류 발생: " + e.getMessage();
             } finally {
                 if (pstmt != null) try { pstmt.close(); } catch(Exception e) {}
                 if (conn != null) try { conn.close(); } catch(Exception e) {}
@@ -68,7 +69,7 @@
         }
     }
 
-    // 📄 게시글 상세 조회 로직 (전체 감싸기)
+    // 📄 게시글 상세 조회 로직
     if (errorMsg == null && postId != -1) {
         Connection conn = null;
         PreparedStatement pstmt = null;
@@ -78,36 +79,38 @@
             Class.forName("org.mariadb.jdbc.Driver");
             conn = DriverManager.getConnection("jdbc:mariadb://localhost:3306/vuln_db", "vulnuser", "vulnpass1234");
 
+            // 💡 만약 테이블의 기본키 컬럼명이 'id'가 아니라면 이 부분을 수정해야 할 수 있습니다.
             String sql = "SELECT * FROM posts WHERE id = ?";
             pstmt = conn.prepareStatement(sql);
             pstmt.setInt(1, postId);
             rs = pstmt.executeQuery();
 
             if (rs.next()) {
-                title = rs.getString("title");
-                content = rs.getString("content");
-                author = rs.getString("author");
-                filename = rs.getString("filename");
+                // 💡 방어 코드 2: 컬럼 유무 및 Null값 검증 (에러 발생 시 어떤 컬럼이 문제인지 정확히 명시)
+                try { title = rs.getString("title"); } catch(Exception e) { title = "[title 컬럼 로드 실패]"; }
+                try { content = rs.getString("content"); } catch(Exception e) { content = "[content 컬럼 로드 실패]"; }
+                try { author = rs.getString("author"); } catch(Exception e) { author = "[author 컬럼 로드 실패]"; }
+                try { filename = rs.getString("filename"); } catch(Exception e) { filename = ""; }
                 
-                // 💡 방어 코드 2: DB의 reg_date 컬럼이 null이거나 타임스탬프 변환 에러가 나는 것을 방지
+                // 날짜 컬럼 예외 처리
                 try {
                     Timestamp ts = rs.getTimestamp("reg_date");
-                    if (ts != null) {
-                        regDate = ts.toString();
-                    } else {
-                        regDate = "날짜 정보 없음";
-                    }
+                    regDate = (ts != null) ? ts.toString() : "날짜 정보 없음";
                 } catch (Exception dateEx) {
-                    regDate = "날짜 변환 에러";
+                    try {
+                        regDate = rs.getString("reg_date"); // 텍스트 형태일 경우 대비
+                    } catch(Exception e) {
+                        regDate = "날짜 컬럼 로드 실패";
+                    }
                 }
                 
                 hasPost = true;
             } else {
-                errorMsg = "존재하지 않는 게시글입니다.";
+                errorMsg = "🔍 데이터베이스에 " + postId + "번 게시글이 존재하지 않습니다.";
             }
         } catch (Exception e) {
-            // 💡 서버가 뻗는 대신 화면에 에러 원인을 출력하도록 설정
-            errorMsg = "게시글 로드 중 데이터베이스 오류 발생: " + e.getMessage();
+            // 💡 중요: 500 에러로 뻗는 대신 화면에 원인을 출력합니다.
+            errorMsg = "🔴 [조회 에러] 마리아DB 연동 중 예외 발생: " + e.getMessage();
         } finally {
             if (rs != null) try { rs.close(); } catch(Exception e) {}
             if (pstmt != null) try { pstmt.close(); } catch(Exception e) {}
@@ -144,10 +147,16 @@
     </div>
 
     <% if (errorMsg != null) { %>
-        <div style="background-color: #f8d7da; color: #721c24; padding: 12px; border: 1px solid #f5c6cb; border-radius: 4px; margin-bottom: 1.5rem; font-weight: bold;">
-            ⚠️ 시스템 안내: <%= errorMsg %>
+        <div style="background-color: #f8d7da; color: #721c24; padding: 20px; border: 2px solid #f5c6cb; border-radius: 6px; margin-bottom: 1.5rem;">
+            <h4 style="margin-top: 0; color: #c0392b; font-size: 1.15rem;">⚠️ 시스템 내부 연동 오류</h4>
+            <p style="font-weight: bold; line-height: 1.5;"><%= errorMsg %></p>
+            <p style="font-size: 0.85em; color: #7f8c8d; margin-bottom: 0;">
+                💡 <strong>조치 팁:</strong> 만약 'Unknown column' 에러가 뜬다면 데이터베이스 테이블 구조와 소스코드의 컬럼명이 일치하는지 확인하세요.
+            </p>
         </div>
-    <% } else if (hasPost) { %>
+    <% } %>
+
+    <% if (hasPost) { %>
         <div style="background-color: #fff; padding: 25px; border: 1px solid #ddd; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
             <h3 style="margin-top: 0; color: #2c3e50; font-size: 1.5rem;"><%= title %></h3>
             
@@ -162,7 +171,7 @@
             <% if (filename != null && !filename.isEmpty()) { %>
                 <div style="background-color: #f2f6f8; padding: 12px; border-radius: 4px; margin-top: 20px;">
                     <strong>📎 첨부파일 자료 다운로드:</strong> 
-                    <a href="download.jsp?filename=<%= replaceHtmlTags(filename) %>" style="color: #2980b9; text-decoration: none; font-weight: bold; margin-left: 5px;">
+                    <a href="fileDownload.jsp?filename=<%= replaceHtmlTags(filename) %>" style="color: #2980b9; text-decoration: none; font-weight: bold; margin-left: 5px;">
                         <%= filename %>
                     </a>
                 </div>
