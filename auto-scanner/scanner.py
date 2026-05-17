@@ -6,9 +6,10 @@ import subprocess
 import sys
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
-from urllib.parse import quote, urlparse
+from urllib.parse import quote, urljoin, urlparse
 
 import requests
+from bs4 import BeautifulSoup
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import FileResponse
@@ -22,28 +23,31 @@ HEADERS = {"User-Agent": "4AKDA-GPT-Based-Scanner/3.3"}
 KST = timezone(timedelta(hours=9))
 
 CHECK_CATALOG = [
-    {"check_id": "WEB-A01-001", "owasp": "A01:2025 Broken Access Control", "name": "관리자 페이지 직접 접근", "url": "/vulnapp/admin.jsp"},
-    {"check_id": "WEB-A01-002", "owasp": "A01:2025 Broken Access Control", "name": "IDOR", "url": "/vulnapp/profile.jsp?user_idx=1"},
-    {"check_id": "WEB-A02-001", "owasp": "A02:2025 Security Misconfiguration", "name": "보안 헤더 미설정", "url": "/"},
-    {"check_id": "WEB-A02-002", "owasp": "A02:2025 Security Misconfiguration", "name": "서버 버전 노출", "url": "/"},
-    {"check_id": "WEB-A02-003", "owasp": "A02:2025 Security Misconfiguration", "name": "Tomcat 기본페이지 노출", "url": "/"},
-    {"check_id": "WEB-A02-004", "owasp": "A02:2025 Security Misconfiguration", "name": "민감정보 노출", "url": "/vulnapp/debug.jsp"},
-    {"check_id": "WEB-A04-001", "owasp": "A04:2025 Cryptographic Failures", "name": "HTTPS 미적용", "url": "/"},
-    {"check_id": "WEB-A04-002", "owasp": "A04:2025 Cryptographic Failures", "name": "쿠키 Secure/HttpOnly 미설정", "url": "/vulnapp/login.jsp"},
-    {"check_id": "WEB-A05-001", "owasp": "A05:2025 Injection", "name": "SQL Injection", "url": "/vulnapp/login.jsp"},
-    {"check_id": "WEB-A05-002", "owasp": "A05:2025 Injection", "name": "Reflected XSS", "url": "/vulnapp/search.jsp"},
-    {"check_id": "WEB-A05-003", "owasp": "A05:2025 Injection", "name": "Stored XSS", "url": "/vulnapp/board.jsp"},
-    {"check_id": "WEB-A05-004", "owasp": "A05:2025 Injection", "name": "Command Injection", "url": "/vulnapp/ping.jsp"},
-    {"check_id": "WEB-A06-001", "owasp": "A06:2025 Insecure Design", "name": "로그인 Rate Limit 미구현", "url": "/vulnapp/login.jsp"},
-    {"check_id": "WEB-A06-002", "owasp": "A06:2025 Insecure Design", "name": "debug=true 기능 활성화", "url": "/vulnapp/?debug=true"},
-    {"check_id": "WEB-A07-001", "owasp": "A07:2025 Authentication Failures", "name": "계정 잠금 미구현", "url": "/vulnapp/login.jsp"},
-    {"check_id": "WEB-A07-002", "owasp": "A07:2025 Authentication Failures", "name": "약한 비밀번호 허용", "url": "/vulnapp/register.jsp"},
-    {"check_id": "WEB-A07-003", "owasp": "A07:2025 Authentication Failures", "name": "JWT 검증 우회", "url": "/vulnapp/api/profile"},
-    {"check_id": "WEB-A08-001", "owasp": "A08:2025 Software or Data Integrity Failures", "name": "웹쉘 업로드 가능", "url": "/vulnapp/upload.jsp"},
-    {"check_id": "WEB-A09-001", "owasp": "A09:2025 Logging & Alerting Failures", "name": "로그인 실패 로그 미기록", "url": "/vulnapp/logs/security.log"},
-    {"check_id": "WEB-A09-002", "owasp": "A09:2025 Logging & Alerting Failures", "name": "관리자 행위 로그 미기록", "url": "/vulnapp/logs/security.log"},
-    {"check_id": "WEB-A10-001", "owasp": "A10:2025 Mishandling of Exceptional Conditions", "name": "Stack Trace 노출", "url": "/vulnapp/error.jsp"},
-    {"check_id": "WEB-A10-002", "owasp": "A10:2025 Mishandling of Exceptional Conditions", "name": "임의 파일 읽기", "url": "/vulnapp/download.jsp?filename="},
+    {"check_id":"WEB-A01-001","owasp":"A01:2025 Broken Access Control","name":"관리자 페이지 직접 접근","url":"/vulnapp/admin.jsp"},
+    {"check_id":"WEB-A01-002","owasp":"A01:2025 Broken Access Control","name":"IDOR","url":"/vulnapp/profile.jsp?user_idx=1"},
+    {"check_id":"WEB-A02-001","owasp":"A02:2025 Security Misconfiguration","name":"보안 헤더 미설정","url":"/"},
+    {"check_id":"WEB-A02-002","owasp":"A02:2025 Security Misconfiguration","name":"서버 버전 노출","url":"/"},
+    {"check_id":"WEB-A02-003","owasp":"A02:2025 Security Misconfiguration","name":"Tomcat 기본페이지 노출","url":"/"},
+    {"check_id":"WEB-A02-004","owasp":"A02:2025 Security Misconfiguration","name":"민감정보 노출","url":"/vulnapp/debug.jsp"},
+    {"check_id":"WEB-A03-001","owasp":"A03:2025 Software Supply Chain Failures","name":"취약한 Log4j 사용","url":"/vulnapp/log4j"},
+    {"check_id":"WEB-A03-002","owasp":"A03:2025 Software Supply Chain Failures","name":"구버전 jQuery 사용","url":"/vulnapp/static/js/jquery-1.12.4.min.js"},
+    {"check_id":"WEB-A04-001","owasp":"A04:2025 Cryptographic Failures","name":"HTTPS 미적용","url":"/"},
+    {"check_id":"WEB-A04-002","owasp":"A04:2025 Cryptographic Failures","name":"쿠키 Secure/HttpOnly 미설정","url":"/vulnapp/login.jsp"},
+    {"check_id":"WEB-A05-001","owasp":"A05:2025 Injection","name":"SQL Injection","url":"/vulnapp/login.jsp"},
+    {"check_id":"WEB-A05-002","owasp":"A05:2025 Injection","name":"Reflected XSS","url":"/vulnapp/search.jsp"},
+    {"check_id":"WEB-A05-003","owasp":"A05:2025 Injection","name":"Stored XSS","url":"/vulnapp/board.jsp"},
+    {"check_id":"WEB-A05-004","owasp":"A05:2025 Injection","name":"Command Injection","url":"/vulnapp/ping.jsp?host="},
+    {"check_id":"WEB-A05-005","owasp":"A05:2025 Injection","name":"Local File Inclusion","url":"/vulnapp/download.jsp?file="},
+    {"check_id":"WEB-A06-001","owasp":"A06:2025 Insecure Design","name":"로그인 Rate Limit 미구현","url":"/vulnapp/login.jsp"},
+    {"check_id":"WEB-A06-002","owasp":"A06:2025 Insecure Design","name":"debug=true 기능 활성화","url":"/vulnapp/?debug=true"},
+    {"check_id":"WEB-A07-001","owasp":"A07:2025 Authentication Failures","name":"계정 잠금 미구현","url":"/vulnapp/login.jsp"},
+    {"check_id":"WEB-A07-002","owasp":"A07:2025 Authentication Failures","name":"약한 비밀번호 허용","url":"/vulnapp/register.jsp"},
+    {"check_id":"WEB-A07-003","owasp":"A07:2025 Authentication Failures","name":"JWT 검증 우회","url":"/vulnapp/api/profile"},
+    {"check_id":"WEB-A08-001","owasp":"A08:2025 Software or Data Integrity Failures","name":"웹쉘 업로드 가능","url":"/vulnapp/upload.jsp"},
+    {"check_id":"WEB-A09-001","owasp":"A09:2025 Logging & Alerting Failures","name":"로그인 실패 로그 미기록","url":"/vulnapp/logs/security.log"},
+    {"check_id":"WEB-A09-002","owasp":"A09:2025 Logging & Alerting Failures","name":"관리자 행위 로그 미기록","url":"/vulnapp/logs/security.log"},
+    {"check_id":"WEB-A10-001","owasp":"A10:2025 Mishandling of Exceptional Conditions","name":"Stack Trace 노출","url":"/vulnapp/error.jsp"},
+    {"check_id":"WEB-A10-002","owasp":"A10:2025 Mishandling of Exceptional Conditions","name":"SSRF","url":"/vulnapp/fetch.jsp?url="}
 ]
 
 app = FastAPI(title="Auto Scanner API")
@@ -53,6 +57,10 @@ class ScanRequest(BaseModel):
     target: str = Field(..., description="진단 대상 URL")
     tomcat_port: int = Field(default=8080, description="Tomcat 직접 접근 포트")
     timeout: int = Field(default=5, description="HTTP 요청 타임아웃")
+    normal_user_credentials: str | None = Field(
+        default=None,
+        description="일반 사용자 계정 후보. 형식: id:pw,id2:pw2"
+    )
     model: str = Field(
         default=os.getenv("OPENAI_MODEL", "gpt-5.5"),
         description="OpenAI 모델명"
@@ -104,6 +112,34 @@ def build_request_output_path(path_value: str, request_id: str) -> str:
     stem = output_path.stem
     suffix = output_path.suffix
     return str(parent / f"{stem}_{request_id}{suffix}")
+
+
+def parse_normal_user_credentials(raw_value: str | None) -> list[dict]:
+    raw = raw_value or os.getenv("NORMAL_USER_CREDENTIALS", "")
+    credentials = []
+
+    if raw.strip():
+        for chunk in raw.split(","):
+            if ":" not in chunk:
+                continue
+            username, password = chunk.split(":", 1)
+            username = username.strip()
+            password = password.strip()
+            if username and password:
+                credentials.append({
+                    "username": username,
+                    "password": password
+                })
+
+    if credentials:
+        return credentials
+
+    return [
+        {"username": "user", "password": "user123"},
+        {"username": "guest", "password": "guest123"},
+        {"username": "member", "password": "member123"},
+        {"username": "test", "password": "test123"},
+    ]
 
 
 def run_signature_scan(target: str, output_path: str, run_sqlmap: bool = False):
@@ -533,6 +569,62 @@ def build_summary(results):
     }
 
 
+def build_admin_access_override(evidence: dict):
+    collected = evidence.get("collected_evidence", {})
+    anonymous = collected.get("admin_page", {})
+    authenticated = collected.get("admin_page_as_authenticated_user", {})
+    admin_response = authenticated.get("admin_response", {})
+    signature_hints = admin_response.get("signature_hints", {})
+
+    if not signature_hints.get("access_granted_to_non_admin"):
+        return None
+
+    username = authenticated.get("credential_label", "일반 사용자")
+    anonymous_status = anonymous.get("status_code")
+    anonymous_location = anonymous.get("redirect_location", "")
+    admin_status = admin_response.get("status_code")
+
+    evidence_text = (
+        f"미로그인 상태에서 /vulnapp/admin.jsp 접근 시 HTTP {anonymous_status}"
+        f"{f', Location: {anonymous_location}' if anonymous_location else ''} 로 로그인 페이지로 이동했으나, "
+        f"일반 사용자 계정 {username} 로그인 후 동일 경로 요청이 HTTP {admin_status}로 응답했다. "
+        "비관리자 세션에서도 관리자 페이지가 노출되어 권한 검증 우회로 판단된다."
+    )
+
+    return {
+        "check_id": "WEB-A01-001",
+        "owasp": "A01:2025 Broken Access Control",
+        "name": "관리자 페이지 직접 접근",
+        "url": "/vulnapp/admin.jsp",
+        "severity": "medium",
+        "evidence": evidence_text,
+        "recommendation": "관리자 페이지에 대해 인증뿐 아니라 서버 측 역할(Role) 기반 권한 검증을 적용하고 비관리자 계정은 403으로 차단"
+    }
+
+
+def apply_evidence_overrides(report: dict, evidence: dict):
+    override = build_admin_access_override(evidence)
+
+    if not override:
+        return report
+
+    updated = False
+
+    for item in report.get("results", []):
+        if item.get("check_id") != override["check_id"]:
+            continue
+        item.update(override)
+        updated = True
+        break
+
+    if not updated:
+        report.setdefault("results", []).append(override)
+
+    report["results"] = normalize_results(report.get("results", []))
+    report["summary"] = build_summary(report["results"])
+    return report
+
+
 class ExternalEvidenceCollector:
     """
     외부 진단 PC에서 대상 웹서비스에 HTTP 요청을 보내
@@ -542,10 +634,19 @@ class ExternalEvidenceCollector:
     GPT가 1차 판단할 수 있도록 관찰 가능한 evidence를 모은다.
     """
 
-    def __init__(self, target: str, tomcat_port: int = 8080, timeout: int = 5):
+    def __init__(
+        self,
+        target: str,
+        tomcat_port: int = 8080,
+        timeout: int = 5,
+        normal_user_credentials: str | None = None
+    ):
         self.target = target.rstrip("/")
         self.timeout = timeout
         self.tomcat_port = tomcat_port
+        self.normal_user_credentials = parse_normal_user_credentials(
+            normal_user_credentials
+        )
 
         parsed = urlparse(self.target)
         self.scheme = parsed.scheme or "http"
@@ -554,12 +655,96 @@ class ExternalEvidenceCollector:
         if not self.host:
             raise ValueError("target 형식이 올바르지 않습니다. 예: http://15.164.60.79")
 
-        self.session = requests.Session()
-        self.session.headers.update(HEADERS)
+    def extract_login_form(self):
+        login_url = self.target + "/vulnapp/login.jsp"
+        res = self.safe_request("GET", login_url)
 
-    def safe_request(self, method: str, url: str, **kwargs):
+        if isinstance(res, dict):
+            return None
+
+        soup = BeautifulSoup(res.text, "html.parser")
+        form = soup.find("form")
+
+        if not form:
+            return None
+
+        action = form.get("action", "")
+        method = form.get("method", "GET").upper()
+        params = []
+
+        for input_tag in form.find_all("input"):
+            name = input_tag.get("name")
+            input_type = input_tag.get("type", "text")
+
+            if name:
+                params.append({
+                    "name": name,
+                    "type": input_type
+                })
+
+        return {
+            "url": login_url,
+            "action": urljoin(login_url, action),
+            "method": method,
+            "params": params
+        }
+
+    def build_login_payload(self, form: dict, username: str, password: str):
+        payload = {}
+
+        for param in form.get("params", []):
+            name = str(param.get("name", ""))
+            input_type = str(param.get("type", "text")).lower()
+            lowered_name = name.lower()
+
+            if input_type == "submit":
+                continue
+
+            if lowered_name in ["id", "user", "userid", "user_id", "username", "loginid"]:
+                payload[name] = username
+            elif lowered_name in ["pw", "password", "passwd", "userpw", "user_pw"]:
+                payload[name] = password
+            elif input_type in ["text", "email", "search"] and name not in payload:
+                payload[name] = username
+            elif input_type == "password":
+                payload[name] = password
+            else:
+                payload[name] = param.get("value", "") or "test"
+
+        return payload
+
+    def is_login_success(self, response):
+        if isinstance(response, dict):
+            return False
+
+        location = response.headers.get("Location", "").lower()
+        body = response.text.lower()
+
+        if response.status_code in [301, 302, 303, 307, 308]:
+            if "login.jsp" in location:
+                return False
+            if any(keyword in location for keyword in ["/vulnapp/", "index.jsp", "profile", "mypage", "admin.jsp"]):
+                return True
+
+        return (
+            "logout" in body or
+            "mypage" in body or
+            "welcome" in body or
+            "환영" in body or
+            ("login" not in body and "로그인" not in body)
+        )
+
+    def build_session(self):
+        session = requests.Session()
+        session.headers.update(HEADERS)
+        return session
+
+    def safe_request(self, method: str, url: str, session=None, **kwargs):
+        request_session = session or self.build_session()
+        should_close = session is None
+
         try:
-            return self.session.request(
+            return request_session.request(
                 method=method,
                 url=url,
                 timeout=self.timeout,
@@ -572,6 +757,9 @@ class ExternalEvidenceCollector:
                 "error": str(e),
                 "url": url
             }
+        finally:
+            if should_close:
+                request_session.close()
 
     def response_to_dict(self, response, include_body=True, body_limit=1500):
         if isinstance(response, dict) and "error" in response:
@@ -730,8 +918,11 @@ class ExternalEvidenceCollector:
 
     def collect_admin_page(self):
         url = self.target + "/vulnapp/admin.jsp"
-        res = self.safe_request("GET", url)
+        res = self.safe_request("GET", url, allow_redirects=False)
         result = self.response_to_dict(res, body_limit=1200)
+
+        if not isinstance(res, dict):
+            result["redirect_location"] = res.headers.get("Location", "")
 
         if "body_sample" in result:
             body = result["body_sample"].lower()
@@ -750,6 +941,98 @@ class ExternalEvidenceCollector:
             }
 
         return result
+
+    def collect_admin_page_as_authenticated_user(self):
+        form = self.extract_login_form()
+
+        if not form:
+            return {
+                "attempted": False,
+                "reason": "login_form_not_found"
+            }
+
+        for credential in self.normal_user_credentials:
+            session = self.build_session()
+
+            try:
+                username = credential["username"]
+                payload = self.build_login_payload(
+                    form=form,
+                    username=username,
+                    password=credential["password"]
+                )
+
+                login_res = self.safe_request(
+                    form["method"],
+                    form["action"],
+                    session=session,
+                    data=payload if form["method"] == "POST" else None,
+                    params=payload if form["method"] != "POST" else None,
+                    allow_redirects=False
+                )
+
+                login_result = self.response_to_dict(login_res, body_limit=800)
+                login_result["credential_label"] = username
+                login_result["login_success"] = self.is_login_success(login_res)
+
+                admin_url = self.target + "/vulnapp/admin.jsp"
+                admin_res = self.safe_request(
+                    "GET",
+                    admin_url,
+                    session=session,
+                    allow_redirects=False
+                )
+                admin_result = self.response_to_dict(admin_res, body_limit=1200)
+
+                if not isinstance(admin_res, dict):
+                    admin_result["redirect_location"] = admin_res.headers.get("Location", "")
+                    admin_body = admin_res.text.lower()
+                    admin_result["signature_hints"] = {
+                        "contains_admin_keywords": any(
+                            keyword in admin_body
+                            for keyword in [
+                                "admin page",
+                                "system config",
+                                "user list",
+                                "backup download",
+                                "관리자"
+                            ]
+                        ),
+                        "contains_login_keyword": "login" in admin_body or "로그인" in admin_body,
+                        "access_granted_to_non_admin": (
+                            login_result["login_success"] and
+                            admin_res.status_code == 200 and
+                            "login" not in admin_body and
+                            "로그인" not in admin_body
+                        )
+                    }
+
+                if (
+                    login_result.get("login_success") and
+                    not isinstance(admin_res, dict)
+                ):
+                    return {
+                        "attempted": True,
+                        "credential_label": username,
+                        "login_request": {
+                            "url": form["action"],
+                            "method": form["method"],
+                            "submitted_fields": sorted(payload.keys())
+                        },
+                        "login_response": login_result,
+                        "admin_response": admin_result
+                    }
+            finally:
+                session.close()
+
+        return {
+            "attempted": True,
+            "login_success": False,
+            "tested_credentials": [
+                item["username"]
+                for item in self.normal_user_credentials
+            ]
+        }
 
     def collect_https_status(self):
         http_url = "http://" + self.host
@@ -825,29 +1108,34 @@ class ExternalEvidenceCollector:
 
         attempts = []
         blocked = False
+        session = self.build_session()
 
-        for _ in range(8):
-            res = self.safe_request(
-                "POST",
-                url,
-                data={
-                    "username": "admin",
-                    "password": "wrongpass"
-                }
-            )
+        try:
+            for _ in range(8):
+                res = self.safe_request(
+                    "POST",
+                    url,
+                    session=session,
+                    data={
+                        "username": "admin",
+                        "password": "wrongpass"
+                    }
+                )
 
-            if isinstance(res, dict):
-                attempts.append(res)
-                continue
+                if isinstance(res, dict):
+                    attempts.append(res)
+                    continue
 
-            attempts.append({
-                "url": res.url,
-                "status_code": res.status_code,
-                "body_sample": res.text[:300]
-            })
+                attempts.append({
+                    "url": res.url,
+                    "status_code": res.status_code,
+                    "body_sample": res.text[:300]
+                })
 
-            if res.status_code in [423, 429]:
-                blocked = True
+                if res.status_code in [423, 429]:
+                    blocked = True
+        finally:
+            session.close()
 
         return {
             "url": url,
@@ -861,29 +1149,34 @@ class ExternalEvidenceCollector:
 
         attempts = []
         blocked = False
+        session = self.build_session()
 
-        for _ in range(10):
-            res = self.safe_request(
-                "POST",
-                url,
-                data={
-                    "username": "admin",
-                    "password": "wrongpass"
-                }
-            )
+        try:
+            for _ in range(10):
+                res = self.safe_request(
+                    "POST",
+                    url,
+                    session=session,
+                    data={
+                        "username": "admin",
+                        "password": "wrongpass"
+                    }
+                )
 
-            if isinstance(res, dict):
-                attempts.append(res)
-                continue
+                if isinstance(res, dict):
+                    attempts.append(res)
+                    continue
 
-            attempts.append({
-                "url": res.url,
-                "status_code": res.status_code,
-                "body_sample": res.text[:300]
-            })
+                attempts.append({
+                    "url": res.url,
+                    "status_code": res.status_code,
+                    "body_sample": res.text[:300]
+                })
 
-            if res.status_code in [423, 429]:
-                blocked = True
+                if res.status_code in [423, 429]:
+                    blocked = True
+        finally:
+            session.close()
 
         return {
             "url": url,
@@ -973,6 +1266,7 @@ class ExternalEvidenceCollector:
                 "xss_tests": self.collect_xss_test(),
                 "sensitive_info_page": self.collect_sensitive_info_page(),
                 "admin_page": self.collect_admin_page(),
+                "admin_page_as_authenticated_user": self.collect_admin_page_as_authenticated_user(),
                 "https_status": self.collect_https_status(),
                 "cookie_status": self.collect_cookie_status(),
                 "rate_limit": self.collect_rate_limit(),

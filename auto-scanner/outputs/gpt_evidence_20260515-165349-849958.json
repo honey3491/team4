@@ -1,7 +1,7 @@
 {
   "project": "4악다 생성형 AI 기반 웹 취약점 자동 진단",
   "target": "http://15.164.60.79",
-  "collected_at": "2026-05-16T16:22:21+09:00",
+  "collected_at": "2026-05-15T16:54:03+09:00",
   "analysis_policy": {
     "phase_1": "GPT first analyzes collected HTTP evidence only.",
     "phase_2": "If GPT marks a finding as 보류 or low confidence, signature-based result.json may be used as supporting evidence.",
@@ -13,10 +13,15 @@
       "status_code": 200,
       "headers": {
         "Server": "nginx/1.28.3 (Ubuntu)",
-        "Date": "Sat, 16 May 2026 07:22:21 GMT",
+        "Date": "Fri, 15 May 2026 07:54:03 GMT",
         "Content-Type": "text/html;charset=UTF-8",
         "Transfer-Encoding": "chunked",
         "Connection": "keep-alive",
+        "X-Frame-Options": "DENY",
+        "Content-Security-Policy": "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline';",
+        "X-Content-Type-Options": "nosniff",
+        "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
+        "Referrer-Policy": "no-referrer-when-downgrade",
         "Content-Encoding": "gzip"
       },
       "body_sample": "\n\n\n<!DOCTYPE html>\n<html lang=\"en\">\n    <head>\n        <meta charset=\"UTF-8\" />\n        <title>Apache Tomcat/9.0.118</title>\n        <link href=\"favicon.ico\" rel=\"icon\" type=\"image/x-icon\" />\n        <link href=\"tomcat.css\" rel=\"stylesheet\" type=\"text/css\" />\n    </head>\n\n    <body>\n        <div id=\"wrapper\">\n            <div id=\"navigation\" class=\"curved container\">\n                <span id=\"nav-home\"><a href=\"https://tomcat.apache.org/\">Home</a></span>\n                <span id=\"nav-hosts\"><a href=\"/docs/\">Documentation</a></span>\n                <span id=\"nav-config\"><a href=\"/docs/config/\">Configuration</a></span>\n                <span id=\"nav-examples\"><a href=\"/examples/\">Examples</a></span>\n                <span id=\"nav-wiki\"><a href=\"https://cwiki.apache.org/confluence/display/TOMCAT/\">Wiki</a></span>\n                <span id=\"nav-lists\"><a href=\"https://tomcat.apache.org/lists.html\">Mailing Lists</a></span>\n                <span id=\"nav-help\"><a href=\"https://tomcat.apache.org/findhelp.html\">Find Help</a></span>\n                <br class=\"separator\" />\n            </div>\n            <div id=\"asf-box\">\n                <h1>Apache Tomcat/9.0.118</h1>\n            </div>\n            <div id=\"upper\" class=\"curved container\">\n                <div id=\"congrats\" class=\"curved container\">\n                    <h2>If you're seeing this, you've successfully installed Tomcat. Congratulations!</h2>\n                </div>\n                <div id=\"notice\">\n                    <img id="
@@ -26,11 +31,16 @@
       "status_code": 404,
       "headers": {
         "Server": "nginx/1.28.3 (Ubuntu)",
-        "Date": "Sat, 16 May 2026 07:22:21 GMT",
+        "Date": "Fri, 15 May 2026 07:54:03 GMT",
         "Content-Type": "text/html;charset=utf-8",
         "Transfer-Encoding": "chunked",
         "Connection": "keep-alive",
         "Content-Language": "en",
+        "X-Frame-Options": "DENY",
+        "Content-Security-Policy": "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline';",
+        "X-Content-Type-Options": "nosniff",
+        "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
+        "Referrer-Policy": "no-referrer-when-downgrade",
         "Content-Encoding": "gzip"
       },
       "body_sample": "<!doctype html><html lang=\"en\"><head><title>HTTP Status 404 – Not Found</title><style type=\"text/css\">body {font-family:Tahoma,Arial,sans-serif;} h1, h2, h3, b {color:white;background-color:#525D76;} h1 {font-size:22px;} h2 {font-size:16px;} h3 {font-size:14px;} p {font-size:12px;} a {color:black;} .line {height:1px;background-color:#525D76;border:none;}</style></head><body><h1>HTTP Status 404 – Not Found</h1><hr class=\"line\" /><p><b>Type</b> Status Report</p><p><b>Message</b> The requested resource [&#47;not_exist_4akda_404_test] is not available</p><p><b>Description</b> The origin server did not find a current representation for the target resource or is not willing to disclose that one exists.</p><hr class=\"line\" /><h3>Apache Tomcat/9.0.118</h3></body></html>"
@@ -42,7 +52,7 @@
         "headers": {
           "Content-Type": "text/html;charset=UTF-8",
           "Transfer-Encoding": "chunked",
-          "Date": "Sat, 16 May 2026 07:22:21 GMT",
+          "Date": "Fri, 15 May 2026 07:54:03 GMT",
           "Keep-Alive": "timeout=20",
           "Connection": "keep-alive"
         },
@@ -53,10 +63,15 @@
         "status_code": 200,
         "headers": {
           "Server": "nginx/1.28.3 (Ubuntu)",
-          "Date": "Sat, 16 May 2026 07:22:21 GMT",
+          "Date": "Fri, 15 May 2026 07:54:03 GMT",
           "Content-Type": "text/html;charset=UTF-8",
           "Transfer-Encoding": "chunked",
           "Connection": "keep-alive",
+          "X-Frame-Options": "DENY",
+          "Content-Security-Policy": "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline';",
+          "X-Content-Type-Options": "nosniff",
+          "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
+          "Referrer-Policy": "no-referrer-when-downgrade",
           "Content-Encoding": "gzip"
         },
         "body_sample": "\n\n\n<!DOCTYPE html>\n<html lang=\"en\">\n    <head>\n        <meta charset=\"UTF-8\" />\n        <title>Apache Tomcat/9.0.118</title>\n        <link href=\"favicon.ico\" rel=\"icon\" type=\"image/x-icon\" />\n        <link href=\"tomcat.css\" rel=\"stylesheet\" type=\"text/css\" />\n    </head>\n\n    <body>\n        <div id=\"wrapper\">\n            <div id=\"navigation\" class=\"curved container\">\n                <span id=\"nav-home\"><a href=\"https://tomcat.apache.org/\">Home</a></span>\n                <span id=\"nav-hosts\"><a href=\"/docs/\">Documentation</a></span>\n                <span id=\"nav-config\"><a href=\"/docs/config/\">Configuration</a></span>\n                <span id=\"nav-examples\"><a href=\"/examples/\">Examples</a></span>\n                <span id=\"nav-wiki\"><a href=\"https://cwiki.apache.org/confluence/display/TOMCAT/\">Wiki</a></span>\n                <span id=\"nav-lists\"><a href=\"https://tomcat.apache.org/lists.html\">Mailing Lists</a></span>\n                <span id=\"nav-help\"><a href=\"https://tomcat.apache.org/findhelp.html\">Find Help</a></span>\n                <br class=\"separator\" />\n            </div>\n            <div id=\"asf-box\">\n                <h1>Apache Tomcat/9.0.118</h1>\n            </div>\n            <div id=\"upper\" class=\"curved container\">\n                <div id=\"congrats\" class=\"curved container\">\n                    <h2>If you're seeing this, you've successfully installed Tomcat. Congratulations!</h2>\n                </div>\n                <div id=\"notice\">\n                    <img id="
@@ -69,7 +84,7 @@
         "headers": {
           "Content-Type": "text/html;charset=ISO-8859-1",
           "Content-Length": "3523",
-          "Date": "Sat, 16 May 2026 07:22:21 GMT",
+          "Date": "Fri, 15 May 2026 07:54:03 GMT",
           "Keep-Alive": "timeout=20",
           "Connection": "keep-alive"
         },
@@ -80,12 +95,17 @@
         "status_code": 401,
         "headers": {
           "Server": "nginx/1.28.3 (Ubuntu)",
-          "Date": "Sat, 16 May 2026 07:22:21 GMT",
+          "Date": "Fri, 15 May 2026 07:54:03 GMT",
           "Content-Type": "text/html;charset=ISO-8859-1",
           "Content-Length": "2576",
           "Connection": "keep-alive",
           "Cache-Control": "private",
-          "WWW-Authenticate": "Basic realm=\"Tomcat Manager Application\""
+          "WWW-Authenticate": "Basic realm=\"Tomcat Manager Application\"",
+          "X-Frame-Options": "DENY",
+          "Content-Security-Policy": "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline';",
+          "X-Content-Type-Options": "nosniff",
+          "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
+          "Referrer-Policy": "no-referrer-when-downgrade"
         },
         "body_sample": "<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01//EN\" \"http://www.w3.org/TR/html4/strict.dtd\">\n<html>\n <head>\n  <title>401 Unauthorized</title>\n  <style type=\"text/css\">\n    <!--\n    BODY {font-family:Tahoma,Arial,sans-serif;color:black;background-color:white;font-size:12px;}\n    H1 {font-family:Tahoma,Arial,sans-serif;color:white;background-color:#525D76;font-size:22px;}\n    PRE, TT {border: 1px dotted #525D76}\n    A {color : black;}A.name {color : black;}\n    -->\n  </style>\n  <link href=\"/manager/images/favicon.ico\" rel=\"icon\" type=\"image/x-icon\" />\n </head>\n <body>\n   <h1>401 Unauthorized</h1>\n   <p>\n    You are not authorized to view this page. If you have not changed\n    any configuration files, please examine the file\n    <tt>conf/tomcat-users.xml</tt> in your installation. That\n    file"
       }
@@ -96,14 +116,19 @@
         "status_code": 200,
         "headers": {
           "Server": "nginx/1.28.3 (Ubuntu)",
-          "Date": "Sat, 16 May 2026 07:22:21 GMT",
+          "Date": "Fri, 15 May 2026 07:54:03 GMT",
           "Content-Type": "text/html;charset=UTF-8",
           "Transfer-Encoding": "chunked",
           "Connection": "keep-alive",
-          "Set-Cookie": "JSESSIONID=B79379DA1CE00E59AE73D8B7D10E7819; Path=/vulnapp; HttpOnly",
+          "Set-Cookie": "JSESSIONID=F519CBE750E144055EA2668CFFB6136A; Path=/vulnapp; HttpOnly",
+          "X-Frame-Options": "DENY",
+          "Content-Security-Policy": "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline';",
+          "X-Content-Type-Options": "nosniff",
+          "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
+          "Referrer-Policy": "no-referrer-when-downgrade",
           "Content-Encoding": "gzip"
         },
-        "body_sample": "\n\n\n\n\n\n\n<!DOCTYPE html>\n<html lang=\"ko\">\n<head>\n    <meta charset=\"UTF-8\">\n    <link rel=\"stylesheet\" href=\"/vulnapp/css/style.css\">\n</head>\n<body>\n    <nav class=\"navbar\">\n        <div class=\"logo\" href=\"index.jsp\">\n\t\t<a href=\"/vulnapp/\" style=\"text-decoration: none; color: inherit;\">\n\t\t\t🛡️ VulnApp\n\t\t</a>\n\t</div>\n        <ul class=\"nav-links\">\n            <li><a href=\"search.jsp\">통합 검색</a></li>\n            <li><a href=\"download.jsp\">자료실</a></li>\n            \n            \n                <li><a href=\"login.jsp\">로그인</a></li>\n            \n        </ul>\n    </nav>\n    <main class=\"container\">\n        <div class=\"card\">\n\n\n    <h2>고객센터 로그인 (SQLi Test)</h2>\n    <p style=\"margin-bottom: 1.5rem; color: #7f8c8d;\">\n        서비스 이용을 위해 로그인이 필요합니다.\n    </p>\n\n    \n        <div style=\"background-color: #f8d7da; color: #721c24; padding: 12px; border: 1px solid #f5c6cb; border-radius: 4px; margin-bottom: 1.5rem; font-weight: bold;\">\n            ⚠️ 데이터베이스 오류: (conn=890) You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 'test'' at line 1\n        </div>\n    \n\n    <form class=\"search-form\" style=\"flex-direction: column",
+        "body_sample": "\n\n\n\n\n\n\n<!DOCTYPE html>\n<html lang=\"ko\">\n<head>\n    <meta charset=\"UTF-8\">\n    <link rel=\"stylesheet\" href=\"/vulnapp/css/style.css\">\n</head>\n<body>\n    <nav class=\"navbar\">\n        <div class=\"logo\" href=\"index.jsp\">\n\t\t<a href=\"/vulnapp/\" style=\"text-decoration: none; color: inherit;\">\n\t\t\t🛡️ VulnApp\n\t\t</a>\n\t</div>\n        <ul class=\"nav-links\">\n            <li><a href=\"search.jsp\">통합 검색</a></li>\n            <li><a href=\"download.jsp\">자료실</a></li>\n            \n            \n                <li><a href=\"login.jsp\">로그인</a></li>\n            \n        </ul>\n    </nav>\n    <main class=\"container\">\n        <div class=\"card\">\n\n\n    <h2>고객센터 로그인 (SQLi Test)</h2>\n    <p style=\"margin-bottom: 1.5rem; color: #7f8c8d;\">\n        서비스 이용을 위해 로그인이 필요합니다.\n    </p>\n\n    \n        <div style=\"background-color: #f8d7da; color: #721c24; padding: 12px; border: 1px solid #f5c6cb; border-radius: 4px; margin-bottom: 1.5rem; font-weight: bold;\">\n            ⚠️ 데이터베이스 오류: (conn=857) You have an error in your SQL syntax; check the manual that corresponds to your MariaDB server version for the right syntax to use near 'test'' at line 1\n        </div>\n    \n\n    <form class=\"search-form\" style=\"flex-direction: column",
         "test_type": "SQL Injection authentication bypass test",
         "test_payload": {
           "id": "admin'--",
@@ -123,12 +148,16 @@
         "status_code": 302,
         "headers": {
           "Server": "nginx/1.28.3 (Ubuntu)",
-          "Date": "Sat, 16 May 2026 07:22:21 GMT",
+          "Date": "Fri, 15 May 2026 07:54:03 GMT",
           "Content-Type": "text/html;charset=UTF-8",
           "Content-Length": "0",
           "Connection": "keep-alive",
-          "Set-Cookie": "JSESSIONID=430B794871692AA8FC95452DA5BC3F0B; Path=/vulnapp; HttpOnly",
-          "Location": "http://15.164.60.79/vulnapp/admin.jsp"
+          "Location": "http://15.164.60.79/vulnapp/admin.jsp",
+          "X-Frame-Options": "DENY",
+          "Content-Security-Policy": "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline';",
+          "X-Content-Type-Options": "nosniff",
+          "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
+          "Referrer-Policy": "no-referrer-when-downgrade"
         },
         "body_sample": "",
         "test_type": "SQL Injection authentication bypass test",
@@ -150,12 +179,16 @@
         "status_code": 302,
         "headers": {
           "Server": "nginx/1.28.3 (Ubuntu)",
-          "Date": "Sat, 16 May 2026 07:22:21 GMT",
+          "Date": "Fri, 15 May 2026 07:54:03 GMT",
           "Content-Type": "text/html;charset=UTF-8",
           "Content-Length": "0",
           "Connection": "keep-alive",
-          "Set-Cookie": "JSESSIONID=BC98FE237820B92FADED4D989C697BDE; Path=/vulnapp; HttpOnly",
-          "Location": "http://15.164.60.79/vulnapp/admin.jsp"
+          "Location": "http://15.164.60.79/vulnapp/admin.jsp",
+          "X-Frame-Options": "DENY",
+          "Content-Security-Policy": "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline';",
+          "X-Content-Type-Options": "nosniff",
+          "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
+          "Referrer-Policy": "no-referrer-when-downgrade"
         },
         "body_sample": "",
         "test_type": "SQL Injection authentication bypass test",
@@ -179,14 +212,18 @@
         "status_code": 200,
         "headers": {
           "Server": "nginx/1.28.3 (Ubuntu)",
-          "Date": "Sat, 16 May 2026 07:22:21 GMT",
+          "Date": "Fri, 15 May 2026 07:54:03 GMT",
           "Content-Type": "text/html;charset=UTF-8",
           "Transfer-Encoding": "chunked",
           "Connection": "keep-alive",
-          "Set-Cookie": "JSESSIONID=28BBDEF3DDBFDE27248BC7EE9D12FBB1; Path=/vulnapp; HttpOnly",
+          "X-Frame-Options": "DENY",
+          "Content-Security-Policy": "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline';",
+          "X-Content-Type-Options": "nosniff",
+          "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
+          "Referrer-Policy": "no-referrer-when-downgrade",
           "Content-Encoding": "gzip"
         },
-        "body_sample": "\n\n\n\n\n\n\n<!DOCTYPE html>\n<html lang=\"ko\">\n<head>\n    <meta charset=\"UTF-8\">\n    <link rel=\"stylesheet\" href=\"/vulnapp/css/style.css\">\n</head>\n<body>\n    <nav class=\"navbar\">\n        <div class=\"logo\" href=\"index.jsp\">\n\t\t<a href=\"/vulnapp/\" style=\"text-decoration: none; color: inherit;\">\n\t\t\t🛡️ VulnApp\n\t\t</a>\n\t</div>\n        <ul class=\"nav-links\">\n            <li><a href=\"search.jsp\">통합 검색</a></li>\n            <li><a href=\"download.jsp\">자료실</a></li>\n            \n            \n                <li><a href=\"login.jsp\">로그인</a></li>\n            \n        </ul>\n    </nav>\n    <main class=\"container\">\n        <div class=\"card\">\n\n\n\n\n    <div style=\"border-bottom: 2px solid #ecf0f1; padding-bottom: 10px; margin-bottom: 20px;\">\n        <h2 style=\"margin: 0; color: #2980b9;\">🔍 통합 검색 및 게시판</h2>\n    </div>\n\n    <div style=\"margin-bottom: 30px; background: #f8f9fa; padding: 20px; border-radius: 8px;\">\n        <form action=\"search.jsp\" method=\"GET\" style=\"display: flex; gap: 10px;\">\n            <input type=\"text\" name=\"keyword\" value=\"\" placeholder=\"검색어를 입력하세요...\" \n                   style=\"flex-grow: 1; padding: 10px; border: 1px solid #ccc; border-radius: 4px;\">\n            <button type=\"submit\" styl",
+        "body_sample": "\n\n\n\n\n\n\n<!DOCTYPE html>\n<html lang=\"ko\">\n<head>\n    <meta charset=\"UTF-8\">\n    <link rel=\"stylesheet\" href=\"/vulnapp/css/style.css\">\n</head>\n<body>\n    <nav class=\"navbar\">\n        <div class=\"logo\" href=\"index.jsp\">\n\t\t<a href=\"/vulnapp/\" style=\"text-decoration: none; color: inherit;\">\n\t\t\t🛡️ VulnApp\n\t\t</a>\n\t</div>\n        <ul class=\"nav-links\">\n            <li><a href=\"search.jsp\">통합 검색</a></li>\n            <li><a href=\"download.jsp\">자료실</a></li>\n            \n            \n                <li><a href=\"profile.jsp?user_idx=1\">프로필 (admin)</a></li>\n                <li><a href=\"logout.jsp\">로그아웃</a></li>\n            \n        </ul>\n    </nav>\n    <main class=\"container\">\n        <div class=\"card\">\n\n\n\n\n    <div style=\"border-bottom: 2px solid #ecf0f1; padding-bottom: 10px; margin-bottom: 20px;\">\n        <h2 style=\"margin: 0; color: #2980b9;\">🔍 통합 검색 및 게시판</h2>\n    </div>\n\n    <div style=\"margin-bottom: 30px; background: #f8f9fa; padding: 20px; border-radius: 8px;\">\n        <form action=\"search.jsp\" method=\"GET\" style=\"display: flex; gap: 10px;\">\n            <input type=\"text\" name=\"keyword\" value=\"\" placeholder=\"검색어를 입력하세요...\" \n                   style=\"flex-grow: 1; padding: 10px; border: ",
         "test_type": "Reflected XSS test",
         "test_payload": "<script>alert(1337)</script>",
         "signature_hints": {
@@ -198,14 +235,18 @@
         "status_code": 200,
         "headers": {
           "Server": "nginx/1.28.3 (Ubuntu)",
-          "Date": "Sat, 16 May 2026 07:22:21 GMT",
+          "Date": "Fri, 15 May 2026 07:54:03 GMT",
           "Content-Type": "text/html;charset=UTF-8",
           "Transfer-Encoding": "chunked",
           "Connection": "keep-alive",
-          "Set-Cookie": "JSESSIONID=868C5A1A9A2ED8A09CF4B6C0CD7FFDAA; Path=/vulnapp; HttpOnly",
+          "X-Frame-Options": "DENY",
+          "Content-Security-Policy": "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline';",
+          "X-Content-Type-Options": "nosniff",
+          "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
+          "Referrer-Policy": "no-referrer-when-downgrade",
           "Content-Encoding": "gzip"
         },
-        "body_sample": "\n\n\n\n\n\n\n<!DOCTYPE html>\n<html lang=\"ko\">\n<head>\n    <meta charset=\"UTF-8\">\n    <link rel=\"stylesheet\" href=\"/vulnapp/css/style.css\">\n</head>\n<body>\n    <nav class=\"navbar\">\n        <div class=\"logo\" href=\"index.jsp\">\n\t\t<a href=\"/vulnapp/\" style=\"text-decoration: none; color: inherit;\">\n\t\t\t🛡️ VulnApp\n\t\t</a>\n\t</div>\n        <ul class=\"nav-links\">\n            <li><a href=\"search.jsp\">통합 검색</a></li>\n            <li><a href=\"download.jsp\">자료실</a></li>\n            \n            \n                <li><a href=\"login.jsp\">로그인</a></li>\n            \n        </ul>\n    </nav>\n    <main class=\"container\">\n        <div class=\"card\">\n\n\n\n\n    <div style=\"border-bottom: 2px solid #ecf0f1; padding-bottom: 10px; margin-bottom: 20px;\">\n        <h2 style=\"margin: 0; color: #2980b9;\">🔍 통합 검색 및 게시판</h2>\n    </div>\n\n    <div style=\"margin-bottom: 30px; background: #f8f9fa; padding: 20px; border-radius: 8px;\">\n        <form action=\"search.jsp\" method=\"GET\" style=\"display: flex; gap: 10px;\">\n            <input type=\"text\" name=\"keyword\" value=\"\" placeholder=\"검색어를 입력하세요...\" \n                   style=\"flex-grow: 1; padding: 10px; border: 1px solid #ccc; border-radius: 4px;\">\n            <button type=\"submit\" styl",
+        "body_sample": "\n\n\n\n\n\n\n<!DOCTYPE html>\n<html lang=\"ko\">\n<head>\n    <meta charset=\"UTF-8\">\n    <link rel=\"stylesheet\" href=\"/vulnapp/css/style.css\">\n</head>\n<body>\n    <nav class=\"navbar\">\n        <div class=\"logo\" href=\"index.jsp\">\n\t\t<a href=\"/vulnapp/\" style=\"text-decoration: none; color: inherit;\">\n\t\t\t🛡️ VulnApp\n\t\t</a>\n\t</div>\n        <ul class=\"nav-links\">\n            <li><a href=\"search.jsp\">통합 검색</a></li>\n            <li><a href=\"download.jsp\">자료실</a></li>\n            \n            \n                <li><a href=\"profile.jsp?user_idx=1\">프로필 (admin)</a></li>\n                <li><a href=\"logout.jsp\">로그아웃</a></li>\n            \n        </ul>\n    </nav>\n    <main class=\"container\">\n        <div class=\"card\">\n\n\n\n\n    <div style=\"border-bottom: 2px solid #ecf0f1; padding-bottom: 10px; margin-bottom: 20px;\">\n        <h2 style=\"margin: 0; color: #2980b9;\">🔍 통합 검색 및 게시판</h2>\n    </div>\n\n    <div style=\"margin-bottom: 30px; background: #f8f9fa; padding: 20px; border-radius: 8px;\">\n        <form action=\"search.jsp\" method=\"GET\" style=\"display: flex; gap: 10px;\">\n            <input type=\"text\" name=\"keyword\" value=\"\" placeholder=\"검색어를 입력하세요...\" \n                   style=\"flex-grow: 1; padding: 10px; border: ",
         "test_type": "Reflected XSS test",
         "test_payload": "<script>alert(1)</script>",
         "signature_hints": {
@@ -217,14 +258,18 @@
         "status_code": 200,
         "headers": {
           "Server": "nginx/1.28.3 (Ubuntu)",
-          "Date": "Sat, 16 May 2026 07:22:21 GMT",
+          "Date": "Fri, 15 May 2026 07:54:03 GMT",
           "Content-Type": "text/html;charset=UTF-8",
           "Transfer-Encoding": "chunked",
           "Connection": "keep-alive",
-          "Set-Cookie": "JSESSIONID=A30891B96205EFA31C3B9E37E2A427C9; Path=/vulnapp; HttpOnly",
+          "X-Frame-Options": "DENY",
+          "Content-Security-Policy": "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline';",
+          "X-Content-Type-Options": "nosniff",
+          "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
+          "Referrer-Policy": "no-referrer-when-downgrade",
           "Content-Encoding": "gzip"
         },
-        "body_sample": "\n\n\n\n\n\n\n<!DOCTYPE html>\n<html lang=\"ko\">\n<head>\n    <meta charset=\"UTF-8\">\n    <link rel=\"stylesheet\" href=\"/vulnapp/css/style.css\">\n</head>\n<body>\n    <nav class=\"navbar\">\n        <div class=\"logo\" href=\"index.jsp\">\n\t\t<a href=\"/vulnapp/\" style=\"text-decoration: none; color: inherit;\">\n\t\t\t🛡️ VulnApp\n\t\t</a>\n\t</div>\n        <ul class=\"nav-links\">\n            <li><a href=\"search.jsp\">통합 검색</a></li>\n            <li><a href=\"download.jsp\">자료실</a></li>\n            \n            \n                <li><a href=\"login.jsp\">로그인</a></li>\n            \n        </ul>\n    </nav>\n    <main class=\"container\">\n        <div class=\"card\">\n\n\n\n\n    <div style=\"border-bottom: 2px solid #ecf0f1; padding-bottom: 10px; margin-bottom: 20px;\">\n        <h2 style=\"margin: 0; color: #2980b9;\">🔍 통합 검색 및 게시판</h2>\n    </div>\n\n    <div style=\"margin-bottom: 30px; background: #f8f9fa; padding: 20px; border-radius: 8px;\">\n        <form action=\"search.jsp\" method=\"GET\" style=\"display: flex; gap: 10px;\">\n            <input type=\"text\" name=\"keyword\" value=\"\" placeholder=\"검색어를 입력하세요...\" \n                   style=\"flex-grow: 1; padding: 10px; border: 1px solid #ccc; border-radius: 4px;\">\n            <button type=\"submit\" styl",
+        "body_sample": "\n\n\n\n\n\n\n<!DOCTYPE html>\n<html lang=\"ko\">\n<head>\n    <meta charset=\"UTF-8\">\n    <link rel=\"stylesheet\" href=\"/vulnapp/css/style.css\">\n</head>\n<body>\n    <nav class=\"navbar\">\n        <div class=\"logo\" href=\"index.jsp\">\n\t\t<a href=\"/vulnapp/\" style=\"text-decoration: none; color: inherit;\">\n\t\t\t🛡️ VulnApp\n\t\t</a>\n\t</div>\n        <ul class=\"nav-links\">\n            <li><a href=\"search.jsp\">통합 검색</a></li>\n            <li><a href=\"download.jsp\">자료실</a></li>\n            \n            \n                <li><a href=\"profile.jsp?user_idx=1\">프로필 (admin)</a></li>\n                <li><a href=\"logout.jsp\">로그아웃</a></li>\n            \n        </ul>\n    </nav>\n    <main class=\"container\">\n        <div class=\"card\">\n\n\n\n\n    <div style=\"border-bottom: 2px solid #ecf0f1; padding-bottom: 10px; margin-bottom: 20px;\">\n        <h2 style=\"margin: 0; color: #2980b9;\">🔍 통합 검색 및 게시판</h2>\n    </div>\n\n    <div style=\"margin-bottom: 30px; background: #f8f9fa; padding: 20px; border-radius: 8px;\">\n        <form action=\"search.jsp\" method=\"GET\" style=\"display: flex; gap: 10px;\">\n            <input type=\"text\" name=\"keyword\" value=\"\" placeholder=\"검색어를 입력하세요...\" \n                   style=\"flex-grow: 1; padding: 10px; border: ",
         "test_type": "Reflected XSS test",
         "test_payload": "\"><script>alert(1)</script>",
         "signature_hints": {
@@ -236,14 +281,18 @@
         "status_code": 200,
         "headers": {
           "Server": "nginx/1.28.3 (Ubuntu)",
-          "Date": "Sat, 16 May 2026 07:22:21 GMT",
+          "Date": "Fri, 15 May 2026 07:54:03 GMT",
           "Content-Type": "text/html;charset=UTF-8",
           "Transfer-Encoding": "chunked",
           "Connection": "keep-alive",
-          "Set-Cookie": "JSESSIONID=7C7B72567FF7674EDFACE5CFD4C1FDA1; Path=/vulnapp; HttpOnly",
+          "X-Frame-Options": "DENY",
+          "Content-Security-Policy": "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline';",
+          "X-Content-Type-Options": "nosniff",
+          "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
+          "Referrer-Policy": "no-referrer-when-downgrade",
           "Content-Encoding": "gzip"
         },
-        "body_sample": "\n\n\n\n\n\n\n<!DOCTYPE html>\n<html lang=\"ko\">\n<head>\n    <meta charset=\"UTF-8\">\n    <link rel=\"stylesheet\" href=\"/vulnapp/css/style.css\">\n</head>\n<body>\n    <nav class=\"navbar\">\n        <div class=\"logo\" href=\"index.jsp\">\n\t\t<a href=\"/vulnapp/\" style=\"text-decoration: none; color: inherit;\">\n\t\t\t🛡️ VulnApp\n\t\t</a>\n\t</div>\n        <ul class=\"nav-links\">\n            <li><a href=\"search.jsp\">통합 검색</a></li>\n            <li><a href=\"download.jsp\">자료실</a></li>\n            \n            \n                <li><a href=\"login.jsp\">로그인</a></li>\n            \n        </ul>\n    </nav>\n    <main class=\"container\">\n        <div class=\"card\">\n\n\n\n\n    <div style=\"border-bottom: 2px solid #ecf0f1; padding-bottom: 10px; margin-bottom: 20px;\">\n        <h2 style=\"margin: 0; color: #2980b9;\">🔍 통합 검색 및 게시판</h2>\n    </div>\n\n    <div style=\"margin-bottom: 30px; background: #f8f9fa; padding: 20px; border-radius: 8px;\">\n        <form action=\"search.jsp\" method=\"GET\" style=\"display: flex; gap: 10px;\">\n            <input type=\"text\" name=\"keyword\" value=\"\" placeholder=\"검색어를 입력하세요...\" \n                   style=\"flex-grow: 1; padding: 10px; border: 1px solid #ccc; border-radius: 4px;\">\n            <button type=\"submit\" styl",
+        "body_sample": "\n\n\n\n\n\n\n<!DOCTYPE html>\n<html lang=\"ko\">\n<head>\n    <meta charset=\"UTF-8\">\n    <link rel=\"stylesheet\" href=\"/vulnapp/css/style.css\">\n</head>\n<body>\n    <nav class=\"navbar\">\n        <div class=\"logo\" href=\"index.jsp\">\n\t\t<a href=\"/vulnapp/\" style=\"text-decoration: none; color: inherit;\">\n\t\t\t🛡️ VulnApp\n\t\t</a>\n\t</div>\n        <ul class=\"nav-links\">\n            <li><a href=\"search.jsp\">통합 검색</a></li>\n            <li><a href=\"download.jsp\">자료실</a></li>\n            \n            \n                <li><a href=\"profile.jsp?user_idx=1\">프로필 (admin)</a></li>\n                <li><a href=\"logout.jsp\">로그아웃</a></li>\n            \n        </ul>\n    </nav>\n    <main class=\"container\">\n        <div class=\"card\">\n\n\n\n\n    <div style=\"border-bottom: 2px solid #ecf0f1; padding-bottom: 10px; margin-bottom: 20px;\">\n        <h2 style=\"margin: 0; color: #2980b9;\">🔍 통합 검색 및 게시판</h2>\n    </div>\n\n    <div style=\"margin-bottom: 30px; background: #f8f9fa; padding: 20px; border-radius: 8px;\">\n        <form action=\"search.jsp\" method=\"GET\" style=\"display: flex; gap: 10px;\">\n            <input type=\"text\" name=\"keyword\" value=\"\" placeholder=\"검색어를 입력하세요...\" \n                   style=\"flex-grow: 1; padding: 10px; border: ",
         "test_type": "Reflected XSS test",
         "test_payload": "<img src=x onerror=alert(1)>",
         "signature_hints": {
@@ -256,11 +305,15 @@
       "status_code": 200,
       "headers": {
         "Server": "nginx/1.28.3 (Ubuntu)",
-        "Date": "Sat, 16 May 2026 07:22:21 GMT",
+        "Date": "Fri, 15 May 2026 07:54:03 GMT",
         "Content-Type": "application/json;charset=UTF-8",
         "Content-Length": "144",
         "Connection": "keep-alive",
-        "Set-Cookie": "JSESSIONID=A313CCE68D7CA87313B2B13A205AEDB2; Path=/vulnapp; HttpOnly"
+        "X-Frame-Options": "DENY",
+        "Content-Security-Policy": "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline';",
+        "X-Content-Type-Options": "nosniff",
+        "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
+        "Referrer-Policy": "no-referrer-when-downgrade"
       },
       "body_sample": "\n{\n  \"debug\": true,\n  \"db_user\": \"vulnuser\",\n  \"db_password\": \"vulnpass1234\",\n  \"api_key\": \"TEST-API-KEY-123456\",\n  \"internal_ip\": \"10.0.0.5\"\n}\n",
       "signature_hints": {
@@ -276,20 +329,23 @@
     },
     "admin_page": {
       "url": "http://15.164.60.79/vulnapp/admin.jsp",
-      "status_code": 302,
+      "status_code": 200,
       "headers": {
         "Server": "nginx/1.28.3 (Ubuntu)",
-        "Date": "Sat, 16 May 2026 07:22:21 GMT",
+        "Date": "Fri, 15 May 2026 07:54:03 GMT",
         "Content-Type": "text/html;charset=UTF-8",
-        "Content-Length": "0",
+        "Transfer-Encoding": "chunked",
         "Connection": "keep-alive",
-        "Set-Cookie": "JSESSIONID=CDC4C9FE2F6273894C55AE17AAC78751; Path=/vulnapp; HttpOnly",
-        "Location": "http://15.164.60.79/vulnapp/login.jsp"
+        "X-Frame-Options": "DENY",
+        "Content-Security-Policy": "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline';",
+        "X-Content-Type-Options": "nosniff",
+        "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
+        "Referrer-Policy": "no-referrer-when-downgrade",
+        "Content-Encoding": "gzip"
       },
-      "body_sample": "",
-      "redirect_location": "http://15.164.60.79/vulnapp/login.jsp",
+      "body_sample": "\n\n\n\n\n\n<!DOCTYPE html>\n<html lang=\"ko\">\n<head>\n    <meta charset=\"UTF-8\">\n    <link rel=\"stylesheet\" href=\"/vulnapp/css/style.css\">\n</head>\n<body>\n    <nav class=\"navbar\">\n        <div class=\"logo\" href=\"index.jsp\">\n\t\t<a href=\"/vulnapp/\" style=\"text-decoration: none; color: inherit;\">\n\t\t\t🛡️ VulnApp\n\t\t</a>\n\t</div>\n        <ul class=\"nav-links\">\n            <li><a href=\"search.jsp\">통합 검색</a></li>\n            <li><a href=\"download.jsp\">자료실</a></li>\n            \n            \n                <li><a href=\"profile.jsp?user_idx=1\">프로필 (admin)</a></li>\n                <li><a href=\"logout.jsp\">로그아웃</a></li>\n            \n        </ul>\n    </nav>\n    <main class=\"container\">\n        <div class=\"card\">\n\n\n    <div style=\"display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #ecf0f1; padding-bottom: 10px; margin-bottom: 20px;\">\n        <h2 style=\"margin: 0; color: #8e44ad;\">⚙️ 시스템 관리자 대시보드</h2>\n        <span style=\"background-color: #e74c3c; color: white; padding: 4px 8px; border-radius: 4px; font-size: 0.8em; font-weight: bold;\">\n            Admin Only\n        </span>\n    </div>\n\n    <p style=\"margin-bottom: 1.5rem; color: #7f8c8d;\">\n        현재 서버에 가입된 모든 회원",
       "signature_hints": {
-        "contains_admin_keywords": false,
+        "contains_admin_keywords": true,
         "contains_login_keyword": false
       }
     },
@@ -299,16 +355,21 @@
         "status_code": 200,
         "headers": {
           "Server": "nginx/1.28.3 (Ubuntu)",
-          "Date": "Sat, 16 May 2026 07:22:21 GMT",
+          "Date": "Fri, 15 May 2026 07:54:03 GMT",
           "Content-Type": "text/html;charset=UTF-8",
           "Transfer-Encoding": "chunked",
           "Connection": "keep-alive",
+          "X-Frame-Options": "DENY",
+          "Content-Security-Policy": "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline';",
+          "X-Content-Type-Options": "nosniff",
+          "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
+          "Referrer-Policy": "no-referrer-when-downgrade",
           "Content-Encoding": "gzip"
         }
       },
       "https": {
         "url": "https://15.164.60.79",
-        "error": "HTTPSConnectionPool(host='15.164.60.79', port=443): Max retries exceeded with url: / (Caused by ConnectTimeoutError(<HTTPSConnection(host='15.164.60.79', port=443) at 0x756307cc3a10>, 'Connection to 15.164.60.79 timed out. (connect timeout=5)'))"
+        "error": "HTTPSConnectionPool(host='15.164.60.79', port=443): Max retries exceeded with url: / (Caused by ConnectTimeoutError(<HTTPSConnection(host='15.164.60.79', port=443) at 0x7262bb95d8d0>, 'Connection to 15.164.60.79 timed out. (connect timeout=5)'))"
       },
       "https_available": false,
       "redirect_to_https": false
@@ -328,10 +389,10 @@
       {
         "url": "http://15.164.60.79/vulnapp/",
         "status_code": 200,
-        "set_cookie": "JSESSIONID=E31DAAC47203C6770D8777F4398793C0; Path=/vulnapp; HttpOnly",
+        "set_cookie": "",
         "cookie_flags": {
-          "has_cookie": true,
-          "httponly": true,
+          "has_cookie": false,
+          "httponly": false,
           "secure": false,
           "samesite": false
         }
@@ -339,10 +400,10 @@
       {
         "url": "http://15.164.60.79/vulnapp/login.jsp",
         "status_code": 200,
-        "set_cookie": "JSESSIONID=4FA769A0D510F4D49A213669171C744F; Path=/vulnapp; HttpOnly",
+        "set_cookie": "",
         "cookie_flags": {
-          "has_cookie": true,
-          "httponly": true,
+          "has_cookie": false,
+          "httponly": false,
           "secure": false,
           "samesite": false
         }
@@ -457,14 +518,18 @@
       "status_code": 200,
       "headers": {
         "Server": "nginx/1.28.3 (Ubuntu)",
-        "Date": "Sat, 16 May 2026 07:22:26 GMT",
+        "Date": "Fri, 15 May 2026 07:54:08 GMT",
         "Content-Type": "text/html;charset=UTF-8",
         "Transfer-Encoding": "chunked",
         "Connection": "keep-alive",
-        "Set-Cookie": "JSESSIONID=0BE93A6F732196DFC8B64BE7344553C4; Path=/vulnapp; HttpOnly",
+        "X-Frame-Options": "DENY",
+        "Content-Security-Policy": "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline';",
+        "X-Content-Type-Options": "nosniff",
+        "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
+        "Referrer-Policy": "no-referrer-when-downgrade",
         "Content-Encoding": "gzip"
       },
-      "body_sample": "\n\n<style>\n    .test-list { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 15px; }\n    .test-card { \n        display: block; padding: 20px; background-color: #fff; border: 1px solid #e0e0e0; \n        border-radius: 8px; transition: all 0.2s ease-in-out; text-decoration: none; color: inherit;\n    }\n    .test-card:hover { \n        border-color: #3498db; box-shadow: 0 4px 12px rgba(52, 152, 219, 0.15); transform: translateY(-2px);\n    }\n    .test-title { font-size: 1.25rem; font-weight: bold; margin-bottom: 5px; }\n    .test-desc { color: #7f8c8d; font-size: 0.95rem; margin: 0; }\n</style>\n\n\n\n\n<!DOCTYPE html>\n<html lang=\"ko\">\n<head>\n    <meta charset=\"UTF-8\">\n    <link rel=\"stylesheet\" href=\"/vulnapp/css/style.css\">\n</head>\n<body>\n    <nav class=\"navbar\">\n        <div class=\"logo\" href=\"index.jsp\">\n\t\t<a href=\"/vulnapp/\" style=\"text-decoration: none; color: inherit;\">\n\t\t\t🛡️ VulnApp\n\t\t</a>\n\t</div>\n        <ul class=\"nav-links\">\n            <li><a href=\"search.jsp\">통합 검색</a></li>\n            <li><a href=\"download.jsp\">자료실</a></li>\n            \n            \n                <li><a href=\"login.jsp\">로그인</a></li>\n            \n        </ul>\n    </nav>\n    <main class=\"c",
+      "body_sample": "\n\n<style>\n    .test-list { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 15px; }\n    .test-card { \n        display: block; padding: 20px; background-color: #fff; border: 1px solid #e0e0e0; \n        border-radius: 8px; transition: all 0.2s ease-in-out; text-decoration: none; color: inherit;\n    }\n    .test-card:hover { \n        border-color: #3498db; box-shadow: 0 4px 12px rgba(52, 152, 219, 0.15); transform: translateY(-2px);\n    }\n    .test-title { font-size: 1.25rem; font-weight: bold; margin-bottom: 5px; }\n    .test-desc { color: #7f8c8d; font-size: 0.95rem; margin: 0; }\n</style>\n\n\n\n\n<!DOCTYPE html>\n<html lang=\"ko\">\n<head>\n    <meta charset=\"UTF-8\">\n    <link rel=\"stylesheet\" href=\"/vulnapp/css/style.css\">\n</head>\n<body>\n    <nav class=\"navbar\">\n        <div class=\"logo\" href=\"index.jsp\">\n\t\t<a href=\"/vulnapp/\" style=\"text-decoration: none; color: inherit;\">\n\t\t\t🛡️ VulnApp\n\t\t</a>\n\t</div>\n        <ul class=\"nav-links\">\n            <li><a href=\"search.jsp\">통합 검색</a></li>\n            <li><a href=\"download.jsp\">자료실</a></li>\n            \n            \n                <li><a href=\"profile.jsp?user_idx=1\">프로필 (admin)</a></li>\n                <li><a href=\"logout",
       "signature_hints": {
         "contains_debug_keywords": false
       }
@@ -495,8 +560,8 @@
         "endpoint": "/vulnapp/profile.jsp?user_idx=1",
         "url": "http://15.164.60.79/vulnapp/profile.jsp?user_idx=1",
         "reachable": true,
-        "status_code": 200,
-        "body_sample": "\n\n\n\n\n\n<!DOCTYPE html>\n<html lang=\"ko\">\n<head>\n    <meta charset=\"UTF-8\">\n    <link rel=\"stylesheet\" href=\"/vulnapp/css/style.css\">\n</head>\n<body>\n    <nav class=\"navbar\">\n        <div class=\"logo\" href=\"index.jsp\">\n\t\t<a href=\"/vulnapp/\" style=\"text-decoration: none; color: inherit;\">\n\t\t\t🛡️ VulnApp\n\t"
+        "status_code": 500,
+        "body_sample": "<!doctype html><html lang=\"en\"><head><title>HTTP Status 500 – Internal Server Error</title><style type=\"text/css\">body {font-family:Tahoma,Arial,sans-serif;} h1, h2, h3, b {color:white;background-color:#525D76;} h1 {font-size:22px;} h2 {font-size:16px;} h3 {font-size:14px;} p {font-size:12px;} a {co"
       },
       {
         "endpoint": "/vulnapp/ping.jsp",
