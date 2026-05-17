@@ -11,5 +11,18 @@
         <multipart-config>
             <max-file-size>10485760</max-file-size> <max-request-size>20971520</max-request-size> <file-size-threshold>524288</file-size-threshold> </multipart-config>
     </servlet>
+    <error-page>
+        <exception-type>java.lang.Exception</exception-type>
+        <location>/error.jsp</location>
+    </error-page>
+
+    <error-page>
+        <error-code>500</error-code>
+        <location>/error.jsp</location>
+    </error-page>
+    <error-page>
+      <error-code>404</error-code>
+      <location>/error.jsp</location>
+  </error-page>
 
 </web-app>

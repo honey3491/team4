@@ -69,6 +69,18 @@
                 <p class="test-desc">파일 업로드 취약점(Unrestricted File Upload) 과 저장형 XSS(Stored XSS) 를 동시에 실습입니다.</p>
             </a>
         </li>
+	<li>
+            <a href="board.jsp" class="test-card">
+                <div class="test-title" style="color: #16a085;">🛡️ Secure Cross-Site Scripting (XSS) Test</div>
+                <p class="test-desc">Stored XSS를 차단하는 게시판 예제입니다. 입력값은 저장되고, 출력 시에는 안전한 텍스트로만 렌더링됩니다.</p>
+            </a>
+        </li>
+	<li>
+                <a href="command.jsp" class="test-card">
+                    <div class="test-title" style="color: #1f6feb;">🖥️ Secure Operations Center</div>
+                    <p class="test-desc">서비스 상태 조회와 승인된 운영 작업 실행을 제공하는 내부 운영 페이지입니다.</p>
+                </a>
+        </li>
     </ul>
 
 <%@ include file="footer.jsp" %>
