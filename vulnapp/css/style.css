@@ -1,0 +1,57 @@
+/* style.css */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { 
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+    background-color: #f4f6f9; 
+    color: #333; 
+    line-height: 1.6; 
+}
+a { text-decoration: none; color: inherit; }
+
+/* 네비게이션 바 */
+.navbar { 
+    background-color: #2c3e50; 
+    color: #fff; 
+    padding: 1rem 2rem; 
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center; 
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+.navbar .logo { font-size: 1.5rem; font-weight: bold; letter-spacing: 1px; }
+.navbar .nav-links { list-style: none; display: flex; gap: 1.5rem; }
+.navbar .nav-links a { color: #bdc3c7; transition: color 0.3s; font-weight: 500; }
+.navbar .nav-links a:hover { color: #fff; }
+
+/* 레이아웃 */
+.container { max-width: 800px; margin: 3rem auto; padding: 0 1rem; }
+.card { background: #fff; padding: 2.5rem; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+.card h2 { margin-bottom: 1.5rem; color: #2c3e50; border-bottom: 2px solid #ecf0f1; padding-bottom: 0.5rem; }
+
+/* 검색창 및 버튼 */
+.search-form { display: flex; gap: 10px; margin-bottom: 1.5rem; }
+.search-form input[type="text"], .search-form select { 
+    padding: 12px; border: 1px solid #ccc; border-radius: 4px; font-size: 1rem; 
+}
+.btn { 
+    padding: 12px 24px; background-color: #3498db; color: #fff; border: none; 
+    border-radius: 4px; cursor: pointer; font-weight: bold; transition: 0.3s; 
+}
+.btn:hover { background-color: #2980b9; }
+
+/* 결과 영역 */
+.result-area { margin-top: 1.5rem; padding: 1.2rem; background-color: #e8f4f8; border-left: 5px solid #3498db; border-radius: 4px; }
+footer { text-align: center; padding: 2rem 0; color: #95a5a6; font-size: 0.9rem; }
+
+/* 로고 링크 스타일 초기화 */
+.logo a {
+    text-decoration: none;
+    color: inherit;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.logo a:hover {
+    opacity: 0.8; /* 마우스를 올렸을 때 살짝 흐려지는 효과 */
+}
