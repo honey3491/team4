@@ -36,8 +36,8 @@ CHECK_CATALOG = [
     {"check_id": "WEB-A04-002", "owasp": "A04:2025 Cryptographic Failures", "name": "쿠키 Secure/HttpOnly 미설정", "url": "/vulnapp/login.jsp"},
     {"check_id": "WEB-A05-001", "owasp": "A05:2025 Injection", "name": "SQL Injection", "url": "/vulnapp/login.jsp"},
     {"check_id": "WEB-A05-002", "owasp": "A05:2025 Injection", "name": "Reflected XSS", "url": "/vulnapp/search.jsp?keyword="},
-    {"check_id": "WEB-A05-003", "owasp": "A05:2025 Injection", "name": "Stored XSS", "url": "/vulnapp/upload.jsp"},
-    {"check_id": "WEB-A05-004", "owasp": "A05:2025 Injection", "name": "Command Injection", "url": "/vulnapp/ping.jsp?host="},
+    {"check_id": "WEB-A05-003", "owasp": "A05:2025 Injection", "name": "Stored XSS", "url": "/vulnapp/board.jsp"},
+    {"check_id": "WEB-A05-004", "owasp": "A05:2025 Injection", "name": "Command Injection", "url": "/vulnapp/command.jsp"},
     {"check_id": "WEB-A06-001", "owasp": "A06:2025 Insecure Design", "name": "로그인 Rate Limit 미구현", "url": "/vulnapp/login.jsp"},
     {"check_id": "WEB-A07-001", "owasp": "A07:2025 Authentication Failures", "name": "계정 잠금 미구현", "url": "/vulnapp/login.jsp"},
     {"check_id": "WEB-A07-002", "owasp": "A07:2025 Authentication Failures", "name": "약한 비밀번호 허용", "url": "/vulnapp/register.jsp"},
@@ -732,12 +732,12 @@ class ExternalEvidenceCollector:
         return data
 
     def collect_basic_page(self):
-        url = self.target + "/"
+        url = self.target + "/vulnapp/"
         res = self.safe_request("GET", url)
         return self.response_to_dict(res)
 
     def collect_error_page(self):
-        url = self.target + "/not_exist_4akda_404_test"
+        url = self.target + "/vulnapp/not_exist_4akda_404_test"
         res = self.safe_request("GET", url)
         return self.response_to_dict(res, body_limit=2000)
 
@@ -983,7 +983,6 @@ class ExternalEvidenceCollector:
 
     def collect_cookie_status(self):
         urls = [
-            self.target + "/",
             self.target + "/vulnapp/",
             self.target + "/vulnapp/login.jsp"
         ]
@@ -1072,8 +1071,9 @@ class ExternalEvidenceCollector:
             "/vulnapp/upload.jsp",
             "/vulnapp/upload_process.jsp",
             "/vulnapp/search.jsp",
+            "/vulnapp/board.jsp",
             "/vulnapp/profile.jsp?user_idx=1",
-            "/vulnapp/ping.jsp",
+            "/vulnapp/command.jsp",
             "/vulnapp/register.jsp",
             "/vulnapp/fetch.jsp",
             "/vulnapp/internal/secret.jsp"
@@ -1160,7 +1160,7 @@ class GPTVulnerabilityAnalyzer:
 6. OWASP 형식은 반드시 "A01:2025 Broken Access Control"처럼 연도 뒤에 공백을 사용하라.
 7. check_id는 반드시 WEB-Axx-xxx 형식으로 작성하라. 예: WEB-A01-001
 8. ADMIN_DIRECT_ACCESS, SQL_INJECTION, SECURITY_HEADERS 같은 임의 문자열 check_id는 사용하지 마라.
-9. upload.jsp, upload_process.jsp, profile.jsp, ping.jsp, register.jsp, fetch.jsp, internal/secret.jsp 등 존재가 확인되지 않은 엔드포인트 취약점은 생성하지 마라.
+9. upload.jsp, upload_process.jsp, board.jsp, profile.jsp, command.jsp, register.jsp, fetch.jsp, internal/secret.jsp 등 존재가 확인되지 않은 엔드포인트 취약점은 생성하지 마라.
 10. evidence에는 어떤 응답, 상태코드, 헤더, 본문 샘플, 테스트 반응이 근거인지 구체적으로 작성하라.
 11. 아래 권장 check_id 목록의 모든 항목을 assessments에 반드시 1개씩 포함하라.
 12. severity는 critical, high, medium, low, pass, n/a, pending 중 하나로 작성하라.
@@ -1279,7 +1279,7 @@ class GPTVulnerabilityAnalyzer:
 8. OWASP 형식은 반드시 "A01:2025 Broken Access Control"처럼 연도 뒤에 공백을 사용하라.
 9. check_id는 반드시 WEB-Axx-xxx 형식으로 작성하라. 예: WEB-A01-001
 10. ADMIN_DIRECT_ACCESS, SQL_INJECTION, SECURITY_HEADERS 같은 임의 문자열 check_id는 사용하지 마라.
-11. upload.jsp, upload_process.jsp, profile.jsp, ping.jsp, register.jsp, fetch.jsp, internal/secret.jsp 등 존재가 확인되지 않은 엔드포인트 취약점은 생성하지 마라.
+11. upload.jsp, upload_process.jsp, board.jsp, profile.jsp, command.jsp, register.jsp, fetch.jsp, internal/secret.jsp 등 존재가 확인되지 않은 엔드포인트 취약점은 생성하지 마라.
 12. 잘 방어된 항목은 severity를 pass로 작성하라. 사이트 오류나 기능 미구현으로 판단할 수 없는 항목은 pending으로 작성하라.
 13. 해당 기술/기능이 실제로 없어 진단 대상이 아니면 severity를 n/a로 작성하라. 단, 기능이 구현될 예정인데 404/500 등 사이트 오류로 판단하지 못하는 경우는 pending으로 작성하라.
 14. 취약점이 확인된 항목만 critical, high, medium, low 중 하나를 사용하라.
