@@ -35,8 +35,8 @@ CHECK_CATALOG = [
     ("WEB-A04-002", "A04:2025 Cryptographic Failures", "쿠키 Secure/HttpOnly 미설정", "/vulnapp/login.jsp"),
     ("WEB-A05-001", "A05:2025 Injection", "SQL Injection", "/vulnapp/login.jsp"),
     ("WEB-A05-002", "A05:2025 Injection", "Reflected XSS", "/vulnapp/search.jsp?keyword="),
-    ("WEB-A05-003", "A05:2025 Injection", "Stored XSS", "/vulnapp/upload.jsp"),
-    ("WEB-A05-004", "A05:2025 Injection", "Command Injection", "/vulnapp/ping.jsp?host="),
+    ("WEB-A05-003", "A05:2025 Injection", "Stored XSS", "/vulnapp/board.jsp"),
+    ("WEB-A05-004", "A05:2025 Injection", "Command Injection", "/vulnapp/command.jsp"),
     ("WEB-A06-001", "A06:2025 Insecure Design", "로그인 Rate Limit 미구현", "/vulnapp/login.jsp"),
     ("WEB-A07-001", "A07:2025 Authentication Failures", "계정 잠금 미구현", "/vulnapp/login.jsp"),
     ("WEB-A07-002", "A07:2025 Authentication Failures", "약한 비밀번호 허용", "/vulnapp/register.jsp"),
@@ -145,6 +145,20 @@ def status_code(response):
 
 def header(response, name, default=""):
     return default if isinstance(response, dict) else response.headers.get(name, default)
+
+
+def build_user_session(base):
+    login_url = urljoin(base, "/vulnapp/login.jsp")
+    session = requests.Session()
+    session.headers.update(HEADERS)
+    session.post(
+        login_url,
+        data={"id": NORMAL_USER_ID, "pw": NORMAL_USER_PW},
+        timeout=TIMEOUT,
+        allow_redirects=False,
+        verify=False,
+    )
+    return session
 
 
 def check_admin_page(base):
@@ -416,62 +430,116 @@ def check_stored_xss(base):
     - 목록에서 저장형 페이로드가 실행 가능한 형태로 노출되면 medium.
     - 상세/목록에서 HTML escaping이 명확히 확인될 때만 pass.
     """
-    upload_url = urljoin(base, "/vulnapp/upload.jsp")
-    list_url = urljoin(base, "/vulnapp/search.jsp")
-    upload_r = req("GET", upload_url)
-    if status_code(upload_r) == 404:
+    board_url = urljoin(base, "/vulnapp/board.jsp")
+    board_r = req("GET", board_url)
+    if status_code(board_r) == 404:
         return catalog_result(
             "WEB-A05-003",
             "pending",
-            "/vulnapp/upload.jsp가 404로 확인되어 게시글 저장 기능을 통한 Stored XSS 재현이 불가능함.",
+            "/vulnapp/board.jsp가 404로 확인되어 게시글 저장 기능을 통한 Stored XSS 재현이 불가능함.",
             "게시글 작성 및 상세 조회 기능 정상화 후 저장된 입력값이 HTML escaping되어 출력되는지 재진단해야 한다."
         )
 
-    list_r = req("GET", list_url)
-    if isinstance(list_r, dict):
+    if isinstance(board_r, dict):
         return catalog_result(
             "WEB-A05-003",
             "pending",
-            "/vulnapp/search.jsp 게시글 목록 조회 실패로 저장형 XSS 재조회 검증이 불가능함.",
+            "/vulnapp/board.jsp 게시글 목록 조회 실패로 저장형 XSS 재조회 검증이 불가능함.",
             "게시글 목록/상세 조회 기능을 정상화한 뒤 Stored XSS를 재진단해야 한다."
         )
 
-    list_body = list_r.text
-    if XSS_PAYLOAD in list_body:
+    title_payload = "stored-xss-probe-title"
+    content_payload = XSS_PAYLOAD
+    try:
+        board_session = build_user_session(base)
+        post_r = board_session.post(
+            board_url,
+            data={"title": title_payload, "content": content_payload},
+            timeout=TIMEOUT,
+            allow_redirects=True,
+            verify=False,
+            headers=HEADERS,
+        )
+    except Exception as exc:
+        return catalog_result(
+            "WEB-A05-003",
+            "pending",
+            f"/vulnapp/board.jsp 게시글 작성 요청 실패: {exc}",
+            "게시글 작성 기능을 정상화하고 저장된 입력값이 HTML escaping되어 출력되는지 재진단해야 한다."
+        )
+
+    if "로그인 후 이용" in post_r.text or "로그인 필요" in post_r.text:
+        return catalog_result(
+            "WEB-A05-003",
+            "pending",
+            f"/vulnapp/board.jsp에 일반 사용자({NORMAL_USER_ID}) 세션으로 접근했지만 게시글 저장이 차단되어 자동 Stored XSS 재현을 완료할 수 없음.",
+            "자동 진단 계정의 로그인 성공 여부와 게시글 작성 권한을 확인한 뒤 저장/재조회 진단을 다시 수행해야 한다."
+        )
+
+    try:
+        review_r = board_session.get(
+            board_url,
+            timeout=TIMEOUT,
+            allow_redirects=True,
+            verify=False,
+            headers=HEADERS,
+        )
+    except Exception as exc:
+        return catalog_result(
+            "WEB-A05-003",
+            "pending",
+            f"/vulnapp/board.jsp 재조회 요청 실패: {exc}",
+            "게시글 목록 재조회가 가능하도록 기능을 정상화한 뒤 저장형 XSS 여부를 재진단해야 한다."
+        )
+
+    review_body = review_r.text
+    escaped_payload = "&lt;script&gt;alert(1)&lt;&#x2F;script&gt;"
+    raw_present = XSS_PAYLOAD in review_body
+    escaped_present = escaped_payload in review_body or "&lt;script&gt;alert(1)&lt;/script&gt;" in review_body
+    title_present = title_payload in review_body
+
+    if raw_present:
         return catalog_result(
             "WEB-A05-003",
             "medium",
-            "게시글 목록에서 저장된 XSS 페이로드가 HTML escaping 없이 실행 가능한 형태로 노출됨.",
-            "저장 데이터 출력 시 HTML escaping을 적용해야 한다."
+            "/vulnapp/board.jsp에 저장한 script 페이로드가 재조회 응답 본문에 원문 그대로 포함되어 Stored XSS 가능성이 확인됨.",
+            "저장 데이터 출력 시 HTML escaping을 적용하고 스크립트 실행 가능한 태그/이벤트 핸들러가 브라우저에 전달되지 않도록 해야 한다."
         )
 
-    # 목록에서는 실행 흔적이 없지만 상세 조회 URL이 404인 경우가 있어 pass로 확정하지 않는다.
-    # 상세 조회가 정상화되어 저장된 제목/본문이 escape 처리되는지 확인되어야 양호(pass)로 판단할 수 있다.
+    if title_present and escaped_present:
+        return catalog_result(
+            "WEB-A05-003",
+            "pass",
+            "/vulnapp/board.jsp에 저장한 테스트 게시글이 재조회되었고 script 페이로드가 HTML escape된 형태로만 확인되어 Stored XSS가 차단됨.",
+            "현재 출력 인코딩 정책을 유지하고 게시글 상세/목록의 모든 출력 지점에 동일한 escaping 정책을 적용해야 한다."
+        )
+
     return catalog_result(
         "WEB-A05-003",
         "pending",
-        "게시글 목록에서는 저장형 XSS 페이로드 실행 흔적이 확인되지 않았으나, 저장된 게시글 상세 조회 검증이 필요함. 수동진단에서 게시글 상세 조회 404가 확인되어 최종 판단 보류.",
-        "게시글 상세 조회 페이지를 정상화하고 저장된 <script>alert(1)</script>가 실행되지 않고 HTML escaping되어 출력되는지 재진단해야 한다."
+        "게시글 저장 또는 재조회는 수행되었으나 저장한 페이로드가 응답에서 명확히 식별되지 않아 Stored XSS 최종 판단을 보류함.",
+        "테스트 게시글 식별자와 저장 본문이 재조회되도록 확인한 뒤 script 페이로드의 escape 여부를 추가 검증해야 한다."
     )
 
 def check_command_injection(base):
-    url = urljoin(base, "/vulnapp/ping.jsp")
-    normal = req("GET", url, params={"host": "127.0.0.1"})
-    if status_code(normal) == 404:
-        return catalog_result("WEB-A05-004", "pending", "/vulnapp/ping.jsp?host=127.0.0.1 요청이 404로 확인되어 Command Injection 진단을 수행할 수 없음.", "ping.jsp 기능을 구현하되 ;whoami, &&id, |whoami 같은 명령어 삽입 입력은 차단되도록 수정 후 재진단해야 한다.")
-    payloads = ["127.0.0.1;whoami", "127.0.0.1&&id", "127.0.0.1|whoami"]
+    url = urljoin(base, "/vulnapp/command.jsp")
+    landing = req("GET", url, allow_redirects=True)
+    if status_code(landing) == 404:
+        return catalog_result("WEB-A05-004", "pending", "/vulnapp/command.jsp 요청이 404로 확인되어 Command Injection 진단을 수행할 수 없음.", "command.jsp 기능을 구현하고 작업 코드 입력이 서버 측 검증을 거치도록 수정 후 재진단해야 한다.")
+
+    payloads = ["time_snapshot;whoami", "host_summary&&id", "uptime_check|whoami"]
     execution_hits = []
     blocked = []
     for payload in payloads:
-        r = req("GET", url, params={"host": payload})
+        r = req("POST", url, data={"action": "validated", "cmd": payload}, allow_redirects=True)
         b = body_lower(r)
         if any(k in b for k in ["uid=", "gid=", "root", "tomcat", "ubuntu"]):
             execution_hits.append(payload)
-        elif status_code(r) in [400, 403] or any(k in b for k in ["invalid", "허용", "차단", "올바르지"]):
+        elif status_code(r) in [400, 403] or any(k in b for k in ["허용되지", "차단", "작업 코드", "특수문자", "형식", "검증"]):
             blocked.append(payload)
     if execution_hits:
-        return catalog_result("WEB-A05-004", "high", f"명령 실행 결과가 응답에 노출된 페이로드: {execution_hits}", "OS 명령 직접 실행을 제거하고 allowlist 기반 입력 검증을 적용해야 한다.")
-    return catalog_result("WEB-A05-004", "pass", f"명령어 삽입 페이로드에서 실행 결과 미노출. blocked={blocked}", "host 입력값은 허용 문자만 통과시키고 OS 명령 문자열 직접 결합을 금지해야 한다.")
+        return catalog_result("WEB-A05-004", "high", f"/vulnapp/command.jsp 검증 작업 요청에서 명령 실행 결과가 응답에 노출된 페이로드: {execution_hits}", "OS 명령 직접 실행을 제거하고 allowlist 기반 입력 검증을 적용해야 한다.")
+    return catalog_result("WEB-A05-004", "pass", f"/vulnapp/command.jsp 명령어 삽입 페이로드에서 실행 결과 미노출. blocked={blocked}", "작업 코드 입력값은 허용 문자만 통과시키고 OS 명령 문자열 직접 결합을 금지해야 한다.")
 
 
 def check_rate_limit(base):
