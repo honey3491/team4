@@ -215,16 +215,18 @@ def format_sqlmap_summary(sqlmap_data):
     if not isinstance(sqlmap_data, dict):
         return None
 
-    if sqlmap_data.get("error"):
+    normalized_sqlmap = normalize_sqlmap_data(sqlmap_data)
+
+    if normalized_sqlmap.get("error"):
         return f"sqlmap 보조 점검 결과: {sqlmap_data['error']}"
 
     parts = []
 
-    dbms_banner = sqlmap_data.get("dbms_banner")
-    current_user = sqlmap_data.get("current_user")
-    current_db = sqlmap_data.get("current_db")
-    is_dba = sqlmap_data.get("is_dba")
-    databases = sqlmap_data.get("databases")
+    dbms_banner = normalized_sqlmap.get("dbms_banner")
+    current_user = normalized_sqlmap.get("current_user")
+    current_db = normalized_sqlmap.get("current_db")
+    is_dba = normalized_sqlmap.get("is_dba")
+    databases = normalized_sqlmap.get("databases")
 
     if dbms_banner:
         parts.append(f"DBMS 배너는 {dbms_banner}로 식별됨")
@@ -251,7 +253,56 @@ def format_sqlmap_summary(sqlmap_data):
     return "sqlmap 보조 점검 결과: " + ". ".join(parts) + "."
 
 
-def format_signature_evidence_text(evidence):
+def normalize_sqlmap_data(sqlmap_data):
+    if not isinstance(sqlmap_data, dict):
+        return {}
+
+    normalized = dict(sqlmap_data)
+    raw_tail = str(normalized.get("raw_tail", "") or "")
+
+    if raw_tail:
+        if not normalized.get("dbms_banner"):
+            dbms_match = re.search(r"back-end DBMS:\s*(.+)", raw_tail, re.IGNORECASE)
+            banner_match = re.search(r"banner:\s*'([^']+)'", raw_tail, re.IGNORECASE)
+            if dbms_match and banner_match:
+                normalized["dbms_banner"] = f"{dbms_match.group(1).strip()} / banner={banner_match.group(1).strip()}"
+            elif dbms_match:
+                normalized["dbms_banner"] = dbms_match.group(1).strip()
+            elif banner_match:
+                normalized["dbms_banner"] = banner_match.group(1).strip()
+
+        if not normalized.get("current_user"):
+            current_user_match = re.search(r"current user:\s*'([^']+)'", raw_tail, re.IGNORECASE)
+            if current_user_match:
+                normalized["current_user"] = current_user_match.group(1).strip()
+
+        if not normalized.get("current_db"):
+            current_db_match = re.search(r"current database:\s*'([^']+)'", raw_tail, re.IGNORECASE)
+            if current_db_match:
+                normalized["current_db"] = current_db_match.group(1).strip()
+
+        if normalized.get("is_dba") is None:
+            is_dba_match = re.search(r"current user is DBA:\s*(True|False)", raw_tail, re.IGNORECASE)
+            if is_dba_match:
+                normalized["is_dba"] = is_dba_match.group(1).lower() == "true"
+
+        if not normalized.get("databases"):
+            databases_match = re.search(
+                r"available databases \[\d+\]:\s*((?:\n\[\*\]\s*.+)+)",
+                raw_tail,
+                re.IGNORECASE,
+            )
+            if databases_match:
+                normalized["databases"] = [
+                    line.strip()[4:].strip()
+                    for line in databases_match.group(1).splitlines()
+                    if line.strip().startswith("[*]")
+                ]
+
+    return normalized
+
+
+def format_evidence_text(evidence):
     if isinstance(evidence, str):
         return evidence.strip()
 
@@ -260,7 +311,15 @@ def format_signature_evidence_text(evidence):
 
     parts = []
 
-    for key in ["payload", "error_based", "auth_bypass", "time_based", "delay"]:
+    payload = evidence.get("payload")
+    if payload:
+        parts.append(f"payload={payload}")
+
+    redirect_location = evidence.get("redirect_location")
+    if redirect_location:
+        parts.append(f"redirect_location={redirect_location}")
+
+    for key in ["error_based", "auth_bypass", "time_based", "delay"]:
         value = evidence.get(key)
         if value is None:
             continue
@@ -274,6 +333,10 @@ def format_signature_evidence_text(evidence):
         return ", ".join(parts)
 
     return str(evidence).strip()
+
+
+def format_signature_evidence_text(evidence):
+    return format_evidence_text(evidence)
 
 
 def summarize_signature_evidence(evidence):
@@ -291,14 +354,15 @@ def summarize_signature_evidence(evidence):
 
     for key, value in evidence.items():
         if key == "sqlmap" and isinstance(value, dict):
+            normalized_sqlmap = normalize_sqlmap_data(value)
             summarized["sqlmap"] = {
-                "returncode": value.get("returncode"),
-                "dbms_banner": value.get("dbms_banner"),
-                "current_user": value.get("current_user"),
-                "current_db": value.get("current_db"),
-                "is_dba": value.get("is_dba"),
-                "databases": value.get("databases"),
-                "error": value.get("error")
+                "returncode": normalized_sqlmap.get("returncode"),
+                "dbms_banner": normalized_sqlmap.get("dbms_banner"),
+                "current_user": normalized_sqlmap.get("current_user"),
+                "current_db": normalized_sqlmap.get("current_db"),
+                "is_dba": normalized_sqlmap.get("is_dba"),
+                "databases": normalized_sqlmap.get("databases"),
+                "error": normalized_sqlmap.get("error")
             }
         elif key in ["raw_tail", "command"]:
             continue
@@ -594,7 +658,7 @@ def normalize_results(results):
             "name": str(item.get("name", "")).strip(),
             "url": sanitize_url_to_path(item.get("url")),
             "severity": severity,
-            "evidence": str(item.get("evidence", "")).strip(),
+            "evidence": format_evidence_text(item.get("evidence", "")),
             "recommendation": str(item.get("recommendation", "")).strip()
         })
 
