@@ -1,4 +1,5 @@
 <%@ page contentType="text/html; charset=UTF-8" %>
+<%@ page import="javax.servlet.ServletException" %>
 <%@ page import="java.sql.*" %>
 <%-- 💡 header.jsp를 가장 먼저 포함시켜서 userId, userNo, userRole 변수를 확보합니다. --%>
 <%@ include file="header.jsp" %>
@@ -36,8 +37,7 @@
                 hasError = true;
             }
         } catch (Exception e) {
-            userInfo = "데이터베이스 오류: " + e.getMessage();
-            hasError = true;
+            throw new ServletException("프로필 조회 중 데이터베이스 오류가 발생했습니다.", e);
         } finally {
             try { if (rs != null) rs.close(); } catch(Exception e) {}
             try { if (stmt != null) stmt.close(); } catch(Exception e) {}
@@ -88,3 +88,4 @@
     <% } %>
 
 <%@ include file="footer.jsp" %>
+

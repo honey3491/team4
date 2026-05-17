@@ -73,7 +73,7 @@
             <tr style="border-bottom: 1px solid #eee;">
                 <td style="padding: 12px; border: 1px solid #dee2e6; text-align: center;"><%= rs.getInt("id") %></td>
                 <td style="padding: 12px; border: 1px solid #dee2e6;">
-                    <a href="view.jsp?id=<%= rs.getInt("id") %>" style="color: #2c3e50; font-weight: bold; text-decoration: none;">
+                    <a href="view.jsp?postid=<%= rs.getInt("id") %>" style="color: #2c3e50; font-weight: bold; text-decoration: none;">
                         <%= rs.getString("title") %> </a>
                 </td>
                 <td style="padding: 12px; border: 1px solid #dee2e6; text-align: center;"><%= rs.getString("author") %></td>

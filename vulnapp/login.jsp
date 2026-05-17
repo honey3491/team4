@@ -76,4 +76,8 @@
         <button type="submit" class="btn" style="width: 100%;">로그인</button>
     </form>
 
+    <div style="margin-top: 15px; text-align: center;">
+        <span style="color: #7f8c8d;">아직 계정이 없으신가요?</span> 
+        <a href="register.jsp" style="color: #3498db; text-decoration: none; font-weight: bold; margin-left: 5px;">회원가입 하기</a>
+    </div>
 <%@ include file="footer.jsp" %>
