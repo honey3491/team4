@@ -7,8 +7,8 @@
       "url": "http://15.164.60.79/vulnapp/admin.jsp",
       "result": "취약",
       "severity": "medium",
-      "evidence": "익명 요청은 /vulnapp/admin.jsp에서 302로 /vulnapp/login.jsp로 리다이렉트되었으나, 일반 사용자(user1) 로그인 후 동일 URL 요청 시 status_code 200 응답과 함께 본문에 '⚙️ 시스템 관리자 대시보드', 'Admin Only', '현재 서버에 가입된 모든 회원'이 노출됨. 일반 사용자 세션으로 관리자 전용 페이지 접근이 가능함.",
-      "recommendation": "관리자 기능은 서버 측에서 역할 기반 접근제어(RBAC)를 적용하여 관리자 권한이 없는 인증 사용자는 403 또는 로그인/권한 오류 페이지로 차단해야 한다. URL 직접 접근뿐 아니라 모든 관리자 API/기능에도 동일한 권한 검증을 적용하라.",
+      "evidence": "익명 요청은 /vulnapp/admin.jsp에서 302로 /vulnapp/login.jsp로 리다이렉트되었으나, 일반 사용자 계정(user1) 로그인 후 동일한 /vulnapp/admin.jsp 요청이 status_code 200으로 응답하였다. 응답 본문에 \"⚙️ 시스템 관리자 대시보드\", \"Admin Only\", \"현재 서버에 가입된 모든 회원\" 문구가 포함되어 일반 사용자가 관리자 전용 페이지에 접근 가능한 것으로 확인된다.",
+      "recommendation": "관리자 기능은 서버 측에서 사용자 역할/권한을 검증하여 관리자 권한이 없는 세션은 403 처리하거나 로그인 후에도 접근을 차단해야 한다. URL 직접 접근뿐 아니라 모든 관리자 API/페이지에서 권한 검사를 적용한다.",
       "confidence": "High",
       "defer_reason": ""
     },
@@ -19,20 +19,20 @@
       "url": "http://15.164.60.79/vulnapp/profile.jsp?user_idx=1",
       "result": "보류",
       "severity": "pending",
-      "evidence": "수집 데이터에는 /vulnapp/profile.jsp?user_idx=1이 status_code 200으로 응답한 사실만 존재한다. 요청에 사용된 인증 사용자, user_idx 변경 전후의 소유자 비교, 타 사용자 정보 노출 여부가 제공되지 않아 IDOR 성립 여부를 확정할 수 없다.",
-      "recommendation": "서로 다른 사용자 계정으로 로그인한 뒤 profile.jsp의 user_idx 값을 타 사용자 식별자로 변경하여 응답 데이터가 소유자 권한 없이 조회/수정되는지 확인하라. 서버 측에서는 요청 파라미터의 사용자 식별자를 신뢰하지 말고 세션 사용자와 리소스 소유권을 검증해야 한다.",
+      "evidence": "수집 데이터에는 /vulnapp/profile.jsp?user_idx=1이 status_code 200으로 응답했다는 optional_endpoint_status만 존재한다. 그러나 요청에 사용된 인증 사용자, user_idx 변경 전후의 권한 비교, 타 사용자 정보 노출 여부를 확인할 본문 샘플이 충분하지 않다.",
+      "recommendation": "로그인 사용자 본인의 user_idx와 타 사용자의 user_idx를 각각 요청하여 응답 데이터 차이와 개인정보 노출 여부를 확인하고, 객체 접근 시 서버 측 소유권 검사를 적용해야 한다.",
       "confidence": "Low",
-      "defer_reason": "소유권 비교와 타 사용자 정보 노출 증거가 부족함."
+      "defer_reason": "IDOR 여부를 판단할 사용자 간 비교 응답 및 상세 본문이 부족하다."
     },
     {
       "check_id": "WEB-A02-001",
       "owasp": "A02:2025 Security Misconfiguration",
       "name": "보안 헤더 미설정",
       "url": "http://15.164.60.79/",
-      "result": "취약",
-      "severity": "medium",
-      "evidence": "기본 페이지 http://15.164.60.79/의 200 응답 헤더에는 Server, Date, Content-Type, Transfer-Encoding, Connection, Content-Encoding만 존재하며 Content-Security-Policy, X-Frame-Options, X-Content-Type-Options, Referrer-Policy, Strict-Transport-Security 등의 보안 헤더가 확인되지 않는다. /vulnapp/search.jsp 응답에서도 유사하게 보안 헤더가 확인되지 않는다.",
-      "recommendation": "서비스 특성에 맞게 Content-Security-Policy, X-Frame-Options 또는 frame-ancestors, X-Content-Type-Options: nosniff, Referrer-Policy, Permissions-Policy를 설정하라. HTTPS 적용 후에는 Strict-Transport-Security도 설정하라.",
+      "result": "미흡",
+      "severity": "low",
+      "evidence": "기본 페이지 http://15.164.60.79/ 응답 헤더는 Server, Date, Content-Type, Transfer-Encoding, Connection, Content-Encoding만 확인된다. 수집된 응답 헤더에 Content-Security-Policy, X-Frame-Options 또는 frame-ancestors, X-Content-Type-Options, Referrer-Policy, Strict-Transport-Security 등의 주요 보안 헤더가 확인되지 않는다.",
+      "recommendation": "서비스 특성에 맞게 Content-Security-Policy, X-Frame-Options 또는 CSP frame-ancestors, X-Content-Type-Options: nosniff, Referrer-Policy, Permissions-Policy 등을 설정한다. HTTPS 적용 후 HSTS도 설정한다.",
       "confidence": "High",
       "defer_reason": ""
     },
@@ -43,8 +43,8 @@
       "url": "http://15.164.60.79/",
       "result": "취약",
       "severity": "low",
-      "evidence": "기본 페이지 응답 헤더 Server가 'nginx/1.28.3 (Ubuntu)'로 상세 버전과 OS 정보를 노출한다. 기본 페이지 본문 title 및 h1에 'Apache Tomcat/9.0.118'이 노출되며, 404 오류 페이지 하단에도 '<h3>Apache Tomcat/9.0.118</h3>'가 표시된다.",
-      "recommendation": "nginx의 server_tokens를 비활성화하고, Tomcat의 server 정보 및 오류 페이지의 버전 표시를 제거하거나 일반화하라. 기본 오류 페이지를 사용자 정의 오류 페이지로 대체하라.",
+      "evidence": "http://15.164.60.79/ 응답 헤더에 \"Server: nginx/1.28.3 (Ubuntu)\"가 노출된다. 또한 기본 페이지 본문 title 및 h1에 \"Apache Tomcat/9.0.118\"가 표시되고, 404 오류 페이지 하단에도 \"Apache Tomcat/9.0.118\"가 노출된다.",
+      "recommendation": "nginx의 server_tokens를 비활성화하고, Tomcat 오류 페이지 및 기본 페이지에서 제품명/상세 버전이 노출되지 않도록 커스텀 오류 페이지와 배너 제거 설정을 적용한다.",
       "confidence": "High",
       "defer_reason": ""
     },
@@ -54,9 +54,9 @@
       "name": "Tomcat 기본페이지 노출",
       "url": "http://15.164.60.79:8080/",
       "result": "취약",
-      "severity": "medium",
-      "evidence": "http://15.164.60.79:8080/ 및 http://15.164.60.79/에서 status_code 200으로 Tomcat 기본 페이지가 응답한다. 본문에 '<title>Apache Tomcat/9.0.118</title>', '<h1>Apache Tomcat/9.0.118</h1>', 'If you're seeing this, you've successfully installed Tomcat. Congratulations!' 및 /docs/, /examples/ 링크가 포함되어 있다.",
-      "recommendation": "운영 환경에서는 Tomcat ROOT 기본 애플리케이션, docs, examples 등 기본 콘텐츠를 제거하고 실제 서비스 페이지 또는 차단 페이지로 대체하라. 8080 포트가 외부에 필요하지 않다면 방화벽 또는 리버스 프록시 설정으로 접근을 제한하라.",
+      "severity": "low",
+      "evidence": "http://15.164.60.79:8080/ 및 http://15.164.60.79/ 요청이 status_code 200으로 응답했고, 본문에 \"Apache Tomcat/9.0.118\", \"If you're seeing this, you've successfully installed Tomcat. Congratulations!\", /docs/, /examples/ 링크 등 Tomcat 기본 페이지 내용이 확인된다.",
+      "recommendation": "운영 환경에서는 Tomcat ROOT 기본 애플리케이션, docs, examples 등 불필요한 기본 리소스를 제거하고, 실제 서비스 페이지 또는 차단 페이지로 대체한다. 8080 포트의 외부 노출도 필요 여부를 검토한다.",
       "confidence": "High",
       "defer_reason": ""
     },
@@ -67,8 +67,8 @@
       "url": "http://15.164.60.79/vulnapp/debug.jsp",
       "result": "취약",
       "severity": "medium",
-      "evidence": "http://15.164.60.79/vulnapp/debug.jsp가 status_code 200, Content-Type application/json으로 응답하며 본문에 '{ \"debug\": true, \"db_user\": \"vulnuser\", \"db_password\": \"vulnpass1234\", \"api_key\": \"TEST-API-KEY-123456\", \"internal_ip\": \"10.0.0.5\" }'가 노출된다. /vulnapp/debug.jsp?debug=true도 동일하게 200과 debug true 정보를 반환한다.",
-      "recommendation": "운영 환경에서 debug 엔드포인트와 디버그 모드를 비활성화하고, 인증/인가 없이 내부 설정·계정·키·내부 IP를 반환하지 않도록 제거하라. 이미 노출된 DB 비밀번호와 API 키는 즉시 폐기 및 재발급하라.",
+      "evidence": "http://15.164.60.79/vulnapp/debug.jsp와 /vulnapp/debug.jsp?debug=true가 모두 status_code 200, Content-Type application/json으로 응답했다. 본문에 \"debug\": true와 함께 \"db_user\": \"vulnuser\", \"db_password\": \"vulnpass1234\", \"api_key\": \"TEST-API-KEY-123456\", \"internal_ip\": \"10.0.0.5\"가 노출된다.",
+      "recommendation": "운영 환경에서 debug 기능과 debug 엔드포인트를 비활성화하거나 인증/인가된 관리자에게만 제한한다. 노출된 DB 계정 비밀번호와 API 키는 즉시 폐기 및 재발급하고, 민감정보가 응답에 포함되지 않도록 제거한다.",
       "confidence": "High",
       "defer_reason": ""
     },
@@ -79,10 +79,10 @@
       "url": "http://15.164.60.79/",
       "result": "보류",
       "severity": "pending",
-      "evidence": "수집 데이터에는 Log4j 사용 여부, 라이브러리 버전, 클래스패스, dependency 정보 또는 Log4j 취약점에 대한 동적 검증 결과가 포함되어 있지 않다.",
-      "recommendation": "서버 빌드 산출물, dependency 목록, SBOM, WEB-INF/lib 디렉터리 또는 패키지 매니페스트에서 Log4j 사용 여부와 버전을 확인하고, 알려진 취약 버전이면 안전한 버전으로 업그레이드하라.",
+      "evidence": "수집 데이터에는 Log4j 사용 여부, 라이브러리 버전, 의존성 파일, 오류 로그 또는 JNDI 페이로드 반응 등 Log4j 취약성 판단에 필요한 근거가 포함되어 있지 않다.",
+      "recommendation": "서버 측 SBOM/의존성 목록, WEB-INF/lib, 빌드 파일 또는 런타임 라이브러리 버전을 확인하여 Log4j 사용 여부와 취약 버전 포함 여부를 점검한다.",
       "confidence": "Low",
-      "defer_reason": "Log4j 사용 및 버전을 판단할 근거가 없음."
+      "defer_reason": "Log4j 사용 및 버전을 확인할 수 있는 수집 데이터가 없다."
     },
     {
       "check_id": "WEB-A03-002",
@@ -91,20 +91,20 @@
       "url": "http://15.164.60.79/vulnapp/search.jsp",
       "result": "보류",
       "severity": "pending",
-      "evidence": "/vulnapp/search.jsp 본문 샘플에는 '/vulnapp/css/style.css' 링크만 확인되며 jQuery 스크립트 로드 경로나 버전 정보가 제공되지 않는다. 다른 수집 응답에도 jQuery 버전을 확인할 수 있는 근거가 없다.",
-      "recommendation": "전체 HTML 및 정적 리소스에서 jquery*.js 로드 여부와 버전을 확인하고, 취약 버전 사용 시 최신 지원 버전으로 교체하라. 가능하면 SRI 및 자산 무결성 관리도 적용하라.",
+      "evidence": "/vulnapp/search.jsp 응답 본문 샘플에는 /vulnapp/css/style.css 링크만 확인되며, jQuery 스크립트 로드 경로나 버전 정보가 수집 데이터에 포함되어 있지 않다.",
+      "recommendation": "전체 HTML 및 정적 리소스를 수집하여 jquery*.js 파일 로드 여부와 버전을 확인하고, 사용 중이면 보안 패치가 반영된 최신 안정 버전으로 업데이트한다.",
       "confidence": "Low",
-      "defer_reason": "jQuery 사용 여부 및 버전 정보가 없음."
+      "defer_reason": "jQuery 사용 여부 및 버전 확인 근거가 부족하다."
     },
     {
       "check_id": "WEB-A04-001",
       "owasp": "A04:2025 Cryptographic Failures",
       "name": "HTTPS 미적용",
-      "url": "https://15.164.60.79",
+      "url": "https://15.164.60.79/",
       "result": "취약",
       "severity": "medium",
-      "evidence": "http://15.164.60.79/는 status_code 200으로 서비스되며, https://15.164.60.79 접속은 ConnectTimeoutError로 실패했다. 수집 데이터의 https_available은 false, redirect_to_https는 false로 기록되어 HTTPS 사용 및 HTTP에서 HTTPS로의 리다이렉트가 확인되지 않는다.",
-      "recommendation": "유효한 TLS 인증서를 설치하고 443 포트를 정상 서비스하라. HTTP 요청은 HTTPS로 리다이렉트하고, HTTPS 적용 후 HSTS를 설정하여 평문 전송을 방지하라.",
+      "evidence": "http://15.164.60.79/는 status_code 200으로 서비스되지만, https://15.164.60.79 접속은 443 포트 연결 타임아웃 오류가 발생했다. 수집 데이터의 https_status에서 https_available=false, redirect_to_https=false로 확인된다.",
+      "recommendation": "유효한 TLS 인증서를 적용하여 HTTPS 서비스를 활성화하고, HTTP 요청은 HTTPS로 리다이렉트한다. 적용 후 HSTS 설정을 검토한다.",
       "confidence": "High",
       "defer_reason": ""
     },
@@ -113,10 +113,10 @@
       "owasp": "A04:2025 Cryptographic Failures",
       "name": "쿠키 Secure/HttpOnly 미설정",
       "url": "http://15.164.60.79/vulnapp/login.jsp",
-      "result": "미흡",
-      "severity": "medium",
-      "evidence": "로그인 및 테스트 응답의 Set-Cookie 예: 'JSESSIONID=FAF9B6B47051CE479A139B6731F98AD0; Path=/vulnapp; HttpOnly'로 HttpOnly는 설정되어 있으나 Secure 속성이 없다. 일반 사용자 로그인 응답도 'JSESSIONID=E4042B047842E149D0EA4C2EF9ABC48A; Path=/vulnapp; HttpOnly'로 Secure가 확인되지 않는다. 별도 cookie_status의 기본 GET 3개 경로는 Set-Cookie가 없었으나, 인증 관련 응답에서 세션 쿠키가 발급됨.",
-      "recommendation": "HTTPS 적용 후 세션 쿠키에 Secure, HttpOnly, SameSite=Lax 또는 Strict 속성을 설정하라. 현재 HttpOnly는 적용되어 있으나 Secure가 없어 HTTP 전송 시 세션 쿠키 보호가 불충분하다.",
+      "result": "취약",
+      "severity": "low",
+      "evidence": "SQL Injection 테스트 및 관리자 페이지 익명 요청에서 Set-Cookie: JSESSIONID=...; Path=/vulnapp; HttpOnly가 확인되었다. HttpOnly는 설정되어 있으나 Secure 속성이 없다. 또한 HTTPS가 사용 불가하고 HTTP로 세션 쿠키가 발급된다.",
+      "recommendation": "HTTPS를 적용한 뒤 세션 쿠키에 Secure, HttpOnly, SameSite 속성을 명시적으로 설정한다. HTTP 환경에서 세션 쿠키가 발급되지 않도록 보안 설정을 강화한다.",
       "confidence": "High",
       "defer_reason": ""
     },
@@ -127,8 +127,8 @@
       "url": "http://15.164.60.79/vulnapp/login.jsp",
       "result": "취약",
       "severity": "high",
-      "evidence": "SQL Injection 인증 우회 테스트에서 id 값으로 \"' OR '1'='1' -- \", \"admin' -- \", \"' OR 1=1 -- \"를 전송한 세 요청 모두 status_code 302를 반환하고 Location이 'http://15.164.60.79/vulnapp/admin.jsp'로 설정되었다. 각 응답은 JSESSIONID를 발급했으며, 정상 실패와 대비되는 관리자 페이지 리다이렉트 반응이 관찰된다.",
-      "recommendation": "로그인 쿼리에 Prepared Statement/파라미터 바인딩을 사용하고 문자열 결합 SQL을 제거하라. 인증 로직에서 입력값 검증, 계정 상태 검증, 오류 응답 일관화를 적용하고, SQL Injection 회귀 테스트를 수행하라.",
+      "evidence": "SQL Injection 인증 우회 테스트에서 id 값에 \"' OR '1'='1' -- \", \"admin' -- \", \"' OR 1=1 -- \"를 입력하고 pw=test를 전송한 결과, 세 요청 모두 status_code 302로 응답하며 Location 헤더가 http://15.164.60.79/vulnapp/admin.jsp로 설정되었다. 이는 SQL 조건 조작으로 로그인 후 관리자 페이지로 이동된 정황이다.",
+      "recommendation": "로그인 쿼리에 Prepared Statement/파라미터 바인딩을 적용하고 문자열 결합 방식의 SQL 생성을 제거한다. 인증 성공 조건을 명확히 검증하고, SQL 오류/우회 테스트에 대한 단위 및 통합 보안 테스트를 추가한다.",
       "confidence": "High",
       "defer_reason": ""
     },
@@ -136,11 +136,11 @@
       "check_id": "WEB-A05-002",
       "owasp": "A05:2025 Injection",
       "name": "Reflected XSS",
-      "url": "http://15.164.60.79/vulnapp/search.jsp",
+      "url": "http://15.164.60.79/vulnapp/search.jsp?keyword=%3Cscript%3Ealert%281337%29%3C/script%3E",
       "result": "취약",
       "severity": "medium",
-      "evidence": "GET /vulnapp/search.jsp?keyword=<script>alert(1337)</script> 요청이 status_code 200으로 응답하고 본문 input value 및 검색 결과 문구에 '<script>alert(1337)</script>'가 이스케이프되지 않은 형태로 반영되었다. 추가로 payload '\"><script>alert(1)</script>'는 input value를 탈출하는 형태인 'value=\"\"><script>alert(1)</script>\"'로 반영되며, '<img src=x onerror=alert(1)>'도 그대로 본문에 반영되었다.",
-      "recommendation": "사용자 입력을 HTML 본문, 속성, JavaScript 등 출력 컨텍스트별로 적절히 인코딩하라. 검색어 표시 시 HTML 이스케이프를 적용하고, 보조 방어로 CSP를 설정하라.",
+      "evidence": "/vulnapp/search.jsp?keyword=<script>alert(1337)</script> 요청이 status_code 200으로 응답했고, 본문에 input value=\"<script>alert(1337)</script>\" 및 <strong>'<script>alert(1337)</script>'</strong> 형태로 페이로드가 HTML 이스케이프 없이 반사되었다. 다른 페이로드 \"><script>alert(1)</script>, <img src=x onerror=alert(1)>도 그대로 반사되었다.",
+      "recommendation": "사용자 입력을 HTML 컨텍스트에 맞게 출력 인코딩하고, 속성 값에는 따옴표/꺾쇠괄호 등을 안전하게 이스케이프한다. 입력 검증과 Content-Security-Policy를 병행 적용한다.",
       "confidence": "High",
       "defer_reason": ""
     },
@@ -151,10 +151,10 @@
       "url": "http://15.164.60.79/vulnapp/search.jsp",
       "result": "보류",
       "severity": "pending",
-      "evidence": "수집 데이터에는 검색 파라미터의 반사형 응답은 있으나, 게시글/프로필 등 저장 가능한 입력 지점에 페이로드를 저장한 후 다른 요청에서 지속적으로 실행 또는 반영되는지에 대한 증거가 없다.",
-      "recommendation": "게시판, 프로필, 파일 설명 등 저장형 입력 지점에 안전한 테스트 페이로드를 저장한 뒤 다른 사용자 세션과 재조회 요청에서 인코딩 여부를 확인하라. 저장 데이터 출력 시 컨텍스트별 인코딩을 적용하라.",
+      "evidence": "수집 데이터에는 검색 파라미터가 즉시 응답에 반사되는 Reflected XSS 증거는 있으나, 게시글/프로필/업로드 등 저장 지점에 페이로드를 등록한 뒤 재조회하여 지속적으로 실행되는지 확인한 증거가 없다.",
+      "recommendation": "입력 저장 기능이 있는 모든 게시판, 프로필, 댓글, 업로드 메타데이터 등에 XSS 페이로드를 저장 후 다른 세션에서 재조회하여 Stored XSS 여부를 검증한다. 저장 데이터 출력 시 컨텍스트별 인코딩을 적용한다.",
       "confidence": "Low",
-      "defer_reason": "저장 동작 및 재조회 시 페이로드 지속 반영 여부를 확인한 데이터가 없음."
+      "defer_reason": "저장형 입력 등록 및 재조회 결과가 수집되지 않았다."
     },
     {
       "check_id": "WEB-A05-004",
@@ -163,8 +163,8 @@
       "url": "http://15.164.60.79/vulnapp/ping.jsp",
       "result": "N/A",
       "severity": "n/a",
-      "evidence": "optional_endpoint_status에서 /vulnapp/ping.jsp는 status_code 404 Not Found로 응답한다. 수집 데이터 내에서 명령 실행 파라미터가 있는 다른 엔드포인트나 Command Injection 테스트 결과가 확인되지 않는다.",
-      "recommendation": "명령 실행 기능이 실제로 존재한다면 서버 명령 호출을 피하고, 불가피한 경우 허용 목록 검증과 인자 분리 실행을 적용하라. 현재 수집 범위에서는 점검 대상 기능이 확인되지 않는다.",
+      "evidence": "Command Injection 점검 대상으로 볼 수 있는 /vulnapp/ping.jsp는 optional_endpoint_status에서 status_code 404 Not Found로 응답했다. 수집 데이터에 명령 실행 기능이 있는 다른 엔드포인트나 파라미터는 확인되지 않는다.",
+      "recommendation": "명령 실행 기능이 존재하는 경우 서버 측 명령 호출을 지양하고, 필요한 경우 허용 목록 기반 입력 검증과 안전한 API를 사용한다. 현재 수집 범위에서는 해당 기능이 확인되지 않았다.",
       "confidence": "Medium",
       "defer_reason": ""
     },
@@ -175,9 +175,9 @@
       "url": "http://15.164.60.79/vulnapp/login.jsp",
       "result": "취약",
       "severity": "medium",
-      "evidence": "rate_limit 수집 결과에서 /vulnapp/login.jsp에 대해 attempt_count 10회 로그인 시도가 수행되었고 blocked가 false로 기록되었다. 각 시도는 status_code 200 응답을 반환했으며 차단, 지연, CAPTCHA, 429 등의 제한 반응이 확인되지 않는다.",
-      "recommendation": "계정, IP, 세션, 디바이스 단위의 로그인 시도 제한과 점진적 지연, 임시 차단, 모니터링/알림을 적용하라. 정상 사용자 영향이 적도록 임계값과 해제 정책을 설계하라.",
-      "confidence": "Medium",
+      "evidence": "rate_limit 수집 결과 /vulnapp/login.jsp에 대해 10회 로그인 시도 후 blocked=false로 기록되었고, 각 시도는 status_code 200으로 로그인 페이지가 계속 응답되었다. 차단, 지연, CAPTCHA 또는 429 응답 등의 제한 근거가 확인되지 않는다.",
+      "recommendation": "계정, IP, 세션, 디바이스 기준의 단계적 로그인 시도 제한을 적용하고 반복 실패 시 지연, CAPTCHA, 임시 차단, 모니터링 알림을 도입한다.",
+      "confidence": "High",
       "defer_reason": ""
     },
     {
@@ -187,9 +187,9 @@
       "url": "http://15.164.60.79/vulnapp/login.jsp",
       "result": "취약",
       "severity": "medium",
-      "evidence": "account_lockout 수집 결과에서 /vulnapp/login.jsp에 대해 attempt_count 10회 시도 후 blocked가 false로 기록되었다. 모든 시도는 status_code 200 응답이며 계정 잠금, 잠금 안내, 인증 차단 상태를 나타내는 응답이 확인되지 않는다.",
-      "recommendation": "동일 계정에 대한 연속 인증 실패 시 임시 잠금 또는 추가 인증 절차를 적용하라. 잠금 정책은 무차별 대입 방어와 계정 잠금 악용 방지를 함께 고려하여 구현하라.",
-      "confidence": "Medium",
+      "evidence": "account_lockout 수집 결과 /vulnapp/login.jsp에 대해 10회 인증 시도 후 blocked=false로 기록되었으며, 모든 시도에서 status_code 200 응답이 계속 반환되었다. 계정 잠금 또는 임시 제한이 발생했다는 응답이 확인되지 않는다.",
+      "recommendation": "동일 계정에 대한 연속 로그인 실패 횟수를 제한하고, 임계치 초과 시 일정 시간 잠금 또는 추가 인증을 요구한다. 잠금 정책은 사용자 열거를 유발하지 않도록 일관된 메시지로 구현한다.",
+      "confidence": "High",
       "defer_reason": ""
     },
     {
@@ -199,20 +199,20 @@
       "url": "http://15.164.60.79/vulnapp/login.jsp",
       "result": "보류",
       "severity": "pending",
-      "evidence": "수집 데이터에는 회원가입 또는 비밀번호 변경 요청에서 약한 비밀번호를 제출한 결과가 없다. /vulnapp/register.jsp는 status_code 404로 응답하여 가입 기능 존재 여부도 확인되지 않는다.",
-      "recommendation": "회원가입 및 비밀번호 변경 기능에서 길이, 복잡도, 금칙어/유출 비밀번호 차단 정책을 검증하라. 서버 측에서 약한 비밀번호를 거부하고 안전한 비밀번호 정책을 안내해야 한다.",
+      "evidence": "수집 데이터에는 회원가입 또는 비밀번호 변경 요청/응답, 약한 비밀번호 입력 테스트 결과가 없다. /vulnapp/register.jsp는 status_code 404로 확인되어 비밀번호 정책 판단에 필요한 기능 응답이 없다.",
+      "recommendation": "회원가입, 비밀번호 변경, 초기화 기능에서 최소 길이, 복잡도, 사전/유출 비밀번호 차단 등 정책이 적용되는지 테스트한다.",
       "confidence": "Low",
-      "defer_reason": "약한 비밀번호 설정 시도 및 정책 응답 데이터가 없음."
+      "defer_reason": "비밀번호 설정 기능 및 약한 비밀번호 허용 여부에 대한 수집 데이터가 없다."
     },
     {
       "check_id": "WEB-A07-003",
       "owasp": "A07:2025 Authentication Failures",
       "name": "JWT 검증 우회",
-      "url": "http://15.164.60.79/vulnapp/login.jsp",
+      "url": "http://15.164.60.79/vulnapp/",
       "result": "N/A",
       "severity": "n/a",
-      "evidence": "수집된 인증 응답은 Set-Cookie 기반 JSESSIONID 예: 'JSESSIONID=...; Path=/vulnapp; HttpOnly'를 사용한다. Authorization Bearer 토큰, JWT 형식의 토큰, JWT 검증 테스트 결과가 수집 데이터에 존재하지 않는다.",
-      "recommendation": "JWT를 사용하는 기능이 별도로 존재한다면 alg=none, 서명 검증 누락, 키 혼동, 만료 검증 누락 등을 점검하라. 현재 수집 데이터 기준으로는 JWT 사용이 확인되지 않는다.",
+      "evidence": "수집된 인증 관련 응답은 JSESSIONID 세션 쿠키 기반이며, Authorization: Bearer 토큰이나 JWT 형식의 토큰이 응답 헤더/쿠키/본문에서 확인되지 않는다.",
+      "recommendation": "JWT를 사용하는 API가 별도로 존재한다면 alg=none, 서명 검증 우회, 만료 검증 누락 등을 추가 점검한다. 현재 수집 데이터 기준으로는 JWT 사용 근거가 없다.",
       "confidence": "Medium",
       "defer_reason": ""
     },
@@ -223,10 +223,10 @@
       "url": "http://15.164.60.79/vulnapp/upload.jsp",
       "result": "보류",
       "severity": "pending",
-      "evidence": "optional_endpoint_status에서 /vulnapp/upload.jsp는 status_code 200으로 접근 가능하고 /vulnapp/upload_process.jsp는 status_code 500으로 응답한 사실만 있다. 실제 JSP/웹쉘 파일 업로드 시도, 저장 경로, 실행 가능 여부에 대한 수집 데이터가 없다.",
-      "recommendation": "업로드 기능에서 확장자, MIME, 매직바이트, 파일명, 저장 위치, 실행 권한을 검증하라. 업로드 파일은 웹 루트 외부에 저장하고 실행 권한을 제거하며, 허용 목록 기반으로 처리하라. 실제 업로드/호출 테스트로 웹쉘 실행 가능 여부를 확인해야 한다.",
+      "evidence": "/vulnapp/upload.jsp는 status_code 200으로 접근 가능하고 /vulnapp/upload_process.jsp는 status_code 500 응답이 확인되지만, 실제 파일 업로드 요청, JSP/스크립트 파일 업로드 성공 여부, 업로드 파일 실행 가능 여부에 대한 수집 데이터가 없다.",
+      "recommendation": "업로드 기능이 존재한다면 확장자/콘텐츠 타입/매직바이트 검증, 저장 경로 실행 권한 제거, 파일명 난수화, 악성 파일 검사, 업로드 후 직접 실행 차단을 적용하고 실제 업로드 테스트로 검증한다.",
       "confidence": "Low",
-      "defer_reason": "파일 업로드 및 업로드 파일 실행 검증 데이터가 없음."
+      "defer_reason": "웹쉘 파일 업로드 및 실행 검증 결과가 없다."
     },
     {
       "check_id": "WEB-A10-001",
@@ -235,10 +235,10 @@
       "url": "http://15.164.60.79/vulnapp/upload_process.jsp",
       "result": "보류",
       "severity": "pending",
-      "evidence": "/vulnapp/upload_process.jsp는 status_code 500과 Tomcat 기본 오류 페이지 일부를 반환했으나 제공된 body_sample은 '<!doctype html><html...<title>HTTP Status 500 – Internal Server Error</title>...' 수준으로 제한되어 있으며 Java exception class, stack trace 프레임, 소스 파일명/라인 번호 노출 여부는 확인되지 않는다. 404 오류 페이지에는 상태/메시지/설명 및 Apache Tomcat/9.0.118만 표시된다.",
-      "recommendation": "500 오류 전체 응답에서 스택 트레이스, 예외명, 파일 경로, SQL 오류 등 내부 정보 노출 여부를 확인하라. 운영 환경에서는 사용자 정의 오류 페이지를 사용하고 서버 로그에만 상세 예외를 기록하라.",
-      "confidence": "Low",
-      "defer_reason": "500 응답 전체 본문이 없어 스택 트레이스 노출 여부를 확정할 수 없음."
+      "evidence": "/vulnapp/upload_process.jsp 요청이 status_code 500으로 응답했고 Tomcat 기본 오류 페이지 일부가 수집되었으나, 제공된 body_sample에는 Java 예외 클래스명, stack trace 프레임, 소스 파일/라인 번호 등 상세 스택 트레이스 노출 근거가 포함되어 있지 않다. 404 오류 페이지는 Tomcat 버전은 노출하지만 스택 트레이스는 확인되지 않는다.",
+      "recommendation": "500 오류 발생 시 사용자에게는 일반화된 오류 페이지를 제공하고, 상세 예외와 스택 트레이스는 서버 로그에만 기록한다. 전체 오류 응답을 확인하여 스택 트레이스 노출 여부를 추가 점검한다.",
+      "confidence": "Medium",
+      "defer_reason": "500 응답은 확인되나 스택 트레이스 문자열이 수집 샘플에 포함되지 않았다."
     },
     {
       "check_id": "WEB-A10-002",
@@ -247,8 +247,8 @@
       "url": "http://15.164.60.79/vulnapp/fetch.jsp",
       "result": "N/A",
       "severity": "n/a",
-      "evidence": "optional_endpoint_status에서 /vulnapp/fetch.jsp는 status_code 404 Not Found로 응답한다. 수집 데이터에 URL fetch 기능, 외부 URL 입력 파라미터, 내부망 요청 반응 등 SSRF를 점검할 수 있는 기능이 확인되지 않는다.",
-      "recommendation": "서버가 사용자가 입력한 URL을 가져오는 기능이 존재한다면 내부 IP, 메타데이터 주소, localhost, 리다이렉트 우회에 대한 차단 정책을 구현하고 SSRF 테스트를 수행하라. 현재 수집 범위에서는 해당 기능이 확인되지 않는다.",
+      "evidence": "SSRF 점검 대상으로 볼 수 있는 /vulnapp/fetch.jsp는 optional_endpoint_status에서 status_code 404 Not Found로 응답했다. 수집 데이터에 외부 URL을 서버가 가져오는 기능이나 관련 파라미터 응답은 확인되지 않는다.",
+      "recommendation": "URL fetch, webhook, 이미지 프록시 등 서버 측 요청 기능이 존재하는 경우 내부 IP/메타데이터 주소 접근 차단, 허용 목록, 리다이렉트 제한, DNS rebinding 방어를 적용한다. 현재 수집 범위에서는 해당 기능이 확인되지 않았다.",
       "confidence": "Medium",
       "defer_reason": ""
     }

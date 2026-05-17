@@ -1,7 +1,7 @@
 {
   "project": "4악다 생성형 AI 기반 웹 취약점 자동 진단",
   "target": "http://15.164.60.79",
-  "collected_at": "2026-05-17T17:51:45+09:00",
+  "collected_at": "2026-05-17T18:58:06+09:00",
   "analysis_policy": {
     "phase_1": "GPT first analyzes collected HTTP evidence only.",
     "phase_2": "If GPT marks a finding as 보류 or low confidence, signature-based result.json may be used as supporting evidence.",
@@ -13,7 +13,7 @@
       "status_code": 200,
       "headers": {
         "Server": "nginx/1.28.3 (Ubuntu)",
-        "Date": "Sun, 17 May 2026 08:51:45 GMT",
+        "Date": "Sun, 17 May 2026 09:58:06 GMT",
         "Content-Type": "text/html;charset=UTF-8",
         "Transfer-Encoding": "chunked",
         "Connection": "keep-alive",
@@ -26,7 +26,7 @@
       "status_code": 404,
       "headers": {
         "Server": "nginx/1.28.3 (Ubuntu)",
-        "Date": "Sun, 17 May 2026 08:51:45 GMT",
+        "Date": "Sun, 17 May 2026 09:58:06 GMT",
         "Content-Type": "text/html;charset=utf-8",
         "Transfer-Encoding": "chunked",
         "Connection": "keep-alive",
@@ -42,7 +42,7 @@
         "headers": {
           "Content-Type": "text/html;charset=UTF-8",
           "Transfer-Encoding": "chunked",
-          "Date": "Sun, 17 May 2026 08:51:45 GMT",
+          "Date": "Sun, 17 May 2026 09:58:06 GMT",
           "Keep-Alive": "timeout=20",
           "Connection": "keep-alive"
         },
@@ -53,7 +53,7 @@
         "status_code": 200,
         "headers": {
           "Server": "nginx/1.28.3 (Ubuntu)",
-          "Date": "Sun, 17 May 2026 08:51:45 GMT",
+          "Date": "Sun, 17 May 2026 09:58:06 GMT",
           "Content-Type": "text/html;charset=UTF-8",
           "Transfer-Encoding": "chunked",
           "Connection": "keep-alive",
@@ -69,7 +69,7 @@
         "headers": {
           "Content-Type": "text/html;charset=ISO-8859-1",
           "Content-Length": "3523",
-          "Date": "Sun, 17 May 2026 08:51:45 GMT",
+          "Date": "Sun, 17 May 2026 09:58:06 GMT",
           "Keep-Alive": "timeout=20",
           "Connection": "keep-alive"
         },
@@ -80,7 +80,7 @@
         "status_code": 401,
         "headers": {
           "Server": "nginx/1.28.3 (Ubuntu)",
-          "Date": "Sun, 17 May 2026 08:51:45 GMT",
+          "Date": "Sun, 17 May 2026 09:58:06 GMT",
           "Content-Type": "text/html;charset=ISO-8859-1",
           "Content-Length": "2576",
           "Connection": "keep-alive",
@@ -96,11 +96,11 @@
         "status_code": 302,
         "headers": {
           "Server": "nginx/1.28.3 (Ubuntu)",
-          "Date": "Sun, 17 May 2026 08:51:45 GMT",
+          "Date": "Sun, 17 May 2026 09:58:06 GMT",
           "Content-Type": "text/html;charset=UTF-8",
           "Content-Length": "0",
           "Connection": "keep-alive",
-          "Set-Cookie": "JSESSIONID=FAF9B6B47051CE479A139B6731F98AD0; Path=/vulnapp; HttpOnly",
+          "Set-Cookie": "JSESSIONID=97AFEF1490B2709B183BE6F1D9A36750; Path=/vulnapp; HttpOnly",
           "Location": "http://15.164.60.79/vulnapp/admin.jsp"
         },
         "body_sample": "",
@@ -122,11 +122,11 @@
         "status_code": 302,
         "headers": {
           "Server": "nginx/1.28.3 (Ubuntu)",
-          "Date": "Sun, 17 May 2026 08:51:45 GMT",
+          "Date": "Sun, 17 May 2026 09:58:06 GMT",
           "Content-Type": "text/html;charset=UTF-8",
           "Content-Length": "0",
           "Connection": "keep-alive",
-          "Set-Cookie": "JSESSIONID=4FE186B39C9293E767032CCE50EA1CAF; Path=/vulnapp; HttpOnly",
+          "Set-Cookie": "JSESSIONID=7842F357F5497609728C191FF8340FAC; Path=/vulnapp; HttpOnly",
           "Location": "http://15.164.60.79/vulnapp/admin.jsp"
         },
         "body_sample": "",
@@ -148,11 +148,11 @@
         "status_code": 302,
         "headers": {
           "Server": "nginx/1.28.3 (Ubuntu)",
-          "Date": "Sun, 17 May 2026 08:51:45 GMT",
+          "Date": "Sun, 17 May 2026 09:58:06 GMT",
           "Content-Type": "text/html;charset=UTF-8",
           "Content-Length": "0",
           "Connection": "keep-alive",
-          "Set-Cookie": "JSESSIONID=7852082627891F6276430E16EA54B714; Path=/vulnapp; HttpOnly",
+          "Set-Cookie": "JSESSIONID=9DF645D257A68E797CD46C26E7EC6960; Path=/vulnapp; HttpOnly",
           "Location": "http://15.164.60.79/vulnapp/admin.jsp"
         },
         "body_sample": "",
@@ -176,11 +176,11 @@
         "status_code": 200,
         "headers": {
           "Server": "nginx/1.28.3 (Ubuntu)",
-          "Date": "Sun, 17 May 2026 08:51:45 GMT",
+          "Date": "Sun, 17 May 2026 09:58:06 GMT",
           "Content-Type": "text/html;charset=UTF-8",
           "Transfer-Encoding": "chunked",
           "Connection": "keep-alive",
-          "Set-Cookie": "JSESSIONID=15FC2D3448208EE0075A74CE2020CF14; Path=/vulnapp; HttpOnly",
+          "Set-Cookie": "JSESSIONID=3E1EAA1E91B17095FDA8BC1FB6952DB8; Path=/vulnapp; HttpOnly",
           "Content-Encoding": "gzip"
         },
         "body_sample": "\n\n\n\n\n\n\n<!DOCTYPE html>\n<html lang=\"ko\">\n<head>\n    <meta charset=\"UTF-8\">\n    <link rel=\"stylesheet\" href=\"/vulnapp/css/style.css\">\n</head>\n<body>\n    <nav class=\"navbar\">\n        <div class=\"logo\" href=\"index.jsp\">\n\t\t<a href=\"/vulnapp/\" style=\"text-decoration: none; color: inherit;\">\n\t\t\t🛡️ VulnApp\n\t\t</a>\n\t</div>\n        <ul class=\"nav-links\">\n            <li><a href=\"search.jsp\">통합 검색</a></li>\n            <li><a href=\"download.jsp\">자료실</a></li>\n            \n            \n                <li><a href=\"login.jsp\">로그인</a></li>\n            \n        </ul>\n    </nav>\n    <main class=\"container\">\n        <div class=\"card\">\n\n\n\n\n    <div style=\"border-bottom: 2px solid #ecf0f1; padding-bottom: 10px; margin-bottom: 20px;\">\n        <h2 style=\"margin: 0; color: #2980b9;\">🔍 통합 검색 및 게시판</h2>\n    </div>\n\n    <div style=\"margin-bottom: 30px; background: #f8f9fa; padding: 20px; border-radius: 8px;\">\n        <form action=\"search.jsp\" method=\"GET\" style=\"display: flex; gap: 10px;\">\n            <input type=\"text\" name=\"keyword\" value=\"<script>alert(1337)</script>\" placeholder=\"검색어를 입력하세요...\" \n                   style=\"flex-grow: 1; padding: 10px; border: 1px solid #ccc; border-radius: 4px;\">\n            <button type=\"submit\" style=\"background: #3498db; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-weight: bold;\">\n                검색\n            </button>\n        </form>\n        \n        \n            <p style=\"margin-top: 15px; color: #555;\">\n                <strong>'<script>alert(1337)</script>'</strong> 에 대한 검색 결과입니다. \n                <span style=\"col",
@@ -196,7 +196,7 @@
         "status_code": 200,
         "headers": {
           "Server": "nginx/1.28.3 (Ubuntu)",
-          "Date": "Sun, 17 May 2026 08:51:45 GMT",
+          "Date": "Sun, 17 May 2026 09:58:06 GMT",
           "Content-Type": "text/html;charset=UTF-8",
           "Transfer-Encoding": "chunked",
           "Connection": "keep-alive",
@@ -215,7 +215,7 @@
         "status_code": 200,
         "headers": {
           "Server": "nginx/1.28.3 (Ubuntu)",
-          "Date": "Sun, 17 May 2026 08:51:45 GMT",
+          "Date": "Sun, 17 May 2026 09:58:06 GMT",
           "Content-Type": "text/html;charset=UTF-8",
           "Transfer-Encoding": "chunked",
           "Connection": "keep-alive",
@@ -234,7 +234,7 @@
         "status_code": 200,
         "headers": {
           "Server": "nginx/1.28.3 (Ubuntu)",
-          "Date": "Sun, 17 May 2026 08:51:45 GMT",
+          "Date": "Sun, 17 May 2026 09:58:06 GMT",
           "Content-Type": "text/html;charset=UTF-8",
           "Transfer-Encoding": "chunked",
           "Connection": "keep-alive",
@@ -254,7 +254,7 @@
       "status_code": 200,
       "headers": {
         "Server": "nginx/1.28.3 (Ubuntu)",
-        "Date": "Sun, 17 May 2026 08:51:45 GMT",
+        "Date": "Sun, 17 May 2026 09:58:06 GMT",
         "Content-Type": "application/json;charset=UTF-8",
         "Content-Length": "144",
         "Connection": "keep-alive"
@@ -277,11 +277,11 @@
         "status_code": 302,
         "headers": {
           "Server": "nginx/1.28.3 (Ubuntu)",
-          "Date": "Sun, 17 May 2026 08:51:45 GMT",
+          "Date": "Sun, 17 May 2026 09:58:06 GMT",
           "Content-Type": "text/html;charset=UTF-8",
           "Content-Length": "0",
           "Connection": "keep-alive",
-          "Set-Cookie": "JSESSIONID=0FA9F1A1E078FCC6C607B610A58B4EF7; Path=/vulnapp; HttpOnly",
+          "Set-Cookie": "JSESSIONID=61301C926582273658B9D9DE1EB6A3DA; Path=/vulnapp; HttpOnly",
           "Location": "http://15.164.60.79/vulnapp/login.jsp"
         },
         "body_sample": "",
@@ -297,11 +297,11 @@
         "status_code": 302,
         "headers": {
           "Server": "nginx/1.28.3 (Ubuntu)",
-          "Date": "Sun, 17 May 2026 08:51:45 GMT",
+          "Date": "Sun, 17 May 2026 09:58:06 GMT",
           "Content-Type": "text/html;charset=UTF-8",
           "Content-Length": "0",
           "Connection": "keep-alive",
-          "Set-Cookie": "JSESSIONID=E4042B047842E149D0EA4C2EF9ABC48A; Path=/vulnapp; HttpOnly",
+          "Set-Cookie": "JSESSIONID=6AEE2B6A1B5495D53334E932D4193EBD; Path=/vulnapp; HttpOnly",
           "Location": "http://15.164.60.79/vulnapp/"
         },
         "body_sample": "",
@@ -313,7 +313,7 @@
         "status_code": 200,
         "headers": {
           "Server": "nginx/1.28.3 (Ubuntu)",
-          "Date": "Sun, 17 May 2026 08:51:45 GMT",
+          "Date": "Sun, 17 May 2026 09:58:06 GMT",
           "Content-Type": "text/html;charset=UTF-8",
           "Transfer-Encoding": "chunked",
           "Connection": "keep-alive",
@@ -335,7 +335,7 @@
         "status_code": 200,
         "headers": {
           "Server": "nginx/1.28.3 (Ubuntu)",
-          "Date": "Sun, 17 May 2026 08:51:45 GMT",
+          "Date": "Sun, 17 May 2026 09:58:06 GMT",
           "Content-Type": "text/html;charset=UTF-8",
           "Transfer-Encoding": "chunked",
           "Connection": "keep-alive",
@@ -344,7 +344,7 @@
       },
       "https": {
         "url": "https://15.164.60.79",
-        "error": "HTTPSConnectionPool(host='15.164.60.79', port=443): Max retries exceeded with url: / (Caused by ConnectTimeoutError(<HTTPSConnection(host='15.164.60.79', port=443) at 0x29073260850>, 'Connection to 15.164.60.79 timed out. (connect timeout=5)'))"
+        "error": "HTTPSConnectionPool(host='15.164.60.79', port=443): Max retries exceeded with url: / (Caused by ConnectTimeoutError(<HTTPSConnection(host='15.164.60.79', port=443) at 0x27a089c1950>, 'Connection to 15.164.60.79 timed out. (connect timeout=5)'))"
       },
       "https_available": false,
       "redirect_to_https": false
@@ -504,7 +504,7 @@
         "status_code": 200,
         "headers": {
           "Server": "nginx/1.28.3 (Ubuntu)",
-          "Date": "Sun, 17 May 2026 08:51:50 GMT",
+          "Date": "Sun, 17 May 2026 09:58:12 GMT",
           "Content-Type": "application/json;charset=UTF-8",
           "Content-Length": "144",
           "Connection": "keep-alive"
@@ -519,7 +519,7 @@
         "status_code": 200,
         "headers": {
           "Server": "nginx/1.28.3 (Ubuntu)",
-          "Date": "Sun, 17 May 2026 08:51:50 GMT",
+          "Date": "Sun, 17 May 2026 09:58:12 GMT",
           "Content-Type": "application/json;charset=UTF-8",
           "Content-Length": "144",
           "Connection": "keep-alive"

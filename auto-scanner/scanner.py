@@ -69,17 +69,6 @@ MANUAL_CALIBRATED_SEVERITY = {
     "WEB-A07-003": "n/a",
 }
 
-# 수동진단에서 사이트 오류/미구현 때문에 판단 보류로 남긴 항목.
-# 이 항목들은 rule.py가 pending 근거를 찾으면 GPT의 pass/n/a/low 판단보다 pending을 우선한다.
-MANUAL_PENDING_CHECKS = {
-    "WEB-A05-003",  # 게시글 상세 조회 404로 Stored XSS 재조회 검증 불가
-    "WEB-A05-004",  # ping.jsp 404
-    "WEB-A07-002",  # register.jsp 404
-    "WEB-A08-001",  # shell.jsp 업로드 500 + uploads 경로 404
-    "WEB-A10-001",  # DB 오류 노출로 원래 양호 항목 수정 후 재진단 필요
-    "WEB-A10-002",  # fetch.jsp/internal/secret.jsp 404
-}
-
 SEVERITY_RANK = {"n/a": 0, "pending": 0, "pass": 0, "low": 1, "medium": 2, "high": 3, "critical": 4}
 
 
@@ -570,20 +559,20 @@ def complete_report_with_catalog(
                     "owasp": check["owasp"],
                     "name": check["name"],
                     "url": check["url"],
-                    "severity": "n/a",
+                    "severity": "n/a" if initial_result == "N/A" else "pending",
                     "evidence": str(initial_item.get("evidence", "")).strip() or str(initial_item.get("defer_reason", "")).strip() or "수집된 근거만으로는 해당 취약점 존재 여부를 판단할 수 없음.",
                     "recommendation": str(initial_item.get("recommendation", "")).strip() or "추가 엔드포인트 확인, 인증 상태 점검, 수동 검증 등 보강 진단이 필요함."
                 })
                 continue
 
-        completed_results.append({
+            completed_results.append({
             "id": "",
             "check_id": check_id,
             "owasp": check["owasp"],
             "name": check["name"],
             "url": check["url"],
-            "severity": "n/a",
-            "evidence": "수집된 근거와 rule.py 결과만으로는 해당 취약점의 존재 여부를 확인할 수 없음.",
+            "severity": "pending",
+            "evidence": "수집된 근거와 rule.py 결과만으로는 해당 취약점의 존재 여부를 확인할 수 없어 판단 보류로 처리함.",
             "recommendation": "추가 엔드포인트 확인, 인증 상태 점검, 수동 검증 등 보강 진단이 필요함."
         })
 
@@ -622,9 +611,9 @@ def prefer_signature_severity(check_id: str, current_severity: str, signature_se
     """
     rule.py 결과와 GPT 결과를 병합할 때의 severity 우선순위.
 
-    - rule.py가 pending을 반환하면 사이트 오류/미구현 때문에 수동진단도 보류한 항목이므로 pending을 우선한다.
+    - rule.py가 pending을 반환하면 check_id와 무관하게 사이트 오류/미구현/증거 부족으로 판단 불가 상태이므로 pending을 우선한다.
     - GPT가 pass/n/a/pending으로 판단했지만 rule.py가 구체적인 취약 근거를 찾은 경우에는 rule.py 결과를 반영한다.
-    - WEB-A08-001에서 JSP 업로드 실행이 확인되면 critical을 허용한다.
+    - rule.py가 critical을 반환하면 서버 측 코드 실행 등 치명적 근거가 확인된 것으로 보고 critical을 허용한다.
     """
     current = str(current_severity or "n/a").lower()
     sig = str(signature_severity or "n/a").lower()
