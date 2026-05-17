@@ -67,7 +67,7 @@ def main():
 
     severity = data["summary"]["severity"]
 
-    for level in ["critical", "high", "medium", "low", "pass", "n/a"]:
+    for level in ["critical", "high", "medium", "low", "pass", "n/a", "pending"]:
         meta_rows.append([level, severity.get(level, 0)])
 
     for row in meta_rows:

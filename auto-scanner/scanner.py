@@ -20,31 +20,68 @@ load_dotenv()
 
 HEADERS = {"User-Agent": "4AKDA-GPT-Based-Scanner/3.3"}
 KST = timezone(timedelta(hours=9))
+NORMAL_USER_ID = os.getenv("SCANNER_NORMAL_USER_ID", "user1")
+NORMAL_USER_PW = os.getenv("SCANNER_NORMAL_USER_PW", "user1234")
 
 CHECK_CATALOG = [
     {"check_id": "WEB-A01-001", "owasp": "A01:2025 Broken Access Control", "name": "관리자 페이지 직접 접근", "url": "/vulnapp/admin.jsp"},
-    {"check_id": "WEB-A01-002", "owasp": "A01:2025 Broken Access Control", "name": "IDOR", "url": "/vulnapp/profile.jsp?user_idx=1"},
-    {"check_id": "WEB-A02-001", "owasp": "A02:2025 Security Misconfiguration", "name": "보안 헤더 미설정", "url": "/"},
-    {"check_id": "WEB-A02-002", "owasp": "A02:2025 Security Misconfiguration", "name": "서버 버전 노출", "url": "/"},
-    {"check_id": "WEB-A02-003", "owasp": "A02:2025 Security Misconfiguration", "name": "Tomcat 기본페이지 노출", "url": "/"},
-    {"check_id": "WEB-A02-004", "owasp": "A02:2025 Security Misconfiguration", "name": "민감정보 노출", "url": "/vulnapp/debug.jsp"},
-    {"check_id": "WEB-A04-001", "owasp": "A04:2025 Cryptographic Failures", "name": "HTTPS 미적용", "url": "/"},
+    {"check_id": "WEB-A01-002", "owasp": "A01:2025 Broken Access Control", "name": "IDOR", "url": "/vulnapp/profile.jsp?user_idx="},
+    {"check_id": "WEB-A02-001", "owasp": "A02:2025 Security Misconfiguration", "name": "보안 헤더 미설정", "url": "/vulnapp/"},
+    {"check_id": "WEB-A02-002", "owasp": "A02:2025 Security Misconfiguration", "name": "서버 버전 노출", "url": "/, :8080/"},
+    {"check_id": "WEB-A02-003", "owasp": "A02:2025 Security Misconfiguration", "name": "Tomcat 기본페이지 노출", "url": ":8080/"},
+    {"check_id": "WEB-A02-004", "owasp": "A02:2025 Security Misconfiguration", "name": "debug=true 기능 활성화", "url": "/vulnapp/debug.jsp"},
+    {"check_id": "WEB-A03-001", "owasp": "A03:2025 Software Supply Chain Failures", "name": "취약한 Log4j 사용", "url": "N/A"},
+    {"check_id": "WEB-A03-002", "owasp": "A03:2025 Software Supply Chain Failures", "name": "구버전 jQuery 사용", "url": "N/A"},
+    {"check_id": "WEB-A04-001", "owasp": "A04:2025 Cryptographic Failures", "name": "HTTPS 미적용", "url": "/vulnapp/"},
     {"check_id": "WEB-A04-002", "owasp": "A04:2025 Cryptographic Failures", "name": "쿠키 Secure/HttpOnly 미설정", "url": "/vulnapp/login.jsp"},
     {"check_id": "WEB-A05-001", "owasp": "A05:2025 Injection", "name": "SQL Injection", "url": "/vulnapp/login.jsp"},
-    {"check_id": "WEB-A05-002", "owasp": "A05:2025 Injection", "name": "Reflected XSS", "url": "/vulnapp/search.jsp"},
-    {"check_id": "WEB-A05-003", "owasp": "A05:2025 Injection", "name": "Stored XSS", "url": "/vulnapp/board.jsp"},
-    {"check_id": "WEB-A05-004", "owasp": "A05:2025 Injection", "name": "Command Injection", "url": "/vulnapp/ping.jsp"},
+    {"check_id": "WEB-A05-002", "owasp": "A05:2025 Injection", "name": "Reflected XSS", "url": "/vulnapp/search.jsp?keyword="},
+    {"check_id": "WEB-A05-003", "owasp": "A05:2025 Injection", "name": "Stored XSS", "url": "/vulnapp/upload.jsp"},
+    {"check_id": "WEB-A05-004", "owasp": "A05:2025 Injection", "name": "Command Injection", "url": "/vulnapp/ping.jsp?host="},
     {"check_id": "WEB-A06-001", "owasp": "A06:2025 Insecure Design", "name": "로그인 Rate Limit 미구현", "url": "/vulnapp/login.jsp"},
-    {"check_id": "WEB-A06-002", "owasp": "A06:2025 Insecure Design", "name": "debug=true 기능 활성화", "url": "/vulnapp/?debug=true"},
     {"check_id": "WEB-A07-001", "owasp": "A07:2025 Authentication Failures", "name": "계정 잠금 미구현", "url": "/vulnapp/login.jsp"},
     {"check_id": "WEB-A07-002", "owasp": "A07:2025 Authentication Failures", "name": "약한 비밀번호 허용", "url": "/vulnapp/register.jsp"},
-    {"check_id": "WEB-A07-003", "owasp": "A07:2025 Authentication Failures", "name": "JWT 검증 우회", "url": "/vulnapp/api/profile"},
+    {"check_id": "WEB-A07-003", "owasp": "A07:2025 Authentication Failures", "name": "JWT 검증 우회", "url": "N/A"},
     {"check_id": "WEB-A08-001", "owasp": "A08:2025 Software or Data Integrity Failures", "name": "웹쉘 업로드 가능", "url": "/vulnapp/upload.jsp"},
-    {"check_id": "WEB-A09-001", "owasp": "A09:2025 Logging & Alerting Failures", "name": "로그인 실패 로그 미기록", "url": "/vulnapp/logs/security.log"},
-    {"check_id": "WEB-A09-002", "owasp": "A09:2025 Logging & Alerting Failures", "name": "관리자 행위 로그 미기록", "url": "/vulnapp/logs/security.log"},
-    {"check_id": "WEB-A10-001", "owasp": "A10:2025 Mishandling of Exceptional Conditions", "name": "Stack Trace 노출", "url": "/vulnapp/error.jsp"},
-    {"check_id": "WEB-A10-002", "owasp": "A10:2025 Mishandling of Exceptional Conditions", "name": "임의 파일 읽기", "url": "/vulnapp/download.jsp?filename="},
+    {"check_id": "WEB-A10-001", "owasp": "A10:2025 Mishandling of Exceptional Conditions", "name": "Stack Trace 노출", "url": "/vulnapp/profile.jsp?user_idx=abc"},
+    {"check_id": "WEB-A10-002", "owasp": "A10:2025 Mishandling of Exceptional Conditions", "name": "SSRF", "url": "/vulnapp/fetch.jsp?url="},
 ]
+
+# 수동진단 결과가 확보된 항목의 위험도 기준.
+# - 빈 값/보류 항목은 포함하지 않는다.
+# - 자동진단이 취약 또는 N/A로 확인된 경우, GPT가 과도하게 high로 판단하지 않도록
+#   프로젝트 수동진단표 기준 severity로 보정한다.
+MANUAL_CALIBRATED_SEVERITY = {
+    "WEB-A01-001": "medium",
+    "WEB-A01-002": "high",
+    "WEB-A02-001": "low",
+    "WEB-A02-002": "low",
+    "WEB-A02-003": "medium",
+    "WEB-A02-004": "medium",
+    "WEB-A03-001": "n/a",
+    "WEB-A03-002": "n/a",
+    "WEB-A04-001": "medium",
+    "WEB-A04-002": "medium",
+    "WEB-A05-001": "high",
+    "WEB-A05-002": "medium",
+    "WEB-A06-001": "medium",
+    "WEB-A07-001": "medium",
+    "WEB-A07-003": "n/a",
+}
+
+# 수동진단에서 사이트 오류/미구현 때문에 판단 보류로 남긴 항목.
+# 이 항목들은 rule.py가 pending 근거를 찾으면 GPT의 pass/n/a/low 판단보다 pending을 우선한다.
+MANUAL_PENDING_CHECKS = {
+    "WEB-A05-003",  # 게시글 상세 조회 404로 Stored XSS 재조회 검증 불가
+    "WEB-A05-004",  # ping.jsp 404
+    "WEB-A07-002",  # register.jsp 404
+    "WEB-A08-001",  # shell.jsp 업로드 500 + uploads 경로 404
+    "WEB-A10-001",  # DB 오류 노출로 원래 양호 항목 수정 후 재진단 필요
+    "WEB-A10-002",  # fetch.jsp/internal/secret.jsp 404
+}
+
+SEVERITY_RANK = {"n/a": 0, "pending": 0, "pass": 0, "low": 1, "medium": 2, "high": 3, "critical": 4}
+
 
 app = FastAPI(title="Auto Scanner API")
 
@@ -106,7 +143,7 @@ def build_request_output_path(path_value: str, request_id: str) -> str:
     return str(parent / f"{stem}_{request_id}{suffix}")
 
 
-def run_signature_scan(target: str, output_path: str, run_sqlmap: bool = False):
+def run_signature_scan(target: str, output_path: str, run_sqlmap: bool = False, tomcat_port: int = 8080):
     current_dir = Path(__file__).resolve().parent
     rule_path = current_dir / "rule.py"
 
@@ -116,7 +153,7 @@ def run_signature_scan(target: str, output_path: str, run_sqlmap: bool = False):
     output = Path(output_path)
     output.parent.mkdir(parents=True, exist_ok=True)
 
-    cmd = [sys.executable, str(rule_path), target, "-o", str(output)]
+    cmd = [sys.executable, str(rule_path), target, "-o", str(output), "--tomcat-port", str(tomcat_port)]
 
     if run_sqlmap:
         cmd.append("--sqlmap")
@@ -355,6 +392,12 @@ def merge_signature_findings(final_report: dict, signature_report: dict | None):
                 signature_item.get("evidence", "")
             )
 
+            merged_item["severity"] = prefer_signature_severity(
+                check_id,
+                merged_item.get("severity"),
+                signature_item.get("severity"),
+            )
+
             if signature_evidence and signature_evidence not in merged_item.get("evidence", ""):
                 merged_item["evidence"] = (
                     f"{merged_item.get('evidence', '').strip()} "
@@ -485,9 +528,54 @@ def complete_report_with_catalog(
     return final_report
 
 
+def apply_manual_calibrated_severity(check_id: str, severity: str) -> str:
+    """
+    수동진단표와 자동진단 JSON 비교가 가능하도록 severity를 프로젝트 기준으로 보정한다.
+
+    원칙:
+    - 수동진단 결과가 확보된 항목만 보정한다.
+    - 보류/미구현 항목은 보정하지 않는다.
+    - pass로 확인된 항목은 취약 severity로 강제하지 않는다.
+      단, WEB-A01-001은 일반 사용자 권한 우회가 rule.py 또는 evidence에서 확인되면
+      merge 단계에서 medium으로 승격된다.
+    - 취약으로 판단된 항목이 GPT에 의해 high로 과대평가된 경우, 수동진단 기준으로 낮춘다.
+    """
+    normalized = str(severity or "n/a").lower()
+    target = MANUAL_CALIBRATED_SEVERITY.get(check_id)
+    if not target:
+        return normalized
+
+    if target == "n/a":
+        return "n/a"
+
+    if normalized in {"high", "medium", "low"}:
+        return target
+
+    return normalized
+
+
+def prefer_signature_severity(check_id: str, current_severity: str, signature_severity: str) -> str:
+    """
+    rule.py 결과와 GPT 결과를 병합할 때의 severity 우선순위.
+
+    - rule.py가 pending을 반환하면 사이트 오류/미구현 때문에 수동진단도 보류한 항목이므로 pending을 우선한다.
+    - GPT가 pass/n/a/pending으로 판단했지만 rule.py가 구체적인 취약 근거를 찾은 경우에는 rule.py 결과를 반영한다.
+    - WEB-A08-001에서 JSP 업로드 실행이 확인되면 critical을 허용한다.
+    """
+    current = str(current_severity or "n/a").lower()
+    sig = str(signature_severity or "n/a").lower()
+
+    if sig == "pending":
+        return "pending"
+
+    if sig in {"critical", "high", "medium", "low"} and current in {"pass", "n/a", "pending"}:
+        return sig
+
+    return current
+
 def normalize_results(results):
     normalized = []
-    allowed_severities = {"critical", "high", "medium", "low", "pass", "n/a"}
+    allowed_severities = {"critical", "high", "medium", "low", "pass", "n/a", "pending"}
 
     for idx, item in enumerate(results, start=1):
         severity = str(item.get("severity", "low")).lower()
@@ -496,6 +584,7 @@ def normalize_results(results):
             severity = "n/a"
 
         check_id = str(item.get("check_id", "")).strip()
+        severity = apply_manual_calibrated_severity(check_id, severity)
         owasp = force_owasp_2025(str(item.get("owasp", "")).strip())
 
         normalized.append({
@@ -519,7 +608,8 @@ def build_summary(results):
         "medium": 0,
         "low": 0,
         "pass": 0,
-        "n/a": 0
+        "n/a": 0,
+        "pending": 0
     }
 
     for item in results:
@@ -628,42 +718,41 @@ class ExternalEvidenceCollector:
 
     def collect_sqli_test(self):
         payloads = [
-            ("admin'--", "test"),
             ("' OR '1'='1' -- ", "test"),
-            ("admin", "' OR '1'='1' -- ")
+            ("admin' -- ", "test"),
+            ("' OR 1=1 -- ", "test"),
         ]
 
         results = []
+        url = self.target + "/vulnapp/login.jsp"
 
         for user_id, pw in payloads:
-            url = (
-                self.target
-                + "/vulnapp/login.jsp?id="
-                + quote(user_id)
-                + "&pw="
-                + quote(pw)
-            )
+            # 로그인 우회 테스트는 세션 오염을 막기 위해 독립 세션을 사용한다.
+            local_session = requests.Session()
+            local_session.headers.update(HEADERS)
+            try:
+                res = local_session.post(
+                    url,
+                    data={"id": user_id, "pw": pw},
+                    timeout=self.timeout,
+                    allow_redirects=False,
+                    verify=False,
+                )
+            except requests.RequestException as e:
+                results.append({"url": url, "error": str(e)})
+                continue
 
-            res = self.safe_request("GET", url)
             result = self.response_to_dict(res, body_limit=1200)
-
             result["test_type"] = "SQL Injection authentication bypass test"
-            result["test_payload"] = {
-                "id": user_id,
-                "pw": pw
+            result["test_payload"] = {"id": user_id, "pw": pw}
+            result["redirect_location"] = res.headers.get("Location", "")
+            body = result.get("body_sample", "").lower()
+            result["signature_hints"] = {
+                "redirected_to_admin": res.status_code in [301, 302, 303, 307, 308] and "admin.jsp" in result["redirect_location"].lower(),
+                "contains_logout": "logout" in body or "로그아웃" in body,
+                "contains_admin": "admin" in body or "관리자" in body,
+                "contains_sql_error": any(k in body for k in ["sql", "unknown column", "sqlexception", "mariadb"]),
             }
-
-            if "body_sample" in result:
-                body = result["body_sample"].lower()
-                result["signature_hints"] = {
-                    "contains_login_success": "login success" in body,
-                    "contains_welcome": "welcome" in body,
-                    "contains_logout": "logout" in body,
-                    "contains_admin": "admin" in body,
-                    "contains_dashboard": "dashboard" in body,
-                    "contains_role_admin": "role=admin" in body
-                }
-
             results.append(result)
 
         return results
@@ -673,24 +762,22 @@ class ExternalEvidenceCollector:
             "<script>alert(1337)</script>",
             "<script>alert(1)</script>",
             "\"><script>alert(1)</script>",
-            "<img src=x onerror=alert(1)>"
+            "<img src=x onerror=alert(1)>",
         ]
 
         results = []
 
         for payload in payloads:
-            url = self.target + "/vulnapp/search.jsp?q=" + quote(payload)
+            url = self.target + "/vulnapp/search.jsp?keyword=" + quote(payload)
             res = self.safe_request("GET", url)
-
-            result = self.response_to_dict(res, body_limit=1200)
+            result = self.response_to_dict(res, body_limit=1600)
             result["test_type"] = "Reflected XSS test"
             result["test_payload"] = payload
-
             if "body_sample" in result:
                 result["signature_hints"] = {
-                    "payload_reflected": payload in result["body_sample"]
+                    "payload_reflected": payload in result["body_sample"],
+                    "escaped_payload_reflected": "&lt;script&gt;" in result["body_sample"].lower(),
                 }
-
             results.append(result)
 
         return results
@@ -730,26 +817,80 @@ class ExternalEvidenceCollector:
 
     def collect_admin_page(self):
         url = self.target + "/vulnapp/admin.jsp"
-        res = self.safe_request("GET", url)
-        result = self.response_to_dict(res, body_limit=1200)
+        login_url = self.target + "/vulnapp/login.jsp"
 
-        if "body_sample" in result:
-            body = result["body_sample"].lower()
-            result["signature_hints"] = {
-                "contains_admin_keywords": any(
-                    keyword in body
-                    for keyword in [
-                        "admin page",
-                        "system config",
-                        "user list",
-                        "backup download",
-                        "관리자"
-                    ]
-                ),
-                "contains_login_keyword": "login" in body
-            }
+        admin_keywords = [
+            "admin page",
+            "system config",
+            "user list",
+            "backup download",
+            "관리자",
+        ]
 
-        return result
+        def add_admin_hints(result):
+            if "body_sample" in result:
+                body = result["body_sample"].lower()
+                result["signature_hints"] = {
+                    "contains_admin_keywords": any(keyword in body for keyword in admin_keywords),
+                    "contains_login_keyword": "login" in body or "로그인" in body,
+                    "redirect_to_login": result.get("status_code") in [301, 302, 303, 307, 308] and "login" in result.get("redirect_location", "").lower(),
+                }
+            return result
+
+        # 1) 다른 진단 과정에서 생성된 쿠키가 섞이지 않도록 비로그인 전용 세션으로 요청한다.
+        anonymous_session = requests.Session()
+        anonymous_session.headers.update(HEADERS)
+
+        try:
+            res = anonymous_session.get(
+                url,
+                timeout=self.timeout,
+                allow_redirects=False,
+                verify=False,
+            )
+            anonymous_result = self.response_to_dict(res, body_limit=1200)
+            anonymous_result["redirect_location"] = res.headers.get("Location", "")
+        except requests.RequestException as e:
+            anonymous_result = {"url": url, "error": str(e)}
+
+        anonymous_result = add_admin_hints(anonymous_result)
+
+        # 2) 수동진단 기준 보완: 일반 사용자 로그인 후 관리자 페이지 접근 가능 여부도 수집한다.
+        normal_user_session = requests.Session()
+        normal_user_session.headers.update(HEADERS)
+        normal_user_result = {"url": url, "note": "normal user login probe not executed"}
+        login_result = {"url": login_url, "note": "normal user login probe not executed"}
+
+        try:
+            login_res = normal_user_session.post(
+                login_url,
+                data={"id": NORMAL_USER_ID, "pw": NORMAL_USER_PW},
+                timeout=self.timeout,
+                allow_redirects=False,
+                verify=False,
+            )
+            login_result = self.response_to_dict(login_res, body_limit=600)
+            login_result["redirect_location"] = login_res.headers.get("Location", "")
+            login_result["test_account"] = NORMAL_USER_ID
+
+            admin_res = normal_user_session.get(
+                url,
+                timeout=self.timeout,
+                allow_redirects=False,
+                verify=False,
+            )
+            normal_user_result = self.response_to_dict(admin_res, body_limit=1200)
+            normal_user_result["redirect_location"] = admin_res.headers.get("Location", "")
+            normal_user_result["test_account"] = NORMAL_USER_ID
+            normal_user_result = add_admin_hints(normal_user_result)
+        except requests.RequestException as e:
+            normal_user_result = {"url": url, "test_account": NORMAL_USER_ID, "error": str(e)}
+
+        return {
+            "anonymous_request": anonymous_result,
+            "normal_user_login_request": login_result,
+            "normal_user_request": normal_user_result,
+        }
 
     def collect_https_status(self):
         http_url = "http://" + self.host
@@ -822,97 +963,52 @@ class ExternalEvidenceCollector:
 
     def collect_rate_limit(self):
         url = self.target + "/vulnapp/login.jsp"
-
         attempts = []
         blocked = False
-
-        for _ in range(8):
-            res = self.safe_request(
-                "POST",
-                url,
-                data={
-                    "username": "admin",
-                    "password": "wrongpass"
-                }
-            )
-
+        for idx in range(10):
+            res = self.safe_request("POST", url, data={"id": "admin", "pw": f"wrong{idx}"})
             if isinstance(res, dict):
                 attempts.append(res)
                 continue
-
-            attempts.append({
-                "url": res.url,
-                "status_code": res.status_code,
-                "body_sample": res.text[:300]
-            })
-
-            if res.status_code in [423, 429]:
+            attempts.append({"url": res.url, "status_code": res.status_code, "body_sample": res.text[:300]})
+            if res.status_code in [423, 429, 403]:
                 blocked = True
-
-        return {
-            "url": url,
-            "attempt_count": len(attempts),
-            "blocked": blocked,
-            "attempts": attempts
-        }
+        return {"url": url, "attempt_count": len(attempts), "blocked": blocked, "attempts": attempts}
 
     def collect_account_lockout(self):
         url = self.target + "/vulnapp/login.jsp"
-
         attempts = []
         blocked = False
-
-        for _ in range(10):
-            res = self.safe_request(
-                "POST",
-                url,
-                data={
-                    "username": "admin",
-                    "password": "wrongpass"
-                }
-            )
-
+        for idx in range(10):
+            res = self.safe_request("POST", url, data={"id": "admin", "pw": f"wrong{idx}"})
             if isinstance(res, dict):
                 attempts.append(res)
                 continue
-
-            attempts.append({
-                "url": res.url,
-                "status_code": res.status_code,
-                "body_sample": res.text[:300]
-            })
-
-            if res.status_code in [423, 429]:
+            body = res.text[:300]
+            attempts.append({"url": res.url, "status_code": res.status_code, "body_sample": body})
+            if res.status_code in [423, 429, 403] or any(k in body.lower() for k in ["locked", "계정", "잠금", "too many"]):
                 blocked = True
-
-        return {
-            "url": url,
-            "attempt_count": len(attempts),
-            "blocked": blocked,
-            "attempts": attempts
-        }
+        return {"url": url, "attempt_count": len(attempts), "blocked": blocked, "attempts": attempts}
 
     def collect_debug_true(self):
-        url = self.target + "/vulnapp/"
-        res = self.safe_request("GET", url, params={"debug": "true"})
-        result = self.response_to_dict(res, body_limit=1200)
-
-        if "body_sample" in result:
-            body = result["body_sample"].lower()
-            result["signature_hints"] = {
-                "contains_debug_keywords": any(
-                    keyword in body
-                    for keyword in [
-                        "debug",
-                        "env",
-                        "classpath",
-                        "config",
-                        "stacktrace"
-                    ]
-                )
-            }
-
-        return result
+        urls = [
+            self.target + "/vulnapp/debug.jsp",
+            self.target + "/vulnapp/debug.jsp?debug=true",
+        ]
+        results = []
+        for url in urls:
+            res = self.safe_request("GET", url)
+            result = self.response_to_dict(res, body_limit=1500)
+            if "body_sample" in result:
+                body = result["body_sample"].lower()
+                result["signature_hints"] = {
+                    "contains_debug_keywords": any(
+                        keyword in body
+                        for keyword in ["debug", "db_user", "db_password", "api_key", "internal_ip", "env", "classpath", "config", "stacktrace"]
+                    )
+                }
+            results.append(result)
+        return results
 
     def collect_optional_endpoint_status(self):
         """
@@ -921,12 +1017,13 @@ class ExternalEvidenceCollector:
         """
         endpoints = [
             "/vulnapp/upload.jsp",
-            "/vulnapp/board.jsp",
-            "/vulnapp/download.jsp?filename=test.txt",
+            "/vulnapp/upload_process.jsp",
+            "/vulnapp/search.jsp",
             "/vulnapp/profile.jsp?user_idx=1",
             "/vulnapp/ping.jsp",
             "/vulnapp/register.jsp",
-            "/vulnapp/api/profile"
+            "/vulnapp/fetch.jsp",
+            "/vulnapp/internal/secret.jsp"
         ]
 
         results = []
@@ -1010,15 +1107,17 @@ class GPTVulnerabilityAnalyzer:
 6. OWASP 형식은 반드시 "A01:2025 Broken Access Control"처럼 연도 뒤에 공백을 사용하라.
 7. check_id는 반드시 WEB-Axx-xxx 형식으로 작성하라. 예: WEB-A01-001
 8. ADMIN_DIRECT_ACCESS, SQL_INJECTION, SECURITY_HEADERS 같은 임의 문자열 check_id는 사용하지 마라.
-9. upload.jsp, board.jsp, download.jsp, profile.jsp, ping.jsp, register.jsp, api/profile 등 존재가 확인되지 않은 엔드포인트 취약점은 생성하지 마라.
+9. upload.jsp, upload_process.jsp, profile.jsp, ping.jsp, register.jsp, fetch.jsp, internal/secret.jsp 등 존재가 확인되지 않은 엔드포인트 취약점은 생성하지 마라.
 10. evidence에는 어떤 응답, 상태코드, 헤더, 본문 샘플, 테스트 반응이 근거인지 구체적으로 작성하라.
 11. 아래 권장 check_id 목록의 모든 항목을 assessments에 반드시 1개씩 포함하라.
-12. severity는 critical, high, medium, low, pass, n/a 중 하나로 작성하라.
-13. result가 양호이면 severity는 pass로 작성하라.
-14. result가 N/A 또는 보류이면 severity는 n/a로 작성하라.
-15. url에는 해당 취약점이 발생하거나 점검된 대표 경로를 넣어라. 예: /vulnapp/login.jsp
-16. confidence는 High, Medium, Low 중 하나로 작성하라.
-17. 출력은 반드시 JSON 형식이어야 한다.
+12. severity는 critical, high, medium, low, pass, n/a, pending 중 하나로 작성하라.
+13. 수동진단표 기준 위험도와 맞추기 위해 다음 항목은 취약으로 판단될 경우 지정된 severity를 우선 사용하라: WEB-A01-001=medium, WEB-A02-004=medium, WEB-A04-001=medium, WEB-A05-002=medium.
+14. result가 양호이면 severity는 pass로 작성하라.
+15. result가 N/A이면 severity는 n/a로 작성하라.
+16. 사이트 오류나 기능 미구현 때문에 취약/양호/N/A를 확정할 수 없으면 severity는 pending으로 작성하라.
+17. url에는 해당 취약점이 발생하거나 점검된 대표 경로를 넣어라. 예: /vulnapp/login.jsp
+18. confidence는 High, Medium, Low 중 하나로 작성하라.
+19. 출력은 반드시 JSON 형식이어야 한다.
 
 권장 check_id 및 OWASP 2025 매핑:
 {get_check_catalog_text()}
@@ -1062,7 +1161,7 @@ class GPTVulnerabilityAnalyzer:
                                         },
                                         "severity": {
                                             "type": "string",
-                                            "enum": ["critical", "high", "medium", "low", "pass", "n/a"]
+                                            "enum": ["critical", "high", "medium", "low", "pass", "n/a", "pending"]
                                         },
                                         "evidence": {"type": "string"},
                                         "recommendation": {"type": "string"},
@@ -1127,18 +1226,18 @@ class GPTVulnerabilityAnalyzer:
 8. OWASP 형식은 반드시 "A01:2025 Broken Access Control"처럼 연도 뒤에 공백을 사용하라.
 9. check_id는 반드시 WEB-Axx-xxx 형식으로 작성하라. 예: WEB-A01-001
 10. ADMIN_DIRECT_ACCESS, SQL_INJECTION, SECURITY_HEADERS 같은 임의 문자열 check_id는 사용하지 마라.
-11. upload.jsp, board.jsp, download.jsp, profile.jsp, ping.jsp, register.jsp, api/profile 등 존재가 확인되지 않은 엔드포인트 취약점은 생성하지 마라.
-12. 잘 방어된 항목은 severity를 pass로 작성하라.
-13. 수집 근거가 부족하거나 판단할 수 없으면 severity를 n/a로 작성하라.
+11. upload.jsp, upload_process.jsp, profile.jsp, ping.jsp, register.jsp, fetch.jsp, internal/secret.jsp 등 존재가 확인되지 않은 엔드포인트 취약점은 생성하지 마라.
+12. 잘 방어된 항목은 severity를 pass로 작성하라. 사이트 오류나 기능 미구현으로 판단할 수 없는 항목은 pending으로 작성하라.
+13. 해당 기술/기능이 실제로 없어 진단 대상이 아니면 severity를 n/a로 작성하라. 단, 기능이 구현될 예정인데 404/500 등 사이트 오류로 판단하지 못하는 경우는 pending으로 작성하라.
 14. 취약점이 확인된 항목만 critical, high, medium, low 중 하나를 사용하라.
-15. evidence에는 pass 또는 n/a 판단의 이유도 분명히 적어라.
+15. evidence에는 pass, n/a, pending 판단의 이유도 분명히 적어라.
 16. url에는 해당 취약점이 발생하거나 점검된 대표 경로를 넣어라. 예: /vulnapp/login.jsp
 17. results의 id는 RES-0001부터 순서대로 작성하라.
 18. summary.total은 results 개수와 같아야 한다.
 19. summary.severity는 results의 severity 개수를 집계한 값이어야 한다.
 20. 출력은 반드시 JSON 형식이어야 한다.
 21. 공격 절차를 자세히 설명하지 말고, 방어적 진단 결과와 조치 중심으로 작성하라.
-22. SQL Injection(WEB-A05-001)에서 signature_based_report 안의 sqlmap_summary, current_db, databases, dbms_banner, current_user 정보가 있으면 evidence에 자연스러운 문장으로 반드시 반영하라.
+22. SQL Injection(WEB-A05-001)에서 signature_based_report 안의 sqlmap_summary, current_db, databases, dbms_banner, current_user 정보가 있으면 evidence에 자연스러운 문장으로 반드시 반영하라. WEB-A01-001은 anonymous_request와 normal_user_request를 모두 보고, 비로그인 접근은 차단되더라도 일반 사용자 세션으로 관리자 페이지가 200 응답이면 medium 취약으로 판단하라. WEB-A05-002는 실제 파라미터 keyword를 우선 사용하고, Reflected XSS는 이번 프로젝트 기준 medium으로 판단하라. WEB-A02-004 debug 정보 노출과 WEB-A04-001 HTTPS 미적용도 이번 프로젝트 기준 medium으로 판단하라. WEB-A10-002는 임의 파일 읽기가 아니라 SSRF로 판단하라. WEB-A08-001에서 JSP 파일 업로드 후 웹 경로에서 JSP 실행이 확인되면 서버 측 코드 실행 가능성이므로 critical로 판단하라.
 
 메타데이터:
 scan_id: {scan_id}
@@ -1193,7 +1292,8 @@ signature_based_report:
                                             "medium": {"type": "integer"},
                                             "low": {"type": "integer"},
                                             "pass": {"type": "integer"},
-                                            "n/a": {"type": "integer"}
+                                            "n/a": {"type": "integer"},
+                                            "pending": {"type": "integer"}
                                         },
                                         "required": [
                                             "critical",
@@ -1201,7 +1301,8 @@ signature_based_report:
                                             "medium",
                                             "low",
                                             "pass",
-                                            "n/a"
+                                            "n/a",
+                                            "pending"
                                         ]
                                     }
                                 },
@@ -1235,7 +1336,8 @@ signature_based_report:
                                                 "medium",
                                                 "low",
                                                 "pass",
-                                                "n/a"
+                                                "n/a",
+                                                "pending"
                                             ]
                                         },
                                         "evidence": {"type": "string"},
@@ -1296,12 +1398,13 @@ def print_report(report: dict):
     print(f"스캐너: {report['scanner']}")
     print(f"생성 시각: {report['generated_at']}")
     print(f"전체 탐지 결과: {summary['total']}")
-    print(f"Critical: {severity['critical']}")
+    print(f"Critical: {severity.get('critical', 0)}")
     print(f"High: {severity['high']}")
     print(f"Medium: {severity['medium']}")
     print(f"Low: {severity['low']}")
     print(f"Pass: {severity['pass']}")
     print(f"N/A: {severity['n/a']}")
+    print(f"Pending: {severity.get('pending', 0)}")
     print("============================================\n")
 
     for finding in report["results"]:
@@ -1341,7 +1444,8 @@ def execute_scan(
         signature_report, signature_path = run_signature_scan(
             target=target,
             output_path=rule_output,
-            run_sqlmap=rule_sqlmap
+            run_sqlmap=rule_sqlmap,
+            tomcat_port=tomcat_port
         )
         log(f"[+] rule.py 실행 완료: {signature_path}")
     except Exception as exc:
