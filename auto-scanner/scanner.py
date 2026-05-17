@@ -4,51 +4,110 @@ import os
 import re
 import subprocess
 import sys
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from urllib.parse import quote, urlparse
 
 import requests
 from dotenv import load_dotenv
+from fastapi import FastAPI, HTTPException
+from fastapi.responses import FileResponse
 from openai import OpenAI
+from pydantic import BaseModel, Field
 
 
 load_dotenv()
 
 HEADERS = {"User-Agent": "4AKDA-GPT-Based-Scanner/3.3"}
+KST = timezone(timedelta(hours=9))
+NORMAL_USER_ID = os.getenv("SCANNER_NORMAL_USER_ID", "user1")
+NORMAL_USER_PW = os.getenv("SCANNER_NORMAL_USER_PW", "user1234")
 
 CHECK_CATALOG = [
-    {"check_id": "WEB-A01-001", "owasp": "A01:2025 Broken Access Control", "name": "관리자 페이지 직접 접근"},
-    {"check_id": "WEB-A01-002", "owasp": "A01:2025 Broken Access Control", "name": "IDOR"},
-    {"check_id": "WEB-A02-001", "owasp": "A02:2025 Security Misconfiguration", "name": "보안 헤더 미설정"},
-    {"check_id": "WEB-A02-002", "owasp": "A02:2025 Security Misconfiguration", "name": "서버 버전 노출"},
-    {"check_id": "WEB-A02-003", "owasp": "A02:2025 Security Misconfiguration", "name": "Tomcat Manager 노출"},
-    {"check_id": "WEB-A02-004", "owasp": "A02:2025 Security Misconfiguration", "name": "민감정보 노출"},
-    {"check_id": "WEB-A04-001", "owasp": "A04:2025 Cryptographic Failures", "name": "HTTPS 미적용"},
-    {"check_id": "WEB-A04-002", "owasp": "A04:2025 Cryptographic Failures", "name": "쿠키 Secure/HttpOnly 미설정"},
-    {"check_id": "WEB-A05-001", "owasp": "A05:2025 Injection", "name": "SQL Injection"},
-    {"check_id": "WEB-A05-002", "owasp": "A05:2025 Injection", "name": "Reflected XSS"},
-    {"check_id": "WEB-A05-003", "owasp": "A05:2025 Injection", "name": "Stored XSS"},
-    {"check_id": "WEB-A05-004", "owasp": "A05:2025 Injection", "name": "Command Injection"},
-    {"check_id": "WEB-A06-001", "owasp": "A06:2025 Insecure Design", "name": "로그인 Rate Limit 미구현"},
-    {"check_id": "WEB-A06-002", "owasp": "A06:2025 Insecure Design", "name": "debug=true 기능 활성화"},
-    {"check_id": "WEB-A07-001", "owasp": "A07:2025 Authentication Failures", "name": "계정 잠금 미구현"},
-    {"check_id": "WEB-A07-002", "owasp": "A07:2025 Authentication Failures", "name": "약한 비밀번호 허용"},
-    {"check_id": "WEB-A07-003", "owasp": "A07:2025 Authentication Failures", "name": "JWT 검증 우회"},
-    {"check_id": "WEB-A08-001", "owasp": "A08:2025 Software or Data Integrity Failures", "name": "웹쉘 업로드 가능"},
-    {"check_id": "WEB-A09-001", "owasp": "A09:2025 Logging & Alerting Failures", "name": "로그인 실패 로그 미기록"},
-    {"check_id": "WEB-A09-002", "owasp": "A09:2025 Logging & Alerting Failures", "name": "관리자 행위 로그 미기록"},
-    {"check_id": "WEB-A10-001", "owasp": "A10:2025 Mishandling of Exceptional Conditions", "name": "Stack Trace 노출"},
-    {"check_id": "WEB-A10-002", "owasp": "A10:2025 Mishandling of Exceptional Conditions", "name": "SSRF"},
+    {"check_id": "WEB-A01-001", "owasp": "A01:2025 Broken Access Control", "name": "관리자 페이지 직접 접근", "url": "/vulnapp/admin.jsp"},
+    {"check_id": "WEB-A01-002", "owasp": "A01:2025 Broken Access Control", "name": "IDOR", "url": "/vulnapp/profile.jsp?user_idx="},
+    {"check_id": "WEB-A02-001", "owasp": "A02:2025 Security Misconfiguration", "name": "보안 헤더 미설정", "url": "/vulnapp/"},
+    {"check_id": "WEB-A02-002", "owasp": "A02:2025 Security Misconfiguration", "name": "서버 버전 노출", "url": "/, :8080/"},
+    {"check_id": "WEB-A02-003", "owasp": "A02:2025 Security Misconfiguration", "name": "Tomcat 기본페이지 노출", "url": ":8080/"},
+    {"check_id": "WEB-A02-004", "owasp": "A02:2025 Security Misconfiguration", "name": "debug=true 기능 활성화", "url": "/vulnapp/debug.jsp"},
+    {"check_id": "WEB-A03-001", "owasp": "A03:2025 Software Supply Chain Failures", "name": "취약한 Log4j 사용", "url": "N/A"},
+    {"check_id": "WEB-A03-002", "owasp": "A03:2025 Software Supply Chain Failures", "name": "구버전 jQuery 사용", "url": "N/A"},
+    {"check_id": "WEB-A04-001", "owasp": "A04:2025 Cryptographic Failures", "name": "HTTPS 미적용", "url": "/vulnapp/"},
+    {"check_id": "WEB-A04-002", "owasp": "A04:2025 Cryptographic Failures", "name": "쿠키 Secure/HttpOnly 미설정", "url": "/vulnapp/login.jsp"},
+    {"check_id": "WEB-A05-001", "owasp": "A05:2025 Injection", "name": "SQL Injection", "url": "/vulnapp/login.jsp"},
+    {"check_id": "WEB-A05-002", "owasp": "A05:2025 Injection", "name": "Reflected XSS", "url": "/vulnapp/search.jsp?keyword="},
+    {"check_id": "WEB-A05-003", "owasp": "A05:2025 Injection", "name": "Stored XSS", "url": "/vulnapp/upload.jsp"},
+    {"check_id": "WEB-A05-004", "owasp": "A05:2025 Injection", "name": "Command Injection", "url": "/vulnapp/ping.jsp?host="},
+    {"check_id": "WEB-A06-001", "owasp": "A06:2025 Insecure Design", "name": "로그인 Rate Limit 미구현", "url": "/vulnapp/login.jsp"},
+    {"check_id": "WEB-A07-001", "owasp": "A07:2025 Authentication Failures", "name": "계정 잠금 미구현", "url": "/vulnapp/login.jsp"},
+    {"check_id": "WEB-A07-002", "owasp": "A07:2025 Authentication Failures", "name": "약한 비밀번호 허용", "url": "/vulnapp/register.jsp"},
+    {"check_id": "WEB-A07-003", "owasp": "A07:2025 Authentication Failures", "name": "JWT 검증 우회", "url": "N/A"},
+    {"check_id": "WEB-A08-001", "owasp": "A08:2025 Software or Data Integrity Failures", "name": "웹쉘 업로드 가능", "url": "/vulnapp/upload.jsp"},
+    {"check_id": "WEB-A10-001", "owasp": "A10:2025 Mishandling of Exceptional Conditions", "name": "Stack Trace 노출", "url": "/vulnapp/profile.jsp?user_idx=abc"},
+    {"check_id": "WEB-A10-002", "owasp": "A10:2025 Mishandling of Exceptional Conditions", "name": "SSRF", "url": "/vulnapp/fetch.jsp?url="},
 ]
 
+# 수동진단 결과가 확보된 항목의 위험도 기준.
+# - 빈 값/보류 항목은 포함하지 않는다.
+# - 자동진단이 취약 또는 N/A로 확인된 경우, GPT가 과도하게 high로 판단하지 않도록
+#   프로젝트 수동진단표 기준 severity로 보정한다.
+MANUAL_CALIBRATED_SEVERITY = {
+    "WEB-A01-001": "medium",
+    "WEB-A01-002": "high",
+    "WEB-A02-001": "low",
+    "WEB-A02-002": "low",
+    "WEB-A02-003": "medium",
+    "WEB-A02-004": "medium",
+    "WEB-A03-001": "n/a",
+    "WEB-A03-002": "n/a",
+    "WEB-A04-001": "medium",
+    "WEB-A04-002": "medium",
+    "WEB-A05-001": "high",
+    "WEB-A05-002": "medium",
+    "WEB-A06-001": "medium",
+    "WEB-A07-001": "medium",
+    "WEB-A07-003": "n/a",
+}
+
+# 수동진단에서 사이트 오류/미구현 때문에 판단 보류로 남긴 항목.
+# 이 항목들은 rule.py가 pending 근거를 찾으면 GPT의 pass/n/a/low 판단보다 pending을 우선한다.
+MANUAL_PENDING_CHECKS = {
+    "WEB-A05-003",  # 게시글 상세 조회 404로 Stored XSS 재조회 검증 불가
+    "WEB-A05-004",  # ping.jsp 404
+    "WEB-A07-002",  # register.jsp 404
+    "WEB-A08-001",  # shell.jsp 업로드 500 + uploads 경로 404
+    "WEB-A10-001",  # DB 오류 노출로 원래 양호 항목 수정 후 재진단 필요
+    "WEB-A10-002",  # fetch.jsp/internal/secret.jsp 404
+}
+
+SEVERITY_RANK = {"n/a": 0, "pending": 0, "pass": 0, "low": 1, "medium": 2, "high": 3, "critical": 4}
+
+
+app = FastAPI(title="Auto Scanner API")
+
+
+class ScanRequest(BaseModel):
+    target: str = Field(..., description="진단 대상 URL")
+    tomcat_port: int = Field(default=8080, description="Tomcat 직접 접근 포트")
+    timeout: int = Field(default=5, description="HTTP 요청 타임아웃")
+    model: str = Field(
+        default=os.getenv("OPENAI_MODEL", "gpt-5.5"),
+        description="OpenAI 모델명"
+    )
+    evidence_output: str = Field(default="outputs/gpt_evidence.json")
+    initial_output: str = Field(default="outputs/gpt_initial_assessment.json")
+    output: str = Field(default="outputs/gpt_analysis_results.json")
+    excel_output: str = Field(default="outputs/자동진단.xlsx")
+    rule_output: str = Field(default="outputs/rule/scan_result.json")
+    rule_sqlmap: bool = Field(default=True)
+    download: bool = Field(default=True, description="false면 JSON 응답, 기본은 엑셀 파일 다운로드")
 
 def make_scan_id():
     return "SCAN-" + datetime.now().strftime("%Y%m%d-%H%M%S")
 
 
 def now_utc():
-    return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+    return datetime.now(KST).strftime("%Y-%m-%dT%H:%M:%S+09:00")
 
 
 def get_check_catalog_text():
@@ -76,7 +135,15 @@ def load_json(path: str):
         return json.load(f)
 
 
-def run_signature_scan(target: str, output_path: str, run_sqlmap: bool = False):
+def build_request_output_path(path_value: str, request_id: str) -> str:
+    output_path = Path(path_value)
+    parent = output_path.parent
+    stem = output_path.stem
+    suffix = output_path.suffix
+    return str(parent / f"{stem}_{request_id}{suffix}")
+
+
+def run_signature_scan(target: str, output_path: str, run_sqlmap: bool = False, tomcat_port: int = 8080):
     current_dir = Path(__file__).resolve().parent
     rule_path = current_dir / "rule.py"
 
@@ -86,7 +153,7 @@ def run_signature_scan(target: str, output_path: str, run_sqlmap: bool = False):
     output = Path(output_path)
     output.parent.mkdir(parents=True, exist_ok=True)
 
-    cmd = [sys.executable, str(rule_path), target, "-o", str(output)]
+    cmd = [sys.executable, str(rule_path), target, "-o", str(output), "--tomcat-port", str(tomcat_port)]
 
     if run_sqlmap:
         cmd.append("--sqlmap")
@@ -109,6 +176,104 @@ def run_signature_scan(target: str, output_path: str, run_sqlmap: bool = False):
         raise FileNotFoundError(f"rule.py output not found: {output}")
 
     return load_json(str(output)), str(output)
+
+
+def run_excel_export(input_path: str, output_path: str):
+    current_dir = Path(__file__).resolve().parent
+    exporter_path = current_dir / "make_excel_file.py"
+
+    if not exporter_path.exists():
+        raise FileNotFoundError(f"make_excel_file.py not found: {exporter_path}")
+
+    cmd = [
+        sys.executable,
+        str(exporter_path),
+        "--input",
+        input_path,
+        "--output",
+        output_path,
+    ]
+
+    proc = subprocess.run(
+        cmd,
+        capture_output=True,
+        text=True,
+        cwd=str(current_dir)
+    )
+
+    if proc.returncode != 0:
+        raise RuntimeError(
+            "make_excel_file.py execution failed\n"
+            f"stdout:\n{proc.stdout}\n"
+            f"stderr:\n{proc.stderr}"
+        )
+
+    return proc.stdout.strip()
+
+
+def format_sqlmap_summary(sqlmap_data):
+    if not isinstance(sqlmap_data, dict):
+        return None
+
+    if sqlmap_data.get("error"):
+        return f"sqlmap 보조 점검 결과: {sqlmap_data['error']}"
+
+    parts = []
+
+    dbms_banner = sqlmap_data.get("dbms_banner")
+    current_user = sqlmap_data.get("current_user")
+    current_db = sqlmap_data.get("current_db")
+    is_dba = sqlmap_data.get("is_dba")
+    databases = sqlmap_data.get("databases")
+
+    if dbms_banner:
+        parts.append(f"DBMS 배너는 {dbms_banner}로 식별됨")
+    if current_user:
+        parts.append(f"DB 현재 사용자는 {current_user}로 확인됨")
+    if current_db:
+        parts.append(f"current database() 값은 {current_db}로 확인됨")
+    if isinstance(is_dba, bool):
+        parts.append(
+            "현재 DB 계정은 DBA 권한으로 식별됨"
+            if is_dba else
+            "현재 DB 계정은 DBA 권한으로 식별되지 않음"
+        )
+    if isinstance(databases, list) and databases:
+        parts.append(
+            "열거된 데이터베이스는 "
+            + ", ".join(str(db) for db in databases)
+            + " 임"
+        )
+
+    if not parts:
+        return None
+
+    return "sqlmap 보조 점검 결과: " + ". ".join(parts) + "."
+
+
+def format_signature_evidence_text(evidence):
+    if isinstance(evidence, str):
+        return evidence.strip()
+
+    if not isinstance(evidence, dict):
+        return str(evidence).strip()
+
+    parts = []
+
+    for key in ["payload", "error_based", "auth_bypass", "time_based", "delay"]:
+        value = evidence.get(key)
+        if value is None:
+            continue
+        parts.append(f"{key}={value}")
+
+    sqlmap_summary = format_sqlmap_summary(evidence.get("sqlmap"))
+    if sqlmap_summary:
+        parts.append(sqlmap_summary)
+
+    if parts:
+        return ", ".join(parts)
+
+    return str(evidence).strip()
 
 
 def summarize_signature_evidence(evidence):
@@ -140,6 +305,10 @@ def summarize_signature_evidence(evidence):
         else:
             summarized[key] = value
 
+    sqlmap_summary = format_sqlmap_summary(evidence.get("sqlmap"))
+    if sqlmap_summary:
+        summarized["sqlmap_summary"] = sqlmap_summary
+
     return summarized
 
 
@@ -152,6 +321,20 @@ def force_owasp_2025(owasp_value: str):
     value = value.replace(":2021", ":2025")
     value = value.replace("2021-", "2025 ")
     return value
+
+
+def sanitize_url_to_path(url_value: str | None):
+    raw = str(url_value or "").strip()
+    if not raw:
+        return ""
+
+    parsed = urlparse(raw)
+    path = parsed.path or ""
+
+    if not path:
+        path = raw.split("?", 1)[0].split("#", 1)[0].strip()
+
+    return path or "/"
 
 
 def simplify_signature_report(signature_report: dict | None):
@@ -169,6 +352,7 @@ def simplify_signature_report(signature_report: dict | None):
             "check_id": item.get("check_id"),
             "owasp": force_owasp_2025(item.get("owasp", "")),
             "name": item.get("name"),
+            "url": item.get("url"),
             "severity": item.get("severity"),
             "evidence_summary": summarize_signature_evidence(item.get("evidence")),
             "recommendation_summary": item.get("recommendation")
@@ -204,7 +388,15 @@ def merge_signature_findings(final_report: dict, signature_report: dict | None):
 
         if signature_item:
             seen_check_ids.add(check_id)
-            signature_evidence = str(signature_item.get("evidence", "")).strip()
+            signature_evidence = format_signature_evidence_text(
+                signature_item.get("evidence", "")
+            )
+
+            merged_item["severity"] = prefer_signature_severity(
+                check_id,
+                merged_item.get("severity"),
+                signature_item.get("severity"),
+            )
 
             if signature_evidence and signature_evidence not in merged_item.get("evidence", ""):
                 merged_item["evidence"] = (
@@ -224,10 +416,11 @@ def merge_signature_findings(final_report: dict, signature_report: dict | None):
             "check_id": check_id,
             "owasp": force_owasp_2025(str(signature_item.get("owasp", "")).strip()),
             "name": str(signature_item.get("name", "")).strip(),
+            "url": str(signature_item.get("url", "")).strip(),
             "severity": str(signature_item.get("severity", "low")).lower(),
             "evidence": (
                 "rule.py 시그니처 기반 자동 진단 결과: "
-                f"{str(signature_item.get('evidence', '')).strip()}"
+                f"{format_signature_evidence_text(signature_item.get('evidence', ''))}"
             ).strip(),
             "recommendation": str(signature_item.get("recommendation", "")).strip()
         })
@@ -268,6 +461,7 @@ def complete_report_with_catalog(
             item["check_id"] = check_id
             item["owasp"] = check["owasp"]
             item["name"] = check["name"]
+            item["url"] = item.get("url") or check["url"]
             completed_results.append(item)
             continue
 
@@ -280,10 +474,11 @@ def complete_report_with_catalog(
                 "check_id": check_id,
                 "owasp": check["owasp"],
                 "name": check["name"],
+                "url": check["url"],
                 "severity": str(signature_item.get("severity", "low")).lower(),
                 "evidence": (
                     "rule.py 시그니처 기반 자동 진단 결과: "
-                    f"{str(signature_item.get('evidence', '')).strip()}"
+                    f"{format_signature_evidence_text(signature_item.get('evidence', ''))}"
                 ).strip(),
                 "recommendation": str(signature_item.get("recommendation", "")).strip()
             })
@@ -297,6 +492,7 @@ def complete_report_with_catalog(
                     "check_id": check_id,
                     "owasp": check["owasp"],
                     "name": check["name"],
+                    "url": check["url"],
                     "severity": "pass",
                     "evidence": str(initial_item.get("evidence", "")).strip() or "수집된 근거에서 해당 항목은 적절히 방어된 것으로 판단됨.",
                     "recommendation": str(initial_item.get("recommendation", "")).strip() or "현재 수집 범위에서는 추가 조치가 필요하지 않으며 동일 수준의 방어 상태를 유지할 것."
@@ -309,6 +505,7 @@ def complete_report_with_catalog(
                     "check_id": check_id,
                     "owasp": check["owasp"],
                     "name": check["name"],
+                    "url": check["url"],
                     "severity": "n/a",
                     "evidence": str(initial_item.get("evidence", "")).strip() or str(initial_item.get("defer_reason", "")).strip() or "수집된 근거만으로는 해당 취약점 존재 여부를 판단할 수 없음.",
                     "recommendation": str(initial_item.get("recommendation", "")).strip() or "추가 엔드포인트 확인, 인증 상태 점검, 수동 검증 등 보강 진단이 필요함."
@@ -320,6 +517,7 @@ def complete_report_with_catalog(
             "check_id": check_id,
             "owasp": check["owasp"],
             "name": check["name"],
+            "url": check["url"],
             "severity": "n/a",
             "evidence": "수집된 근거와 rule.py 결과만으로는 해당 취약점의 존재 여부를 확인할 수 없음.",
             "recommendation": "추가 엔드포인트 확인, 인증 상태 점검, 수동 검증 등 보강 진단이 필요함."
@@ -330,9 +528,54 @@ def complete_report_with_catalog(
     return final_report
 
 
+def apply_manual_calibrated_severity(check_id: str, severity: str) -> str:
+    """
+    수동진단표와 자동진단 JSON 비교가 가능하도록 severity를 프로젝트 기준으로 보정한다.
+
+    원칙:
+    - 수동진단 결과가 확보된 항목만 보정한다.
+    - 보류/미구현 항목은 보정하지 않는다.
+    - pass로 확인된 항목은 취약 severity로 강제하지 않는다.
+      단, WEB-A01-001은 일반 사용자 권한 우회가 rule.py 또는 evidence에서 확인되면
+      merge 단계에서 medium으로 승격된다.
+    - 취약으로 판단된 항목이 GPT에 의해 high로 과대평가된 경우, 수동진단 기준으로 낮춘다.
+    """
+    normalized = str(severity or "n/a").lower()
+    target = MANUAL_CALIBRATED_SEVERITY.get(check_id)
+    if not target:
+        return normalized
+
+    if target == "n/a":
+        return "n/a"
+
+    if normalized in {"high", "medium", "low"}:
+        return target
+
+    return normalized
+
+
+def prefer_signature_severity(check_id: str, current_severity: str, signature_severity: str) -> str:
+    """
+    rule.py 결과와 GPT 결과를 병합할 때의 severity 우선순위.
+
+    - rule.py가 pending을 반환하면 사이트 오류/미구현 때문에 수동진단도 보류한 항목이므로 pending을 우선한다.
+    - GPT가 pass/n/a/pending으로 판단했지만 rule.py가 구체적인 취약 근거를 찾은 경우에는 rule.py 결과를 반영한다.
+    - WEB-A08-001에서 JSP 업로드 실행이 확인되면 critical을 허용한다.
+    """
+    current = str(current_severity or "n/a").lower()
+    sig = str(signature_severity or "n/a").lower()
+
+    if sig == "pending":
+        return "pending"
+
+    if sig in {"critical", "high", "medium", "low"} and current in {"pass", "n/a", "pending"}:
+        return sig
+
+    return current
+
 def normalize_results(results):
     normalized = []
-    allowed_severities = {"critical", "high", "medium", "low", "pass", "n/a"}
+    allowed_severities = {"critical", "high", "medium", "low", "pass", "n/a", "pending"}
 
     for idx, item in enumerate(results, start=1):
         severity = str(item.get("severity", "low")).lower()
@@ -341,6 +584,7 @@ def normalize_results(results):
             severity = "n/a"
 
         check_id = str(item.get("check_id", "")).strip()
+        severity = apply_manual_calibrated_severity(check_id, severity)
         owasp = force_owasp_2025(str(item.get("owasp", "")).strip())
 
         normalized.append({
@@ -348,6 +592,7 @@ def normalize_results(results):
             "check_id": check_id,
             "owasp": owasp,
             "name": str(item.get("name", "")).strip(),
+            "url": sanitize_url_to_path(item.get("url")),
             "severity": severity,
             "evidence": str(item.get("evidence", "")).strip(),
             "recommendation": str(item.get("recommendation", "")).strip()
@@ -363,7 +608,8 @@ def build_summary(results):
         "medium": 0,
         "low": 0,
         "pass": 0,
-        "n/a": 0
+        "n/a": 0,
+        "pending": 0
     }
 
     for item in results:
@@ -472,42 +718,41 @@ class ExternalEvidenceCollector:
 
     def collect_sqli_test(self):
         payloads = [
-            ("admin'--", "test"),
             ("' OR '1'='1' -- ", "test"),
-            ("admin", "' OR '1'='1' -- ")
+            ("admin' -- ", "test"),
+            ("' OR 1=1 -- ", "test"),
         ]
 
         results = []
+        url = self.target + "/vulnapp/login.jsp"
 
         for user_id, pw in payloads:
-            url = (
-                self.target
-                + "/vulnapp/login.jsp?id="
-                + quote(user_id)
-                + "&pw="
-                + quote(pw)
-            )
+            # 로그인 우회 테스트는 세션 오염을 막기 위해 독립 세션을 사용한다.
+            local_session = requests.Session()
+            local_session.headers.update(HEADERS)
+            try:
+                res = local_session.post(
+                    url,
+                    data={"id": user_id, "pw": pw},
+                    timeout=self.timeout,
+                    allow_redirects=False,
+                    verify=False,
+                )
+            except requests.RequestException as e:
+                results.append({"url": url, "error": str(e)})
+                continue
 
-            res = self.safe_request("GET", url)
             result = self.response_to_dict(res, body_limit=1200)
-
             result["test_type"] = "SQL Injection authentication bypass test"
-            result["test_payload"] = {
-                "id": user_id,
-                "pw": pw
+            result["test_payload"] = {"id": user_id, "pw": pw}
+            result["redirect_location"] = res.headers.get("Location", "")
+            body = result.get("body_sample", "").lower()
+            result["signature_hints"] = {
+                "redirected_to_admin": res.status_code in [301, 302, 303, 307, 308] and "admin.jsp" in result["redirect_location"].lower(),
+                "contains_logout": "logout" in body or "로그아웃" in body,
+                "contains_admin": "admin" in body or "관리자" in body,
+                "contains_sql_error": any(k in body for k in ["sql", "unknown column", "sqlexception", "mariadb"]),
             }
-
-            if "body_sample" in result:
-                body = result["body_sample"].lower()
-                result["signature_hints"] = {
-                    "contains_login_success": "login success" in body,
-                    "contains_welcome": "welcome" in body,
-                    "contains_logout": "logout" in body,
-                    "contains_admin": "admin" in body,
-                    "contains_dashboard": "dashboard" in body,
-                    "contains_role_admin": "role=admin" in body
-                }
-
             results.append(result)
 
         return results
@@ -517,24 +762,22 @@ class ExternalEvidenceCollector:
             "<script>alert(1337)</script>",
             "<script>alert(1)</script>",
             "\"><script>alert(1)</script>",
-            "<img src=x onerror=alert(1)>"
+            "<img src=x onerror=alert(1)>",
         ]
 
         results = []
 
         for payload in payloads:
-            url = self.target + "/vulnapp/search.jsp?q=" + quote(payload)
+            url = self.target + "/vulnapp/search.jsp?keyword=" + quote(payload)
             res = self.safe_request("GET", url)
-
-            result = self.response_to_dict(res, body_limit=1200)
+            result = self.response_to_dict(res, body_limit=1600)
             result["test_type"] = "Reflected XSS test"
             result["test_payload"] = payload
-
             if "body_sample" in result:
                 result["signature_hints"] = {
-                    "payload_reflected": payload in result["body_sample"]
+                    "payload_reflected": payload in result["body_sample"],
+                    "escaped_payload_reflected": "&lt;script&gt;" in result["body_sample"].lower(),
                 }
-
             results.append(result)
 
         return results
@@ -574,26 +817,80 @@ class ExternalEvidenceCollector:
 
     def collect_admin_page(self):
         url = self.target + "/vulnapp/admin.jsp"
-        res = self.safe_request("GET", url)
-        result = self.response_to_dict(res, body_limit=1200)
+        login_url = self.target + "/vulnapp/login.jsp"
 
-        if "body_sample" in result:
-            body = result["body_sample"].lower()
-            result["signature_hints"] = {
-                "contains_admin_keywords": any(
-                    keyword in body
-                    for keyword in [
-                        "admin page",
-                        "system config",
-                        "user list",
-                        "backup download",
-                        "관리자"
-                    ]
-                ),
-                "contains_login_keyword": "login" in body
-            }
+        admin_keywords = [
+            "admin page",
+            "system config",
+            "user list",
+            "backup download",
+            "관리자",
+        ]
 
-        return result
+        def add_admin_hints(result):
+            if "body_sample" in result:
+                body = result["body_sample"].lower()
+                result["signature_hints"] = {
+                    "contains_admin_keywords": any(keyword in body for keyword in admin_keywords),
+                    "contains_login_keyword": "login" in body or "로그인" in body,
+                    "redirect_to_login": result.get("status_code") in [301, 302, 303, 307, 308] and "login" in result.get("redirect_location", "").lower(),
+                }
+            return result
+
+        # 1) 다른 진단 과정에서 생성된 쿠키가 섞이지 않도록 비로그인 전용 세션으로 요청한다.
+        anonymous_session = requests.Session()
+        anonymous_session.headers.update(HEADERS)
+
+        try:
+            res = anonymous_session.get(
+                url,
+                timeout=self.timeout,
+                allow_redirects=False,
+                verify=False,
+            )
+            anonymous_result = self.response_to_dict(res, body_limit=1200)
+            anonymous_result["redirect_location"] = res.headers.get("Location", "")
+        except requests.RequestException as e:
+            anonymous_result = {"url": url, "error": str(e)}
+
+        anonymous_result = add_admin_hints(anonymous_result)
+
+        # 2) 수동진단 기준 보완: 일반 사용자 로그인 후 관리자 페이지 접근 가능 여부도 수집한다.
+        normal_user_session = requests.Session()
+        normal_user_session.headers.update(HEADERS)
+        normal_user_result = {"url": url, "note": "normal user login probe not executed"}
+        login_result = {"url": login_url, "note": "normal user login probe not executed"}
+
+        try:
+            login_res = normal_user_session.post(
+                login_url,
+                data={"id": NORMAL_USER_ID, "pw": NORMAL_USER_PW},
+                timeout=self.timeout,
+                allow_redirects=False,
+                verify=False,
+            )
+            login_result = self.response_to_dict(login_res, body_limit=600)
+            login_result["redirect_location"] = login_res.headers.get("Location", "")
+            login_result["test_account"] = NORMAL_USER_ID
+
+            admin_res = normal_user_session.get(
+                url,
+                timeout=self.timeout,
+                allow_redirects=False,
+                verify=False,
+            )
+            normal_user_result = self.response_to_dict(admin_res, body_limit=1200)
+            normal_user_result["redirect_location"] = admin_res.headers.get("Location", "")
+            normal_user_result["test_account"] = NORMAL_USER_ID
+            normal_user_result = add_admin_hints(normal_user_result)
+        except requests.RequestException as e:
+            normal_user_result = {"url": url, "test_account": NORMAL_USER_ID, "error": str(e)}
+
+        return {
+            "anonymous_request": anonymous_result,
+            "normal_user_login_request": login_result,
+            "normal_user_request": normal_user_result,
+        }
 
     def collect_https_status(self):
         http_url = "http://" + self.host
@@ -666,97 +963,52 @@ class ExternalEvidenceCollector:
 
     def collect_rate_limit(self):
         url = self.target + "/vulnapp/login.jsp"
-
         attempts = []
         blocked = False
-
-        for _ in range(8):
-            res = self.safe_request(
-                "POST",
-                url,
-                data={
-                    "username": "admin",
-                    "password": "wrongpass"
-                }
-            )
-
+        for idx in range(10):
+            res = self.safe_request("POST", url, data={"id": "admin", "pw": f"wrong{idx}"})
             if isinstance(res, dict):
                 attempts.append(res)
                 continue
-
-            attempts.append({
-                "url": res.url,
-                "status_code": res.status_code,
-                "body_sample": res.text[:300]
-            })
-
-            if res.status_code in [423, 429]:
+            attempts.append({"url": res.url, "status_code": res.status_code, "body_sample": res.text[:300]})
+            if res.status_code in [423, 429, 403]:
                 blocked = True
-
-        return {
-            "url": url,
-            "attempt_count": len(attempts),
-            "blocked": blocked,
-            "attempts": attempts
-        }
+        return {"url": url, "attempt_count": len(attempts), "blocked": blocked, "attempts": attempts}
 
     def collect_account_lockout(self):
         url = self.target + "/vulnapp/login.jsp"
-
         attempts = []
         blocked = False
-
-        for _ in range(10):
-            res = self.safe_request(
-                "POST",
-                url,
-                data={
-                    "username": "admin",
-                    "password": "wrongpass"
-                }
-            )
-
+        for idx in range(10):
+            res = self.safe_request("POST", url, data={"id": "admin", "pw": f"wrong{idx}"})
             if isinstance(res, dict):
                 attempts.append(res)
                 continue
-
-            attempts.append({
-                "url": res.url,
-                "status_code": res.status_code,
-                "body_sample": res.text[:300]
-            })
-
-            if res.status_code in [423, 429]:
+            body = res.text[:300]
+            attempts.append({"url": res.url, "status_code": res.status_code, "body_sample": body})
+            if res.status_code in [423, 429, 403] or any(k in body.lower() for k in ["locked", "계정", "잠금", "too many"]):
                 blocked = True
-
-        return {
-            "url": url,
-            "attempt_count": len(attempts),
-            "blocked": blocked,
-            "attempts": attempts
-        }
+        return {"url": url, "attempt_count": len(attempts), "blocked": blocked, "attempts": attempts}
 
     def collect_debug_true(self):
-        url = self.target + "/vulnapp/"
-        res = self.safe_request("GET", url, params={"debug": "true"})
-        result = self.response_to_dict(res, body_limit=1200)
-
-        if "body_sample" in result:
-            body = result["body_sample"].lower()
-            result["signature_hints"] = {
-                "contains_debug_keywords": any(
-                    keyword in body
-                    for keyword in [
-                        "debug",
-                        "env",
-                        "classpath",
-                        "config",
-                        "stacktrace"
-                    ]
-                )
-            }
-
-        return result
+        urls = [
+            self.target + "/vulnapp/debug.jsp",
+            self.target + "/vulnapp/debug.jsp?debug=true",
+        ]
+        results = []
+        for url in urls:
+            res = self.safe_request("GET", url)
+            result = self.response_to_dict(res, body_limit=1500)
+            if "body_sample" in result:
+                body = result["body_sample"].lower()
+                result["signature_hints"] = {
+                    "contains_debug_keywords": any(
+                        keyword in body
+                        for keyword in ["debug", "db_user", "db_password", "api_key", "internal_ip", "env", "classpath", "config", "stacktrace"]
+                    )
+                }
+            results.append(result)
+        return results
 
     def collect_optional_endpoint_status(self):
         """
@@ -765,12 +1017,13 @@ class ExternalEvidenceCollector:
         """
         endpoints = [
             "/vulnapp/upload.jsp",
-            "/vulnapp/board.jsp",
-            "/fetch",
-            "/vulnapp/user.jsp?id=1",
+            "/vulnapp/upload_process.jsp",
+            "/vulnapp/search.jsp",
+            "/vulnapp/profile.jsp?user_idx=1",
             "/vulnapp/ping.jsp",
             "/vulnapp/register.jsp",
-            "/vulnapp/api/profile"
+            "/vulnapp/fetch.jsp",
+            "/vulnapp/internal/secret.jsp"
         ]
 
         results = []
@@ -854,14 +1107,17 @@ class GPTVulnerabilityAnalyzer:
 6. OWASP 형식은 반드시 "A01:2025 Broken Access Control"처럼 연도 뒤에 공백을 사용하라.
 7. check_id는 반드시 WEB-Axx-xxx 형식으로 작성하라. 예: WEB-A01-001
 8. ADMIN_DIRECT_ACCESS, SQL_INJECTION, SECURITY_HEADERS 같은 임의 문자열 check_id는 사용하지 마라.
-9. upload.jsp, board.jsp, fetch, user.jsp, ping.jsp, register.jsp, api/profile 등 존재가 확인되지 않은 엔드포인트 취약점은 생성하지 마라.
+9. upload.jsp, upload_process.jsp, profile.jsp, ping.jsp, register.jsp, fetch.jsp, internal/secret.jsp 등 존재가 확인되지 않은 엔드포인트 취약점은 생성하지 마라.
 10. evidence에는 어떤 응답, 상태코드, 헤더, 본문 샘플, 테스트 반응이 근거인지 구체적으로 작성하라.
 11. 아래 권장 check_id 목록의 모든 항목을 assessments에 반드시 1개씩 포함하라.
-12. severity는 critical, high, medium, low, pass, n/a 중 하나로 작성하라.
-13. result가 양호이면 severity는 pass로 작성하라.
-14. result가 N/A 또는 보류이면 severity는 n/a로 작성하라.
-15. confidence는 High, Medium, Low 중 하나로 작성하라.
-16. 출력은 반드시 JSON 형식이어야 한다.
+12. severity는 critical, high, medium, low, pass, n/a, pending 중 하나로 작성하라.
+13. 수동진단표 기준 위험도와 맞추기 위해 다음 항목은 취약으로 판단될 경우 지정된 severity를 우선 사용하라: WEB-A01-001=medium, WEB-A02-004=medium, WEB-A04-001=medium, WEB-A05-002=medium.
+14. result가 양호이면 severity는 pass로 작성하라.
+15. result가 N/A이면 severity는 n/a로 작성하라.
+16. 사이트 오류나 기능 미구현 때문에 취약/양호/N/A를 확정할 수 없으면 severity는 pending으로 작성하라.
+17. url에는 해당 취약점이 발생하거나 점검된 대표 경로를 넣어라. 예: /vulnapp/login.jsp
+18. confidence는 High, Medium, Low 중 하나로 작성하라.
+19. 출력은 반드시 JSON 형식이어야 한다.
 
 권장 check_id 및 OWASP 2025 매핑:
 {get_check_catalog_text()}
@@ -898,13 +1154,14 @@ class GPTVulnerabilityAnalyzer:
                                             "pattern": "^A[0-9]{2}:2025 .+"
                                         },
                                         "name": {"type": "string"},
+                                        "url": {"type": "string"},
                                         "result": {
                                             "type": "string",
                                             "enum": ["취약", "미흡", "양호", "N/A", "보류"]
                                         },
                                         "severity": {
                                             "type": "string",
-                                            "enum": ["critical", "high", "medium", "low", "pass", "n/a"]
+                                            "enum": ["critical", "high", "medium", "low", "pass", "n/a", "pending"]
                                         },
                                         "evidence": {"type": "string"},
                                         "recommendation": {"type": "string"},
@@ -918,6 +1175,7 @@ class GPTVulnerabilityAnalyzer:
                                         "check_id",
                                         "owasp",
                                         "name",
+                                        "url",
                                         "result",
                                         "severity",
                                         "evidence",
@@ -968,16 +1226,18 @@ class GPTVulnerabilityAnalyzer:
 8. OWASP 형식은 반드시 "A01:2025 Broken Access Control"처럼 연도 뒤에 공백을 사용하라.
 9. check_id는 반드시 WEB-Axx-xxx 형식으로 작성하라. 예: WEB-A01-001
 10. ADMIN_DIRECT_ACCESS, SQL_INJECTION, SECURITY_HEADERS 같은 임의 문자열 check_id는 사용하지 마라.
-11. upload.jsp, board.jsp, fetch, user.jsp, ping.jsp, register.jsp, api/profile 등 존재가 확인되지 않은 엔드포인트 취약점은 생성하지 마라.
-12. 잘 방어된 항목은 severity를 pass로 작성하라.
-13. 수집 근거가 부족하거나 판단할 수 없으면 severity를 n/a로 작성하라.
+11. upload.jsp, upload_process.jsp, profile.jsp, ping.jsp, register.jsp, fetch.jsp, internal/secret.jsp 등 존재가 확인되지 않은 엔드포인트 취약점은 생성하지 마라.
+12. 잘 방어된 항목은 severity를 pass로 작성하라. 사이트 오류나 기능 미구현으로 판단할 수 없는 항목은 pending으로 작성하라.
+13. 해당 기술/기능이 실제로 없어 진단 대상이 아니면 severity를 n/a로 작성하라. 단, 기능이 구현될 예정인데 404/500 등 사이트 오류로 판단하지 못하는 경우는 pending으로 작성하라.
 14. 취약점이 확인된 항목만 critical, high, medium, low 중 하나를 사용하라.
-15. evidence에는 pass 또는 n/a 판단의 이유도 분명히 적어라.
-16. results의 id는 RES-0001부터 순서대로 작성하라.
-17. summary.total은 results 개수와 같아야 한다.
-18. summary.severity는 results의 severity 개수를 집계한 값이어야 한다.
-19. 출력은 반드시 JSON 형식이어야 한다.
-20. 공격 절차를 자세히 설명하지 말고, 방어적 진단 결과와 조치 중심으로 작성하라.
+15. evidence에는 pass, n/a, pending 판단의 이유도 분명히 적어라.
+16. url에는 해당 취약점이 발생하거나 점검된 대표 경로를 넣어라. 예: /vulnapp/login.jsp
+17. results의 id는 RES-0001부터 순서대로 작성하라.
+18. summary.total은 results 개수와 같아야 한다.
+19. summary.severity는 results의 severity 개수를 집계한 값이어야 한다.
+20. 출력은 반드시 JSON 형식이어야 한다.
+21. 공격 절차를 자세히 설명하지 말고, 방어적 진단 결과와 조치 중심으로 작성하라.
+22. SQL Injection(WEB-A05-001)에서 signature_based_report 안의 sqlmap_summary, current_db, databases, dbms_banner, current_user 정보가 있으면 evidence에 자연스러운 문장으로 반드시 반영하라. WEB-A01-001은 anonymous_request와 normal_user_request를 모두 보고, 비로그인 접근은 차단되더라도 일반 사용자 세션으로 관리자 페이지가 200 응답이면 medium 취약으로 판단하라. WEB-A05-002는 실제 파라미터 keyword를 우선 사용하고, Reflected XSS는 이번 프로젝트 기준 medium으로 판단하라. WEB-A02-004 debug 정보 노출과 WEB-A04-001 HTTPS 미적용도 이번 프로젝트 기준 medium으로 판단하라. WEB-A10-002는 임의 파일 읽기가 아니라 SSRF로 판단하라. WEB-A08-001에서 JSP 파일 업로드 후 웹 경로에서 JSP 실행이 확인되면 서버 측 코드 실행 가능성이므로 critical로 판단하라.
 
 메타데이터:
 scan_id: {scan_id}
@@ -1032,7 +1292,8 @@ signature_based_report:
                                             "medium": {"type": "integer"},
                                             "low": {"type": "integer"},
                                             "pass": {"type": "integer"},
-                                            "n/a": {"type": "integer"}
+                                            "n/a": {"type": "integer"},
+                                            "pending": {"type": "integer"}
                                         },
                                         "required": [
                                             "critical",
@@ -1040,7 +1301,8 @@ signature_based_report:
                                             "medium",
                                             "low",
                                             "pass",
-                                            "n/a"
+                                            "n/a",
+                                            "pending"
                                         ]
                                     }
                                 },
@@ -1065,6 +1327,7 @@ signature_based_report:
                                             "pattern": "^A[0-9]{2}:2025 .+"
                                         },
                                         "name": {"type": "string"},
+                                        "url": {"type": "string"},
                                         "severity": {
                                             "type": "string",
                                             "enum": [
@@ -1073,7 +1336,8 @@ signature_based_report:
                                                 "medium",
                                                 "low",
                                                 "pass",
-                                                "n/a"
+                                                "n/a",
+                                                "pending"
                                             ]
                                         },
                                         "evidence": {"type": "string"},
@@ -1084,6 +1348,7 @@ signature_based_report:
                                         "check_id",
                                         "owasp",
                                         "name",
+                                        "url",
                                         "severity",
                                         "evidence",
                                         "recommendation"
@@ -1133,12 +1398,13 @@ def print_report(report: dict):
     print(f"스캐너: {report['scanner']}")
     print(f"생성 시각: {report['generated_at']}")
     print(f"전체 탐지 결과: {summary['total']}")
-    print(f"Critical: {severity['critical']}")
+    print(f"Critical: {severity.get('critical', 0)}")
     print(f"High: {severity['high']}")
     print(f"Medium: {severity['medium']}")
     print(f"Low: {severity['low']}")
     print(f"Pass: {severity['pass']}")
     print(f"N/A: {severity['n/a']}")
+    print(f"Pending: {severity.get('pending', 0)}")
     print("============================================\n")
 
     for finding in report["results"]:
@@ -1146,15 +1412,150 @@ def print_report(report: dict):
             f"[{finding['id']}] {finding['name']} "
             f"({finding['check_id']}) / Severity: {finding['severity']}"
         )
+        print(f"  URL: {finding['url']}")
         print(f"  OWASP: {finding['owasp']}")
         print(f"  근거: {finding['evidence']}")
         print(f"  대응: {finding['recommendation']}")
         print()
 
 
-def main():
+def execute_scan(
+    target: str,
+    tomcat_port: int = 8080,
+    timeout: int = 5,
+    model: str | None = None,
+    evidence_output: str = "outputs/gpt_evidence.json",
+    initial_output: str = "outputs/gpt_initial_assessment.json",
+    output: str = "outputs/gpt_analysis_results.json",
+    excel_output: str = "outputs/자동진단.xlsx",
+    rule_output: str = "outputs/rule/scan_result.json",
+    rule_sqlmap: bool = True,
+    verbose: bool = False,
+):
     requests.packages.urllib3.disable_warnings()
 
+    def log(message: str):
+        if verbose:
+            print(message)
+
+    log("[1] rule.py 시그니처 기반 스캔 실행 중...")
+
+    try:
+        signature_report, signature_path = run_signature_scan(
+            target=target,
+            output_path=rule_output,
+            run_sqlmap=rule_sqlmap,
+            tomcat_port=tomcat_port
+        )
+        log(f"[+] rule.py 실행 완료: {signature_path}")
+    except Exception as exc:
+        signature_report = None
+        signature_path = None
+        log(f"[!] rule.py 실행 실패: {exc}")
+        log("[!] GPT evidence 기반으로만 분석합니다.")
+
+    log("[2] 외부에서 웹서비스 응답 데이터 수집 중...")
+
+    collector = ExternalEvidenceCollector(
+        target=target,
+        tomcat_port=tomcat_port,
+        timeout=timeout
+    )
+
+    evidence = collector.collect_all()
+    save_json(evidence_output, evidence)
+    log(f"[+] 수집 증거 저장 완료: {evidence_output}")
+
+    if signature_report:
+        log(f"[+] signature-based 결과 로드 완료: {signature_path}")
+    else:
+        log("[!] signature-based 결과가 없어 GPT evidence 기반으로만 분석합니다.")
+
+    analyzer = GPTVulnerabilityAnalyzer(
+        model=model or os.getenv("OPENAI_MODEL", "gpt-5.5")
+    )
+
+    log("[3] GPT 1차 판단 중...")
+    initial_report = analyzer.initial_analyze(evidence)
+    save_json(initial_output, initial_report)
+    log(f"[+] GPT 1차 판단 결과 저장 완료: {initial_output}")
+
+    log("[4] GPT 최종 판단 중...")
+    report = analyzer.final_analyze(
+        evidence=evidence,
+        initial_report=initial_report,
+        signature_report=signature_report
+    )
+    report = merge_signature_findings(report, signature_report)
+    report = complete_report_with_catalog(report, initial_report, signature_report)
+
+    save_json(output, report)
+    log(f"[+] GPT 최종 분석 결과 저장 완료: {output}")
+
+    excel_message = ""
+
+    try:
+        excel_message = run_excel_export(
+            input_path=output,
+            output_path=excel_output
+        )
+        if excel_message:
+            log(excel_message)
+    except Exception as exc:
+        log(f"[!] Excel 파일 생성 실패: {exc}")
+
+    return {
+        "report": report,
+        "evidence_path": evidence_output,
+        "initial_output_path": initial_output,
+        "output_path": output,
+        "excel_output_path": excel_output,
+        "rule_output_path": signature_path or rule_output,
+        "excel_message": excel_message,
+        "signature_scan_succeeded": signature_report is not None,
+    }
+
+
+@app.get("/health")
+def health_check():
+    return {"status": "ok"}
+
+
+@app.post("/scan")
+def scan(payload: ScanRequest):
+    try:
+        request_id = datetime.now(KST).strftime("%Y%m%d-%H%M%S-%f")
+        result = execute_scan(
+            target=payload.target,
+            tomcat_port=payload.tomcat_port,
+            timeout=payload.timeout,
+            model=payload.model,
+            evidence_output=build_request_output_path(payload.evidence_output, request_id),
+            initial_output=build_request_output_path(payload.initial_output, request_id),
+            output=build_request_output_path(payload.output, request_id),
+            excel_output=build_request_output_path(payload.excel_output, request_id),
+            rule_output=build_request_output_path(payload.rule_output, request_id),
+            rule_sqlmap=payload.rule_sqlmap,
+            verbose=False,
+        )
+        excel_path = Path(result["excel_output_path"])
+
+        if not excel_path.exists():
+            raise HTTPException(status_code=500, detail="Excel file was not created")
+
+        if payload.download:
+            return FileResponse(
+                path=str(excel_path),
+                media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                filename="자동진단.xlsx",
+            )
+
+        return result
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc)) from exc
+
+
+def main():
     parser = argparse.ArgumentParser(
         description="외부 진단용 GPT 기반 웹 취약점 자동 진단 서비스"
     )
@@ -1204,6 +1605,12 @@ def main():
     )
 
     parser.add_argument(
+        "--excel-output",
+        default="outputs/자동진단.xlsx",
+        help="최종 분석 결과 Excel 파일 저장 경로"
+    )
+
+    parser.add_argument(
         "--rule-output",
         default="outputs/rule/scan_result.json",
         help="rule.py 시그니처 기반 결과 저장 파일"
@@ -1211,65 +1618,41 @@ def main():
 
     parser.add_argument(
         "--rule-sqlmap",
+        dest="rule_sqlmap",
         action="store_true",
         help="rule.py 실행 시 sqlmap 기반 보조 점검 활성화"
     )
 
+    parser.add_argument(
+        "--no-rule-sqlmap",
+        dest="rule_sqlmap",
+        action="store_false",
+        help="rule.py 실행 시 sqlmap 기반 보조 점검 비활성화"
+    )
+
+    parser.set_defaults(rule_sqlmap=True)
+
     args = parser.parse_args()
-
-    print("[1] rule.py 시그니처 기반 스캔 실행 중...")
-
-    try:
-        signature_report, signature_path = run_signature_scan(
-            target=args.target,
-            output_path=args.rule_output,
-            run_sqlmap=args.rule_sqlmap
-        )
-        print(f"[+] rule.py 실행 완료: {signature_path}")
-    except Exception as exc:
-        signature_report = None
-        signature_path = None
-        print(f"[!] rule.py 실행 실패: {exc}")
-        print("[!] GPT evidence 기반으로만 분석합니다.")
-
-    print("[2] 외부에서 웹서비스 응답 데이터 수집 중...")
-
-    collector = ExternalEvidenceCollector(
+    result = execute_scan(
         target=args.target,
         tomcat_port=args.tomcat_port,
-        timeout=args.timeout
+        timeout=args.timeout,
+        model=args.model,
+        evidence_output=args.evidence_output,
+        initial_output=args.initial_output,
+        output=args.output,
+        excel_output=args.excel_output,
+        rule_output=args.rule_output,
+        rule_sqlmap=args.rule_sqlmap,
+        verbose=True,
     )
-
-    evidence = collector.collect_all()
-    save_json(args.evidence_output, evidence)
-    print(f"[+] 수집 증거 저장 완료: {args.evidence_output}")
-
-    if signature_report:
-        print(f"[+] signature-based 결과 로드 완료: {signature_path}")
-    else:
-        print("[!] signature-based 결과가 없어 GPT evidence 기반으로만 분석합니다.")
-
-    analyzer = GPTVulnerabilityAnalyzer(model=args.model)
-
-    print("[3] GPT 1차 판단 중...")
-    initial_report = analyzer.initial_analyze(evidence)
-    save_json(args.initial_output, initial_report)
-    print(f"[+] GPT 1차 판단 결과 저장 완료: {args.initial_output}")
-
-    print("[4] GPT 최종 판단 중...")
-    report = analyzer.final_analyze(
-        evidence=evidence,
-        initial_report=initial_report,
-        signature_report=signature_report
-    )
-    report = merge_signature_findings(report, signature_report)
-    report = complete_report_with_catalog(report, initial_report, signature_report)
-
-    save_json(args.output, report)
-    print_report(report)
-
-    print(f"[+] GPT 최종 분석 결과 저장 완료: {args.output}")
+    print_report(result["report"])
 
 
 if __name__ == "__main__":
-    main()
+    if len(sys.argv) > 1 and sys.argv[1] == "serve":
+        import uvicorn
+
+        uvicorn.run(app, host="0.0.0.0", port=8000)
+    else:
+        main()
