@@ -1,0 +1,12 @@
+services:
+  auto-scanner:
+    build: .
+    container_name: auto-scanner
+    ports:
+      - "8000:8000"
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - OPENAI_MODEL=${OPENAI_MODEL:-gpt-5.5}
+    volumes:
+      - ./outputs:/app/outputs
+    restart: unless-stopped

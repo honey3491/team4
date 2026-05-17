@@ -2,3 +2,7 @@ requests
 openai
 python-dotenv
 bs4
+openpyxl
+fastapi
+uvicorn
+sqlmap
