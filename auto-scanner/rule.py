@@ -614,16 +614,19 @@ def check_webshell_upload(base):
     """
     WEB-A08-001 웹쉘 업로드 가능 점검.
 
-    실제 upload.jsp 폼은 multipart/form-data로 title, content, uploadFile 필드를 사용한다.
-    기존 자동진단은 files={"file": ...} 형태로 전송해 실제 업로드 필드명과 맞지 않아
-    수동진단에서는 shell.jsp 업로드/실행이 확인되었는데도 자동진단은 pending으로 남을 수 있었다.
+    수동진단 시나리오에 맞춰 다음 흐름을 확인한다.
+    1) upload.jsp의 실제 multipart 필드(uploadFile)로 테스트용 shell.jsp를 업로드한다.
+    2) 업로드 응답, board/search/view 페이지에서 첨부파일 링크 또는 uploads 경로를 찾는다.
+    3) 찾은 링크 또는 예상 경로(/vulnapp/uploads/shell.jsp)에 접근했을 때 JSP_UPLOAD_TEST가 출력되는지 확인한다.
 
-    수동진단과 동일하게 테스트용 shell.jsp를 uploadFile 필드로 업로드한 뒤
-    /vulnapp/uploads/shell.jsp 접근 시 JSP_UPLOAD_TEST 문자열이 출력되는지 확인한다.
-    실제 명령 실행 코드는 넣지 않고, 문자열 출력만으로 JSP 실행 가능 여부를 확인한다.
+    게시글 상세(view) 링크를 통해 파일 경로가 확인되면 그 경로를 우선 근거로 사용하고,
+    링크를 찾지 못하더라도 /vulnapp/uploads/shell.jsp에서 JSP 실행이 확인되면 취약으로 판단한다.
+    실제 명령 실행 코드는 사용하지 않고, 문자열 출력만으로 JSP 실행 가능 여부를 확인한다.
     """
     upload_url = urljoin(base, "/vulnapp/upload.jsp")
     process_url = urljoin(base, "/vulnapp/upload_process.jsp")
+    board_url = urljoin(base, "/vulnapp/board.jsp")
+    search_url = urljoin(base, "/vulnapp/search.jsp")
 
     upload_page = req("GET", upload_url)
     if status_code(upload_page) == 404:
@@ -638,29 +641,90 @@ def check_webshell_upload(base):
     marker = "JSP_UPLOAD_TEST"
     shell_body = f'<% out.println("{marker}"); %>'.encode("utf-8")
 
-    # 수동진단에서 확인한 실제 저장 경로를 먼저 확인한다.
-    possible_paths = [
+    def is_response(obj):
+        return not isinstance(obj, dict)
+
+    def extract_candidate_links(html_text, page_url):
+        """HTML 안에서 shell.jsp 또는 uploads 하위 JSP 링크를 찾아 절대 URL로 반환한다."""
+        links = []
+        if not html_text:
+            return links
+
+        soup = BeautifulSoup(html_text, "html.parser")
+        for tag in soup.find_all(["a", "link", "script", "img"]):
+            for attr in ["href", "src"]:
+                raw = tag.get(attr)
+                if not raw:
+                    continue
+                absolute = urljoin(page_url, raw)
+                lowered = absolute.lower()
+                if shell_name.lower() in lowered or ("/uploads/" in lowered and ".jsp" in lowered):
+                    links.append(absolute)
+
+        # 응답이 단순 텍스트로 uploads/shell.jsp를 출력하는 경우도 대비한다.
+        for token in html_text.replace('"', " ").replace("'", " ").replace("<", " ").replace(">", " ").split():
+            lowered = token.lower()
+            if shell_name.lower() in lowered or ("uploads/" in lowered and ".jsp" in lowered):
+                links.append(urljoin(page_url, token))
+
+        # 순서 유지 중복 제거
+        seen = set()
+        unique = []
+        for link in links:
+            if link not in seen:
+                seen.add(link)
+                unique.append(link)
+        return unique
+
+    def extract_view_links(html_text, page_url):
+        """게시글 상세(view) 후보 링크를 찾아 절대 URL로 반환한다."""
+        links = []
+        if not html_text:
+            return links
+        soup = BeautifulSoup(html_text, "html.parser")
+        for tag in soup.find_all("a"):
+            raw = tag.get("href")
+            if not raw:
+                continue
+            absolute = urljoin(page_url, raw)
+            lowered = absolute.lower()
+            if any(key in lowered for key in ["view.jsp", "detail.jsp", "post.jsp", "board_view", "board.jsp?"]):
+                links.append(absolute)
+        seen = set()
+        unique = []
+        for link in links:
+            if link not in seen:
+                seen.add(link)
+                unique.append(link)
+        return unique[:10]
+
+    checked_paths = []
+
+    def check_marker_at(url, source="direct"):
+        r = req("GET", url)
+        status = status_code(r)
+        checked_paths.append(f"{source}: {url} status={status}")
+        if is_response(r) and marker in r.text:
+            return True, status
+        return False, status
+
+    def find_executable_upload(candidate_links):
+        for link in candidate_links:
+            ok, _ = check_marker_at(link, "candidate_link")
+            if ok:
+                return link
+        return None
+
+    # 수동진단에서 자주 확인되는 예상 저장 경로도 fallback으로 확인한다.
+    expected_paths = [
         urljoin(base, f"/vulnapp/uploads/{shell_name}"),
         urljoin(base, f"/uploads/{shell_name}"),
     ]
 
-    def check_uploaded_marker():
-        for path in possible_paths:
-            check = req("GET", path)
-            if not isinstance(check, dict) and marker in check.text:
-                return path
-        return None
-
-    existing_path = check_uploaded_marker()
-    if existing_path:
-        return catalog_result(
-            "WEB-A08-001",
-            "high",
-            f"{existing_path} 접근 시 테스트용 JSP 문자열 {marker}가 출력되어 업로드된 JSP 파일이 웹 경로에서 실행되는 것이 확인됨.",
-            "실행 가능한 .jsp/.jspx/.php 등 서버 사이드 스크립트 확장자 업로드를 차단하고, 업로드 파일은 웹 루트 외부에 저장하며 파일명을 난수화해야 한다."
-        )
-
     upload_attempts = []
+    candidate_links = []
+    view_pages_checked = []
+
     multipart_data = {
         "title": "webshell-auto-probe",
         "content": "webshell-auto-probe",
@@ -669,6 +733,7 @@ def check_webshell_upload(base):
         "uploadFile": (shell_name, shell_body, "application/octet-stream"),
     }
 
+    # 실제 업로드 처리 엔드포인트와 upload.jsp 직접 POST를 모두 시도한다.
     for endpoint_url in [process_url, upload_url]:
         response = req(
             "POST",
@@ -679,23 +744,77 @@ def check_webshell_upload(base):
         )
         if isinstance(response, dict):
             upload_attempts.append(f"{endpoint_url} 요청 실패: {response.get('error')}")
-        else:
-            upload_attempts.append(f"{endpoint_url} status={response.status_code}")
+            continue
 
-        uploaded_path = check_uploaded_marker()
+        upload_attempts.append(f"{endpoint_url} status={response.status_code} final_url={response.url}")
+        candidate_links.extend(extract_candidate_links(response.text, response.url))
+        view_pages = extract_view_links(response.text, response.url)
+        view_pages_checked.extend(view_pages)
+        for view_url in view_pages:
+            view_r = req("GET", view_url)
+            checked_paths.append(f"view_page: {view_url} status={status_code(view_r)}")
+            if is_response(view_r):
+                candidate_links.extend(extract_candidate_links(view_r.text, view_url))
+
+        uploaded_path = find_executable_upload(candidate_links)
         if uploaded_path:
             return catalog_result(
                 "WEB-A08-001",
                 "high",
-                f"테스트용 {shell_name} 파일 업로드 후 {uploaded_path} 접근 시 {marker} 문자열이 출력됨. 실행 가능한 JSP 파일이 웹 접근 가능한 경로에 저장 및 실행되어 웹쉘 업로드 가능성이 확인됨. 업로드 시도: {upload_attempts}",
-                "파일 업로드 시 .jsp, .jspx, .php 등 실행 가능한 확장자를 차단하고 허용 확장자 기반 검증을 적용해야 한다. 업로드 파일은 웹 루트 외부에 저장하고 파일명을 난수화하며 MIME 타입과 파일 시그니처를 함께 검증해야 한다."
+                f"테스트용 {shell_name} 업로드 후 업로드 응답/게시글 상세 링크에서 확인한 {uploaded_path} 접근 시 {marker} 문자열이 출력됨. 실행 가능한 JSP 파일이 서버 디렉터리의 웹 접근 가능한 경로에 저장 및 실행되어 웹쉘 업로드 가능성이 확인됨. 업로드 시도: {upload_attempts}",
+                "파일 업로드 시 .jsp, .jspx, .php 등 실행 가능한 확장자를 차단하고 허용 확장자 기반 검증을 적용해야 한다. 업로드 파일은 웹 루트 외부의 비실행 디렉터리에 저장하고 다운로드 전용 핸들러를 통해 제공해야 하며, 파일명을 난수화하고 MIME 타입과 파일 시그니처를 함께 검증해야 한다."
             )
+
+    # 업로드 응답에 파일 링크가 없더라도 게시글 목록/상세 화면에서 첨부파일 링크를 찾는다.
+    for page_url in [board_url, search_url]:
+        page_r = req("GET", page_url)
+        checked_paths.append(f"list_page: {page_url} status={status_code(page_r)}")
+        if not is_response(page_r):
+            continue
+        candidate_links.extend(extract_candidate_links(page_r.text, page_url))
+        view_pages = extract_view_links(page_r.text, page_url)
+        view_pages_checked.extend(view_pages)
+        for view_url in view_pages:
+            view_r = req("GET", view_url)
+            checked_paths.append(f"view_page: {view_url} status={status_code(view_r)}")
+            if is_response(view_r):
+                candidate_links.extend(extract_candidate_links(view_r.text, view_url))
+
+    uploaded_path = find_executable_upload(candidate_links)
+    if uploaded_path:
+        return catalog_result(
+            "WEB-A08-001",
+            "high",
+            f"게시글 목록/상세 또는 업로드 응답에서 확인된 첨부파일 링크 {uploaded_path} 접근 시 {marker} 문자열이 출력됨. 실행 가능한 JSP 파일이 서버 디렉터리에 저장되고 외부에서 접근 가능한 URL을 통해 실행되는 것으로 확인됨. 업로드 시도: {upload_attempts}",
+            "파일 업로드 시 .jsp, .jspx, .php 등 실행 가능한 확장자를 차단하고, 업로드 파일은 웹 루트 외부에 저장하며 파일 접근은 다운로드 전용 핸들러로 처리해야 한다."
+        )
+
+    # 마지막 fallback: 수동진단에서 확인한 정적 예상 경로 직접 확인
+    for path in expected_paths:
+        ok, _ = check_marker_at(path, "expected_path")
+        if ok:
+            return catalog_result(
+                "WEB-A08-001",
+                "high",
+                f"테스트용 {shell_name} 업로드 후 게시글 링크에서는 경로를 확정하지 못했으나, 예상 저장 경로 {path} 접근 시 {marker} 문자열이 출력됨. 실행 가능한 JSP 파일이 웹 접근 가능한 서버 디렉터리에 저장 및 실행되어 웹쉘 업로드 가능성이 확인됨. 업로드 시도: {upload_attempts}",
+                "파일 업로드 시 .jsp, .jspx, .php 등 실행 가능한 확장자를 차단하고, 업로드 파일은 웹 루트 외부에 저장하며 파일명을 난수화해야 한다."
+            )
+
+    # 명확한 차단 메시지가 있으면 양호, 그 외 업로드 처리 오류/경로 미확인은 pending
+    joined_attempts = " | ".join(upload_attempts + checked_paths)
+    if any(word in joined_attempts.lower() for word in ["허용되지", "not allowed", "blocked", "invalid file", "확장자"]):
+        return catalog_result(
+            "WEB-A08-001",
+            "pass",
+            f"테스트용 {shell_name} 업로드가 서버 측 정책에 의해 차단된 것으로 확인됨. 근거: {joined_attempts}",
+            "실행 가능한 파일 업로드 차단 정책을 유지하고, 업로드 파일은 웹 루트 외부에 저장해야 한다."
+        )
 
     return catalog_result(
         "WEB-A08-001",
         "pending",
-        f"테스트용 {shell_name} 업로드 시도 후 웹 경로에서 {marker} 실행 여부가 확인되지 않음. 업로드 시도: {upload_attempts}. /vulnapp/uploads/{shell_name} 접근 결과도 확인 필요.",
-        "WEB-A08-001은 취약 항목으로 설계되었으므로 shell.jsp 업로드가 성공하고 /vulnapp/uploads/shell.jsp 접근 시 JSP_UPLOAD_TEST 문자열이 출력되는지 재진단해야 한다."
+        f"테스트용 {shell_name} 업로드 시도 후 업로드 응답, 게시글 목록/상세 링크, 예상 경로에서 {marker} 실행 여부가 확인되지 않음. 업로드 시도: {upload_attempts}. 확인 경로: {checked_paths}. view 후보: {view_pages_checked[:5]}",
+        "웹쉘 업로드 취약 여부를 확정하려면 shell.jsp 업로드 성공 여부, 게시글 상세의 첨부파일 링크, 실제 저장 경로, /vulnapp/uploads/shell.jsp 접근 시 JSP_UPLOAD_TEST 출력 여부를 확인해야 한다."
     )
 
 
