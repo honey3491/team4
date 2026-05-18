@@ -1,7 +1,7 @@
 {
   "project": "4악다 생성형 AI 기반 웹 취약점 자동 진단",
   "target": "http://15.164.60.79",
-  "collected_at": "2026-05-18T09:59:42+09:00",
+  "collected_at": "2026-05-18T10:57:41+09:00",
   "analysis_policy": {
     "phase_1": "GPT first analyzes collected HTTP evidence only.",
     "phase_2": "If GPT marks a finding as 보류 or low confidence, signature-based result.json may be used as supporting evidence.",
@@ -13,27 +13,26 @@
       "status_code": 200,
       "headers": {
         "Server": "nginx/1.28.3 (Ubuntu)",
-        "Date": "Mon, 18 May 2026 00:59:42 GMT",
+        "Date": "Mon, 18 May 2026 01:57:40 GMT",
         "Content-Type": "text/html;charset=UTF-8",
         "Transfer-Encoding": "chunked",
         "Connection": "keep-alive",
-        "Set-Cookie": "JSESSIONID=3FA15DD368435E06BDCC511D87B39DAF; Path=/vulnapp; HttpOnly",
+        "Set-Cookie": "JSESSIONID=875B48A0C50356F2C2964322655377AA; Path=/vulnapp; HttpOnly",
         "Content-Encoding": "gzip"
       },
       "body_sample": "\n\n<style>\n    .test-list { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 15px; }\n    .test-card { \n        display: block; padding: 20px; background-color: #fff; border: 1px solid #e0e0e0; \n        border-radius: 8px; transition: all 0.2s ease-in-out; text-decoration: none; color: inherit;\n    }\n    .test-card:hover { \n        border-color: #3498db; box-shadow: 0 4px 12px rgba(52, 152, 219, 0.15); transform: translateY(-2px);\n    }\n    .test-title { font-size: 1.25rem; font-weight: bold; margin-bottom: 5px; }\n    .test-desc { color: #7f8c8d; font-size: 0.95rem; margin: 0; }\n</style>\n\n\n\n\n<!DOCTYPE html>\n<html lang=\"ko\">\n<head>\n    <meta charset=\"UTF-8\">\n    <title>VulnApp</title>\n    <link rel=\"stylesheet\" href=\"/vulnapp/css/style.css\">\n</head>\n<body>\n    <nav class=\"navbar\">\n        <div class=\"logo\">\n            <a href=\"/vulnapp/\" style=\"text-decoration: none; color: inherit;\">\n                🛡️ VulnApp\n            </a>\n        </div>\n        <ul class=\"nav-links\">\n            <li><a href=\"search.jsp\">통합 검색</a></li>\n            <li><a href=\"download.jsp\">자료실</a></li>\n\n            \n                <li><a href=\"login.jsp\">로그인</a></li>\n            \n        </ul>\n    </nav>\n    <main class=\"container\">\n        <div class=\"card\">\n\n\n    <div style=\"text-align: center; margin-bottom: 2.5rem; padding-top: 1rem;\">\n        <h1 style=\"color: #2c3e50; font-size: 2.2rem; margin-bottom: 10px;\">🛡️ 4악다 Vulnerable Web App</h1>\n        <p style=\"color: #7f8c8d; f"
     },
     "error_page": {
-      "url": "http://15.164.60.79/vulnapp/not_exist_4akda_404_test",
-      "status_code": 404,
+      "url": "http://15.164.60.79/vulnapp/profile.jsp?user_idx=abc",
+      "status_code": 500,
       "headers": {
         "Server": "nginx/1.28.3 (Ubuntu)",
-        "Date": "Mon, 18 May 2026 00:59:42 GMT",
+        "Date": "Mon, 18 May 2026 01:57:41 GMT",
         "Content-Type": "text/html;charset=UTF-8",
-        "Transfer-Encoding": "chunked",
-        "Connection": "keep-alive",
-        "Content-Encoding": "gzip"
+        "Content-Length": "2433",
+        "Connection": "keep-alive"
       },
-      "body_sample": "\n\n\n\n\n<!DOCTYPE html>\n<html lang=\"ko\">\n<head>\n    <meta charset=\"UTF-8\">\n    <title>VulnApp</title>\n    <link rel=\"stylesheet\" href=\"/vulnapp/css/style.css\">\n</head>\n<body>\n    <nav class=\"navbar\">\n        <div class=\"logo\">\n            <a href=\"/vulnapp/\" style=\"text-decoration: none; color: inherit;\">\n                🛡️ VulnApp\n            </a>\n        </div>\n        <ul class=\"nav-links\">\n            <li><a href=\"search.jsp\">통합 검색</a></li>\n            <li><a href=\"download.jsp\">자료실</a></li>\n\n            \n                <li><a href=\"login.jsp\">로그인</a></li>\n            \n        </ul>\n    </nav>\n    <main class=\"container\">\n        <div class=\"card\">\n\n\n    <section class=\"command-hero\">\n        <div class=\"command-hero-main\">\n            <span class=\"board-badge\">Service Error</span>\n            <h2>요청을 처리하지 못했습니다</h2>\n            <p>일시적인 오류가 발생했습니다. 잠시 후 다시 시도해 주세요. 문제가 계속되면 운영 담당자에게 문의해 주세요.</p>\n        </div>\n        <aside class=\"command-hero-side\">\n            <div class=\"command-hero-side-label\">Status</div>\n            <strong>HTTP 404</strong>\n            <p>/vulnapp/not_exist_4akda_404_test 요청 처리 중 오류가 발생했습니다.</p>\n        </aside>\n    </section>\n\n    <section class=\"command-guidance\">\n        <h3>다음 단계</h3>\n        <ul>\n            <li>입력값이나 접근 경로를 다시 확인한 뒤 재시도해 주세요.</li>\n            <li>동일한 오류가 반복되면 서버 로그와 애플리케이션 설정을 점검해 주세요.</li>\n            <li>메인 페이지로 돌아가 다른 기능은 정상 동작하는지 확인할 수 있습니다.</li>\n        </ul>\n    </section>\n\n    <div class=\"board-form-panel command-panel\">\n        <div class=\"board-panel-heading\">\n            <h3>바로가기</h3>\n            <p>필요한 페이지로 이동해 작업을 계속할 수 있습니다.</p>\n        </div>\n        <div class=\"command-code-list\">\n            <span><a href=\"/vulnapp/\">메인 페이지</a></span>\n            <span><a href=\"/vulnapp/board.jsp\">안전 게시판</a></span>\n            <span><a href=\"/vulnapp/command.jsp\">운영 상태 센터</a></span>\n        </div>\n    </div>\n\n</div> </main>\n    <footer>\n        &copy; 2026 VulnApp Security Test Environment. All rights reserved.\n    <"
+      "body_sample": "\n\n\n\n\n<!DOCTYPE html>\n<html lang=\"ko\">\n<head>\n    <meta charset=\"UTF-8\">\n    <title>VulnApp</title>\n    <link rel=\"stylesheet\" href=\"/vulnapp/css/style.css\">\n</head>\n<body>\n    <nav class=\"navbar\">\n        <div class=\"logo\">\n            <a href=\"/vulnapp/\" style=\"text-decoration: none; color: inherit;\">\n                🛡️ VulnApp\n            </a>\n        </div>\n        <ul class=\"nav-links\">\n            <li><a href=\"search.jsp\">통합 검색</a></li>\n            <li><a href=\"download.jsp\">자료실</a></li>\n\n            \n                <li><a href=\"login.jsp\">로그인</a></li>\n            \n        </ul>\n    </nav>\n    <main class=\"container\">\n        <div class=\"card\">\n\n\n    <section class=\"command-hero\">\n        <div class=\"command-hero-main\">\n            <span class=\"board-badge\">Service Error</span>\n            <h2>요청을 처리하지 못했습니다</h2>\n            <p>일시적인 오류가 발생했습니다. 잠시 후 다시 시도해 주세요. 문제가 계속되면 운영 담당자에게 문의해 주세요.</p>\n        </div>\n        <aside class=\"command-hero-side\">\n            <div class=\"command-hero-side-label\">Status</div>\n            <strong>HTTP 500</strong>\n            <p>/vulnapp/profile.jsp 요청 처리 중 오류가 발생했습니다.</p>\n        </aside>\n    </section>\n\n    <section class=\"command-guidance\">\n        <h3>다음 단계</h3>\n        <ul>\n            <li>입력값이나 접근 경로를 다시 확인한 뒤 재시도해 주세요.</li>\n            <li>동일한 오류가 반복되면 서버 로그와 애플리케이션 설정을 점검해 주세요.</li>\n            <li>메인 페이지로 돌아가 다른 기능은 정상 동작하는지 확인할 수 있습니다.</li>\n        </ul>\n    </section>\n\n    <div class=\"board-form-panel command-panel\">\n        <div class=\"board-panel-heading\">\n            <h3>바로가기</h3>\n            <p>필요한 페이지로 이동해 작업을 계속할 수 있습니다.</p>\n        </div>\n        <div class=\"command-code-list\">\n            <span><a href=\"/vulnapp/\">메인 페이지</a></span>\n            <span><a href=\"/vulnapp/board.jsp\">안전 게시판</a></span>\n            <span><a href=\"/vulnapp/command.jsp\">운영 상태 센터</a></span>\n        </div>\n    </div>\n\n</div> </main>\n    <footer>\n        &copy; 2026 VulnApp Security Test Environment. All rights reserved.\n    </footer>\n</body>\n</html>\n\n\n"
     },
     "tomcat_default_page": [
       {
@@ -42,7 +41,7 @@
         "headers": {
           "Content-Type": "text/html;charset=UTF-8",
           "Transfer-Encoding": "chunked",
-          "Date": "Mon, 18 May 2026 00:59:42 GMT",
+          "Date": "Mon, 18 May 2026 01:57:41 GMT",
           "Keep-Alive": "timeout=20",
           "Connection": "keep-alive"
         },
@@ -53,7 +52,7 @@
         "status_code": 200,
         "headers": {
           "Server": "nginx/1.28.3 (Ubuntu)",
-          "Date": "Mon, 18 May 2026 00:59:42 GMT",
+          "Date": "Mon, 18 May 2026 01:57:41 GMT",
           "Content-Type": "text/html;charset=UTF-8",
           "Transfer-Encoding": "chunked",
           "Connection": "keep-alive",
@@ -69,7 +68,7 @@
         "headers": {
           "Content-Type": "text/html;charset=ISO-8859-1",
           "Content-Length": "3523",
-          "Date": "Mon, 18 May 2026 00:59:42 GMT",
+          "Date": "Mon, 18 May 2026 01:57:41 GMT",
           "Keep-Alive": "timeout=20",
           "Connection": "keep-alive"
         },
@@ -80,7 +79,7 @@
         "status_code": 401,
         "headers": {
           "Server": "nginx/1.28.3 (Ubuntu)",
-          "Date": "Mon, 18 May 2026 00:59:42 GMT",
+          "Date": "Mon, 18 May 2026 01:57:41 GMT",
           "Content-Type": "text/html;charset=ISO-8859-1",
           "Content-Length": "2576",
           "Connection": "keep-alive",
@@ -96,11 +95,11 @@
         "status_code": 302,
         "headers": {
           "Server": "nginx/1.28.3 (Ubuntu)",
-          "Date": "Mon, 18 May 2026 00:59:42 GMT",
+          "Date": "Mon, 18 May 2026 01:57:41 GMT",
           "Content-Type": "text/html;charset=UTF-8",
           "Content-Length": "0",
           "Connection": "keep-alive",
-          "Set-Cookie": "JSESSIONID=29ABA40754DE33CA43B5E7EC84A1FF7D; Path=/vulnapp; HttpOnly",
+          "Set-Cookie": "JSESSIONID=3F8A76883CC570B82FA9AB9A4F210608; Path=/vulnapp; HttpOnly",
           "Location": "http://15.164.60.79/vulnapp/admin.jsp"
         },
         "body_sample": "",
@@ -122,11 +121,11 @@
         "status_code": 302,
         "headers": {
           "Server": "nginx/1.28.3 (Ubuntu)",
-          "Date": "Mon, 18 May 2026 00:59:42 GMT",
+          "Date": "Mon, 18 May 2026 01:57:41 GMT",
           "Content-Type": "text/html;charset=UTF-8",
           "Content-Length": "0",
           "Connection": "keep-alive",
-          "Set-Cookie": "JSESSIONID=246E421F434151F1D028B9DC2EA4E3C6; Path=/vulnapp; HttpOnly",
+          "Set-Cookie": "JSESSIONID=7D597051FCF3741A04ED1E830188F0D8; Path=/vulnapp; HttpOnly",
           "Location": "http://15.164.60.79/vulnapp/admin.jsp"
         },
         "body_sample": "",
@@ -148,11 +147,11 @@
         "status_code": 302,
         "headers": {
           "Server": "nginx/1.28.3 (Ubuntu)",
-          "Date": "Mon, 18 May 2026 00:59:42 GMT",
+          "Date": "Mon, 18 May 2026 01:57:41 GMT",
           "Content-Type": "text/html;charset=UTF-8",
           "Content-Length": "0",
           "Connection": "keep-alive",
-          "Set-Cookie": "JSESSIONID=1BFB37F2055050F66A5416C4C169C417; Path=/vulnapp; HttpOnly",
+          "Set-Cookie": "JSESSIONID=96D60FD4C6D5071C3AC904E5627F32F8; Path=/vulnapp; HttpOnly",
           "Location": "http://15.164.60.79/vulnapp/admin.jsp"
         },
         "body_sample": "",
@@ -176,7 +175,7 @@
         "status_code": 200,
         "headers": {
           "Server": "nginx/1.28.3 (Ubuntu)",
-          "Date": "Mon, 18 May 2026 00:59:42 GMT",
+          "Date": "Mon, 18 May 2026 01:57:41 GMT",
           "Content-Type": "text/html;charset=UTF-8",
           "Transfer-Encoding": "chunked",
           "Connection": "keep-alive",
@@ -195,7 +194,7 @@
         "status_code": 200,
         "headers": {
           "Server": "nginx/1.28.3 (Ubuntu)",
-          "Date": "Mon, 18 May 2026 00:59:42 GMT",
+          "Date": "Mon, 18 May 2026 01:57:41 GMT",
           "Content-Type": "text/html;charset=UTF-8",
           "Transfer-Encoding": "chunked",
           "Connection": "keep-alive",
@@ -214,7 +213,7 @@
         "status_code": 200,
         "headers": {
           "Server": "nginx/1.28.3 (Ubuntu)",
-          "Date": "Mon, 18 May 2026 00:59:42 GMT",
+          "Date": "Mon, 18 May 2026 01:57:41 GMT",
           "Content-Type": "text/html;charset=UTF-8",
           "Transfer-Encoding": "chunked",
           "Connection": "keep-alive",
@@ -233,7 +232,7 @@
         "status_code": 200,
         "headers": {
           "Server": "nginx/1.28.3 (Ubuntu)",
-          "Date": "Mon, 18 May 2026 00:59:42 GMT",
+          "Date": "Mon, 18 May 2026 01:57:41 GMT",
           "Content-Type": "text/html;charset=UTF-8",
           "Transfer-Encoding": "chunked",
           "Connection": "keep-alive",
@@ -253,7 +252,7 @@
       "status_code": 200,
       "headers": {
         "Server": "nginx/1.28.3 (Ubuntu)",
-        "Date": "Mon, 18 May 2026 00:59:42 GMT",
+        "Date": "Mon, 18 May 2026 01:57:41 GMT",
         "Content-Type": "application/json;charset=UTF-8",
         "Content-Length": "144",
         "Connection": "keep-alive"
@@ -276,11 +275,11 @@
         "status_code": 302,
         "headers": {
           "Server": "nginx/1.28.3 (Ubuntu)",
-          "Date": "Mon, 18 May 2026 00:59:42 GMT",
+          "Date": "Mon, 18 May 2026 01:57:41 GMT",
           "Content-Type": "text/html;charset=UTF-8",
           "Content-Length": "0",
           "Connection": "keep-alive",
-          "Set-Cookie": "JSESSIONID=5938F649D65C41B4DD5FCB4CE19F4DFE; Path=/vulnapp; HttpOnly",
+          "Set-Cookie": "JSESSIONID=CA495BB877777404733FC90D4A963C95; Path=/vulnapp; HttpOnly",
           "Location": "http://15.164.60.79/vulnapp/login.jsp"
         },
         "body_sample": "",
@@ -296,11 +295,11 @@
         "status_code": 302,
         "headers": {
           "Server": "nginx/1.28.3 (Ubuntu)",
-          "Date": "Mon, 18 May 2026 00:59:42 GMT",
+          "Date": "Mon, 18 May 2026 01:57:41 GMT",
           "Content-Type": "text/html;charset=UTF-8",
           "Content-Length": "0",
           "Connection": "keep-alive",
-          "Set-Cookie": "JSESSIONID=945627AF309007FF239560035E9638EA; Path=/vulnapp; HttpOnly",
+          "Set-Cookie": "JSESSIONID=81AC2C71F193390AA47A2FA3F8634581; Path=/vulnapp; HttpOnly",
           "Location": "http://15.164.60.79/vulnapp/"
         },
         "body_sample": "",
@@ -312,7 +311,7 @@
         "status_code": 200,
         "headers": {
           "Server": "nginx/1.28.3 (Ubuntu)",
-          "Date": "Mon, 18 May 2026 00:59:42 GMT",
+          "Date": "Mon, 18 May 2026 01:57:41 GMT",
           "Content-Type": "text/html;charset=UTF-8",
           "Transfer-Encoding": "chunked",
           "Connection": "keep-alive",
@@ -334,7 +333,7 @@
         "status_code": 200,
         "headers": {
           "Server": "nginx/1.28.3 (Ubuntu)",
-          "Date": "Mon, 18 May 2026 00:59:42 GMT",
+          "Date": "Mon, 18 May 2026 01:57:41 GMT",
           "Content-Type": "text/html;charset=UTF-8",
           "Transfer-Encoding": "chunked",
           "Connection": "keep-alive",
@@ -343,7 +342,7 @@
       },
       "https": {
         "url": "https://15.164.60.79",
-        "error": "HTTPSConnectionPool(host='15.164.60.79', port=443): Max retries exceeded with url: / (Caused by ConnectTimeoutError(<HTTPSConnection(host='15.164.60.79', port=443) at 0x2116996ba90>, 'Connection to 15.164.60.79 timed out. (connect timeout=5)'))"
+        "error": "HTTPSConnectionPool(host='15.164.60.79', port=443): Max retries exceeded with url: / (Caused by ConnectTimeoutError(<HTTPSConnection(host='15.164.60.79', port=443) at 0x2b00a6de790>, 'Connection to 15.164.60.79 timed out. (connect timeout=5)'))"
       },
       "https_available": false,
       "redirect_to_https": false
@@ -492,7 +491,7 @@
         "status_code": 200,
         "headers": {
           "Server": "nginx/1.28.3 (Ubuntu)",
-          "Date": "Mon, 18 May 2026 00:59:47 GMT",
+          "Date": "Mon, 18 May 2026 01:57:46 GMT",
           "Content-Type": "application/json;charset=UTF-8",
           "Content-Length": "144",
           "Connection": "keep-alive"
@@ -507,7 +506,7 @@
         "status_code": 200,
         "headers": {
           "Server": "nginx/1.28.3 (Ubuntu)",
-          "Date": "Mon, 18 May 2026 00:59:47 GMT",
+          "Date": "Mon, 18 May 2026 01:57:46 GMT",
           "Content-Type": "application/json;charset=UTF-8",
           "Content-Length": "144",
           "Connection": "keep-alive"
@@ -553,6 +552,13 @@
         "reachable": true,
         "status_code": 200,
         "body_sample": "\n\n\n\n\n\n\n<!DOCTYPE html>\n<html lang=\"ko\">\n<head>\n    <meta charset=\"UTF-8\">\n    <title>VulnApp</title>\n    <link rel=\"stylesheet\" href=\"/vulnapp/css/style.css\">\n</head>\n<body>\n    <nav class=\"navbar\">\n        <div class=\"logo\">\n            <a href=\"/vulnapp/\" style=\"text-decoration: none; color: inher"
+      },
+      {
+        "endpoint": "/vulnapp/profile.jsp?user_idx=abc",
+        "url": "http://15.164.60.79/vulnapp/profile.jsp?user_idx=abc",
+        "reachable": true,
+        "status_code": 500,
+        "body_sample": "\n\n\n\n\n<!DOCTYPE html>\n<html lang=\"ko\">\n<head>\n    <meta charset=\"UTF-8\">\n    <title>VulnApp</title>\n    <link rel=\"stylesheet\" href=\"/vulnapp/css/style.css\">\n</head>\n<body>\n    <nav class=\"navbar\">\n        <div class=\"logo\">\n            <a href=\"/vulnapp/\" style=\"text-decoration: none; color: inherit"
       },
       {
         "endpoint": "/vulnapp/command.jsp",

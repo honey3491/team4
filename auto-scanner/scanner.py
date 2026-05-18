@@ -381,17 +381,31 @@ def force_owasp_2025(owasp_value: str):
 
 
 def sanitize_url_to_path(url_value: str | None):
+    """
+    자동진단 결과의 url 필드를 보고서/엑셀에서 비교하기 쉬운 경로 형태로 정리한다.
+
+    기존에는 query string을 제거해 /vulnapp/profile.jsp?user_idx=abc 같은
+    실제 진단 URL이 /vulnapp/profile.jsp로 축약되는 문제가 있었다.
+    IDOR, Reflected XSS, Stack Trace, SSRF처럼 파라미터 자체가 진단 포인트인
+    항목은 query string이 evidence와 판단 기준의 일부이므로 path?query 형태로 보존한다.
+    """
     raw = str(url_value or "").strip()
     if not raw:
         return ""
 
+    # N/A 같은 비 URL 값은 그대로 둔다.
+    if raw.upper() in {"N/A", "NA"}:
+        return raw
+
     parsed = urlparse(raw)
     path = parsed.path or ""
+    query = parsed.query or ""
 
-    if not path:
-        path = raw.split("?", 1)[0].split("#", 1)[0].strip()
+    if path:
+        return f"{path}?{query}" if query else path
 
-    return path or "/"
+    # :8080/ 또는 /, :8080/ 같은 대표 경로 표기는 urlparse 결과가 애매할 수 있어 원문을 보존한다.
+    return raw.split("#", 1)[0].strip() or "/"
 
 
 def simplify_signature_report(signature_report: dict | None):
@@ -756,9 +770,16 @@ class ExternalEvidenceCollector:
         return self.response_to_dict(res)
 
     def collect_error_page(self):
-        url = self.target + "/vulnapp/not_exist_4akda_404_test"
+        """
+        WEB-A10-001 Stack Trace 노출 확인용 오류 유발 요청을 수집한다.
+
+        단순 404 Not Found보다 수동진단에서 실제로 사용한
+        /vulnapp/profile.jsp?user_idx=abc 요청이 Stack Trace/상세 DB 오류 노출 여부를
+        더 잘 검증하므로 대표 evidence URL을 이 요청으로 맞춘다.
+        """
+        url = self.target + "/vulnapp/profile.jsp?user_idx=abc"
         res = self.safe_request("GET", url)
-        return self.response_to_dict(res, body_limit=2000)
+        return self.response_to_dict(res, body_limit=2500)
 
     def collect_tomcat_default_page(self):
         urls = [
@@ -1092,6 +1113,7 @@ class ExternalEvidenceCollector:
             "/vulnapp/search.jsp",
             "/vulnapp/board.jsp",
             "/vulnapp/profile.jsp?user_idx=1",
+            "/vulnapp/profile.jsp?user_idx=abc",
             "/vulnapp/command.jsp",
             "/vulnapp/register.jsp",
             "/vulnapp/fetch.jsp",
