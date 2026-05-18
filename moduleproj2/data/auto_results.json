@@ -1,0 +1,82 @@
+[
+    {
+      "check_id": "WEB-001",
+      "category": "웹서버 설정",
+      "item": "보안 헤더 미설정",
+      "auto_result": "취약",
+      "evidence": "X-Frame-Options, Content-Security-Policy 헤더가 존재하지 않음",
+      "risk": "Medium",
+      "ai_reason": "보안 헤더가 설정되어 있지 않아 클릭재킹 및 스크립트 삽입 방어가 부족합니다.",
+      "recommendation": "Nginx 또는 Tomcat 필터에서 X-Frame-Options, Content-Security-Policy, X-Content-Type-Options 등의 보안 헤더를 설정해야 합니다."
+    },
+    {
+      "check_id": "WEB-002",
+      "category": "웹서버 설정",
+      "item": "서버 정보 노출",
+      "auto_result": "취약",
+      "evidence": "Server 헤더에서 Apache-Coyote/1.1 및 Tomcat 정보가 확인됨",
+      "risk": "Low",
+      "ai_reason": "서버 종류나 버전 정보가 노출되면 공격자가 알려진 취약점을 탐색하는 데 활용할 수 있습니다.",
+      "recommendation": "Server 헤더에서 상세 버전 정보가 노출되지 않도록 웹서버 또는 WAS 설정을 변경하세요."
+    },
+    {
+      "check_id": "WEB-003",
+      "category": "웹앱 취약점",
+      "item": "SQL Injection",
+      "auto_result": "취약",
+      "evidence": "admin'-- 페이로드 요청 시 Login Success 문구가 응답됨",
+      "risk": "High",
+      "ai_reason": "로그인 입력값이 SQL 쿼리에 안전하게 처리되지 않아 인증 우회 가능성이 있습니다.",
+      "recommendation": "PreparedStatement 또는 ORM 기반 파라미터 바인딩을 적용하고, 입력값 검증을 수행해야 합니다."
+    },
+    {
+      "check_id": "WEB-004",
+      "category": "웹앱 취약점",
+      "item": "XSS",
+      "auto_result": "취약",
+      "evidence": "<script>alert(1)</script> 입력값이 응답 본문에 그대로 반사됨",
+      "risk": "High",
+      "ai_reason": "사용자 입력값에 대한 출력 인코딩이 적용되지 않아 브라우저에서 스크립트가 실행될 수 있습니다.",
+      "recommendation": "HTML Escape 처리를 적용하고, 사용자 입력값을 출력하기 전에 인코딩 및 검증을 수행해야 합니다."
+    },
+    {
+      "check_id": "WEB-005",
+      "category": "웹앱 취약점",
+      "item": "민감정보 노출",
+      "auto_result": "취약",
+      "evidence": "debug.jsp 응답에서 db_password, api_key 문자열이 탐지됨",
+      "risk": "High",
+      "ai_reason": "디버그 페이지를 통해 데이터베이스 비밀번호와 API Key가 노출되고 있습니다.",
+      "recommendation": "운영 환경에서 디버그 페이지를 제거하고, 민감정보는 환경변수 또는 Secret Manager로 분리 관리해야 합니다."
+    },
+    {
+      "check_id": "WEB-006",
+      "category": "웹앱 취약점",
+      "item": "관리자 페이지 노출",
+      "auto_result": "양호",
+      "evidence": "/admin.jsp 접근 시 403 Forbidden 응답 확인",
+      "risk": "Medium",
+      "ai_reason": "자동 진단에서는 관리자 페이지 접근이 차단된 것으로 판단했습니다.",
+      "recommendation": "관리자 페이지는 인증 여부와 접근제어 정책을 추가로 수동 점검하는 것이 좋습니다."
+    },
+    {
+      "check_id": "WEB-007",
+      "category": "웹서버 설정",
+      "item": "디렉터리 리스팅 노출",
+      "auto_result": "취약",
+      "evidence": "/uploads/ 접근 시 파일 목록 index of 페이지가 응답됨",
+      "risk": "Medium",
+      "ai_reason": "자동 진단 결과 디렉터리 목록이 노출되는 것으로 판단되었습니다. 다만 수동 진단 결과와 다르므로 오탐 가능성이 있습니다.",
+      "recommendation": "Nginx autoindex 설정 또는 Apache Options Indexes 설정 여부를 확인하고, 불필요한 디렉터리 목록 노출을 차단해야 합니다."
+    },
+    {
+      "check_id": "WEB-008",
+      "category": "웹앱 취약점",
+      "item": "불필요한 테스트 페이지 노출",
+      "auto_result": "N/A",
+      "evidence": "자동 진단 모듈에서 해당 테스트 페이지 점검이 수행되지 않음",
+      "risk": "Low",
+      "ai_reason": "자동 진단 범위에 포함되지 않아 판단이 불가능합니다.",
+      "recommendation": "테스트 페이지, 샘플 페이지, 임시 JSP 파일이 운영 서버에 남아 있는지 별도 점검해야 합니다."
+    }
+  ]

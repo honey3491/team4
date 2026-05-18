@@ -1,0 +1,85 @@
+{
+    "scan_id": "SCAN-20260514-0001",
+    "target": "http://15.164.60.79",
+    "scanner": "gpt-based",
+    "generated_at": "2026-05-14T10:02:55Z",
+  
+    "summary": {
+      "total": 7,
+      "severity": {
+        "critical": 1,
+        "high": 3,
+        "medium": 2,
+        "low": 1
+      }
+    },
+  
+    "results": [
+      {
+        "id": "RES-0001",
+        "check_id": "WEB-A08-001",
+        "owasp": "A08:2025 Software or Data Integrity Failures",
+        "name": "웹쉘 업로드 가능",
+        "severity": "critical",
+        "evidence": ".jsp 업로드 후 서버에서 실행됨",
+        "recommendation": "실행 파일 업로드 차단 및 MIME 검증 적용"
+      },
+  
+      {
+        "id": "RES-0002",
+        "check_id": "WEB-A05-001",
+        "owasp": "A05:2025 Injection",
+        "name": "SQL Injection",
+        "severity": "high",
+        "evidence": "' OR 1=1 -- 입력 시 로그인 우회",
+        "recommendation": "Prepared Statement 사용"
+      },
+      {
+        "id": "RES-0003",
+        "check_id": "WEB-A05-002",
+        "owasp": "A05:2025 Injection",
+        "name": "Stored XSS",
+        "severity": "high",
+        "evidence": "게시판 입력값에 script 태그 저장 및 실행",
+        "recommendation": "출력 시 HTML Encoding 적용"
+      },
+      {
+        "id": "RES-0004",
+        "check_id": "WEB-A10-002",
+        "owasp": "A10:2025 Mishandling of Exceptional Conditions",
+        "name": "SSRF",
+        "severity": "high",
+        "evidence": "169.254.169.254 메타데이터 접근 가능",
+        "recommendation": "내부 IP 및 메타데이터 주소 차단"
+      },
+  
+      {
+        "id": "RES-0005",
+        "check_id": "WEB-A01-002",
+        "owasp": "A01:2025 Broken Access Control",
+        "name": "IDOR",
+        "severity": "medium",
+        "evidence": "다른 사용자 정보 조회 가능",
+        "recommendation": "서버 측 권한 검증 적용"
+      },
+      {
+        "id": "RES-0006",
+        "check_id": "WEB-A04-001",
+        "owasp": "A04:2025 Cryptographic Failures",
+        "name": "HTTPS 미적용",
+        "severity": "medium",
+        "evidence": "HTTP 프로토콜 사용 중",
+        "recommendation": "HTTPS 및 HSTS 적용"
+      },
+  
+      {
+        "id": "RES-0007",
+        "check_id": "WEB-A02-001",
+        "owasp": "A02:2025 Security Misconfiguration",
+        "name": "보안 헤더 설정 미흡",
+        "severity": "low",
+        "evidence": "CSP에 unsafe-inline 허용",
+        "recommendation": "nonce/hash 기반 CSP 적용"
+      }
+    ]
+  }
