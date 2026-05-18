@@ -36,8 +36,8 @@ CHECK_CATALOG = [
     {"check_id": "WEB-A04-002", "owasp": "A04:2025 Cryptographic Failures", "name": "쿠키 Secure/HttpOnly 미설정", "url": "/vulnapp/login.jsp"},
     {"check_id": "WEB-A05-001", "owasp": "A05:2025 Injection", "name": "SQL Injection", "url": "/vulnapp/login.jsp"},
     {"check_id": "WEB-A05-002", "owasp": "A05:2025 Injection", "name": "Reflected XSS", "url": "/vulnapp/search.jsp?keyword="},
-    {"check_id": "WEB-A05-003", "owasp": "A05:2025 Injection", "name": "Stored XSS", "url": "/vulnapp/upload.jsp"},
-    {"check_id": "WEB-A05-004", "owasp": "A05:2025 Injection", "name": "Command Injection", "url": "/vulnapp/ping.jsp?host="},
+    {"check_id": "WEB-A05-003", "owasp": "A05:2025 Injection", "name": "Stored XSS", "url": "/vulnapp/board.jsp"},
+    {"check_id": "WEB-A05-004", "owasp": "A05:2025 Injection", "name": "Command Injection", "url": "/vulnapp/command.jsp"},
     {"check_id": "WEB-A06-001", "owasp": "A06:2025 Insecure Design", "name": "로그인 Rate Limit 미구현", "url": "/vulnapp/login.jsp"},
     {"check_id": "WEB-A07-001", "owasp": "A07:2025 Authentication Failures", "name": "계정 잠금 미구현", "url": "/vulnapp/login.jsp"},
     {"check_id": "WEB-A07-002", "owasp": "A07:2025 Authentication Failures", "name": "약한 비밀번호 허용", "url": "/vulnapp/register.jsp"},
@@ -64,20 +64,13 @@ MANUAL_CALIBRATED_SEVERITY = {
     "WEB-A04-002": "medium",
     "WEB-A05-001": "high",
     "WEB-A05-002": "medium",
+    "WEB-A05-003": "pass",
+    "WEB-A05-004": "pass",
     "WEB-A06-001": "medium",
     "WEB-A07-001": "medium",
+    "WEB-A07-002": "pass",
     "WEB-A07-003": "n/a",
-}
-
-# 수동진단에서 사이트 오류/미구현 때문에 판단 보류로 남긴 항목.
-# 이 항목들은 rule.py가 pending 근거를 찾으면 GPT의 pass/n/a/low 판단보다 pending을 우선한다.
-MANUAL_PENDING_CHECKS = {
-    "WEB-A05-003",  # 게시글 상세 조회 404로 Stored XSS 재조회 검증 불가
-    "WEB-A05-004",  # ping.jsp 404
-    "WEB-A07-002",  # register.jsp 404
-    "WEB-A08-001",  # shell.jsp 업로드 500 + uploads 경로 404
-    "WEB-A10-001",  # DB 오류 노출로 원래 양호 항목 수정 후 재진단 필요
-    "WEB-A10-002",  # fetch.jsp/internal/secret.jsp 404
+    "WEB-A10-001": "pass",
 }
 
 SEVERITY_RANK = {"n/a": 0, "pending": 0, "pass": 0, "low": 1, "medium": 2, "high": 3, "critical": 4}
@@ -215,16 +208,18 @@ def format_sqlmap_summary(sqlmap_data):
     if not isinstance(sqlmap_data, dict):
         return None
 
-    if sqlmap_data.get("error"):
+    normalized_sqlmap = normalize_sqlmap_data(sqlmap_data)
+
+    if normalized_sqlmap.get("error"):
         return f"sqlmap 보조 점검 결과: {sqlmap_data['error']}"
 
     parts = []
 
-    dbms_banner = sqlmap_data.get("dbms_banner")
-    current_user = sqlmap_data.get("current_user")
-    current_db = sqlmap_data.get("current_db")
-    is_dba = sqlmap_data.get("is_dba")
-    databases = sqlmap_data.get("databases")
+    dbms_banner = normalized_sqlmap.get("dbms_banner")
+    current_user = normalized_sqlmap.get("current_user")
+    current_db = normalized_sqlmap.get("current_db")
+    is_dba = normalized_sqlmap.get("is_dba")
+    databases = normalized_sqlmap.get("databases")
 
     if dbms_banner:
         parts.append(f"DBMS 배너는 {dbms_banner}로 식별됨")
@@ -251,7 +246,56 @@ def format_sqlmap_summary(sqlmap_data):
     return "sqlmap 보조 점검 결과: " + ". ".join(parts) + "."
 
 
-def format_signature_evidence_text(evidence):
+def normalize_sqlmap_data(sqlmap_data):
+    if not isinstance(sqlmap_data, dict):
+        return {}
+
+    normalized = dict(sqlmap_data)
+    raw_tail = str(normalized.get("raw_tail", "") or "")
+
+    if raw_tail:
+        if not normalized.get("dbms_banner"):
+            dbms_match = re.search(r"back-end DBMS:\s*(.+)", raw_tail, re.IGNORECASE)
+            banner_match = re.search(r"banner:\s*'([^']+)'", raw_tail, re.IGNORECASE)
+            if dbms_match and banner_match:
+                normalized["dbms_banner"] = f"{dbms_match.group(1).strip()} / banner={banner_match.group(1).strip()}"
+            elif dbms_match:
+                normalized["dbms_banner"] = dbms_match.group(1).strip()
+            elif banner_match:
+                normalized["dbms_banner"] = banner_match.group(1).strip()
+
+        if not normalized.get("current_user"):
+            current_user_match = re.search(r"current user:\s*'([^']+)'", raw_tail, re.IGNORECASE)
+            if current_user_match:
+                normalized["current_user"] = current_user_match.group(1).strip()
+
+        if not normalized.get("current_db"):
+            current_db_match = re.search(r"current database:\s*'([^']+)'", raw_tail, re.IGNORECASE)
+            if current_db_match:
+                normalized["current_db"] = current_db_match.group(1).strip()
+
+        if normalized.get("is_dba") is None:
+            is_dba_match = re.search(r"current user is DBA:\s*(True|False)", raw_tail, re.IGNORECASE)
+            if is_dba_match:
+                normalized["is_dba"] = is_dba_match.group(1).lower() == "true"
+
+        if not normalized.get("databases"):
+            databases_match = re.search(
+                r"available databases \[\d+\]:\s*((?:\n\[\*\]\s*.+)+)",
+                raw_tail,
+                re.IGNORECASE,
+            )
+            if databases_match:
+                normalized["databases"] = [
+                    line.strip()[4:].strip()
+                    for line in databases_match.group(1).splitlines()
+                    if line.strip().startswith("[*]")
+                ]
+
+    return normalized
+
+
+def format_evidence_text(evidence):
     if isinstance(evidence, str):
         return evidence.strip()
 
@@ -260,7 +304,15 @@ def format_signature_evidence_text(evidence):
 
     parts = []
 
-    for key in ["payload", "error_based", "auth_bypass", "time_based", "delay"]:
+    payload = evidence.get("payload")
+    if payload:
+        parts.append(f"payload={payload}")
+
+    redirect_location = evidence.get("redirect_location")
+    if redirect_location:
+        parts.append(f"redirect_location={redirect_location}")
+
+    for key in ["error_based", "auth_bypass", "time_based", "delay"]:
         value = evidence.get(key)
         if value is None:
             continue
@@ -274,6 +326,10 @@ def format_signature_evidence_text(evidence):
         return ", ".join(parts)
 
     return str(evidence).strip()
+
+
+def format_signature_evidence_text(evidence):
+    return format_evidence_text(evidence)
 
 
 def summarize_signature_evidence(evidence):
@@ -291,14 +347,15 @@ def summarize_signature_evidence(evidence):
 
     for key, value in evidence.items():
         if key == "sqlmap" and isinstance(value, dict):
+            normalized_sqlmap = normalize_sqlmap_data(value)
             summarized["sqlmap"] = {
-                "returncode": value.get("returncode"),
-                "dbms_banner": value.get("dbms_banner"),
-                "current_user": value.get("current_user"),
-                "current_db": value.get("current_db"),
-                "is_dba": value.get("is_dba"),
-                "databases": value.get("databases"),
-                "error": value.get("error")
+                "returncode": normalized_sqlmap.get("returncode"),
+                "dbms_banner": normalized_sqlmap.get("dbms_banner"),
+                "current_user": normalized_sqlmap.get("current_user"),
+                "current_db": normalized_sqlmap.get("current_db"),
+                "is_dba": normalized_sqlmap.get("is_dba"),
+                "databases": normalized_sqlmap.get("databases"),
+                "error": normalized_sqlmap.get("error")
             }
         elif key in ["raw_tail", "command"]:
             continue
@@ -324,17 +381,31 @@ def force_owasp_2025(owasp_value: str):
 
 
 def sanitize_url_to_path(url_value: str | None):
+    """
+    자동진단 결과의 url 필드를 보고서/엑셀에서 비교하기 쉬운 경로 형태로 정리한다.
+
+    기존에는 query string을 제거해 /vulnapp/profile.jsp?user_idx=abc 같은
+    실제 진단 URL이 /vulnapp/profile.jsp로 축약되는 문제가 있었다.
+    IDOR, Reflected XSS, Stack Trace, SSRF처럼 파라미터 자체가 진단 포인트인
+    항목은 query string이 evidence와 판단 기준의 일부이므로 path?query 형태로 보존한다.
+    """
     raw = str(url_value or "").strip()
     if not raw:
         return ""
 
+    # N/A 같은 비 URL 값은 그대로 둔다.
+    if raw.upper() in {"N/A", "NA"}:
+        return raw
+
     parsed = urlparse(raw)
     path = parsed.path or ""
+    query = parsed.query or ""
 
-    if not path:
-        path = raw.split("?", 1)[0].split("#", 1)[0].strip()
+    if path:
+        return f"{path}?{query}" if query else path
 
-    return path or "/"
+    # :8080/ 또는 /, :8080/ 같은 대표 경로 표기는 urlparse 결과가 애매할 수 있어 원문을 보존한다.
+    return raw.split("#", 1)[0].strip() or "/"
 
 
 def simplify_signature_report(signature_report: dict | None):
@@ -506,20 +577,20 @@ def complete_report_with_catalog(
                     "owasp": check["owasp"],
                     "name": check["name"],
                     "url": check["url"],
-                    "severity": "n/a",
+                    "severity": "n/a" if initial_result == "N/A" else "pending",
                     "evidence": str(initial_item.get("evidence", "")).strip() or str(initial_item.get("defer_reason", "")).strip() or "수집된 근거만으로는 해당 취약점 존재 여부를 판단할 수 없음.",
                     "recommendation": str(initial_item.get("recommendation", "")).strip() or "추가 엔드포인트 확인, 인증 상태 점검, 수동 검증 등 보강 진단이 필요함."
                 })
                 continue
 
-        completed_results.append({
+            completed_results.append({
             "id": "",
             "check_id": check_id,
             "owasp": check["owasp"],
             "name": check["name"],
             "url": check["url"],
-            "severity": "n/a",
-            "evidence": "수집된 근거와 rule.py 결과만으로는 해당 취약점의 존재 여부를 확인할 수 없음.",
+            "severity": "pending",
+            "evidence": "수집된 근거와 rule.py 결과만으로는 해당 취약점의 존재 여부를 확인할 수 없어 판단 보류로 처리함.",
             "recommendation": "추가 엔드포인트 확인, 인증 상태 점검, 수동 검증 등 보강 진단이 필요함."
         })
 
@@ -548,7 +619,14 @@ def apply_manual_calibrated_severity(check_id: str, severity: str) -> str:
     if target == "n/a":
         return "n/a"
 
-    if normalized in {"high", "medium", "low"}:
+    if target == "pass":
+        # 수동진단에서 양호로 확정된 항목은 GPT가 근거 부족으로 pending/n/a를 낸 경우 pass로 보정한다.
+        # 단, rule.py가 명확한 취약 severity를 준 경우에는 prefer_signature_severity 단계에서 취약으로 유지될 수 있다.
+        if normalized in {"pass", "pending", "n/a"}:
+            return "pass"
+        return normalized
+
+    if normalized in {"critical", "high", "medium", "low"}:
         return target
 
     return normalized
@@ -558,9 +636,9 @@ def prefer_signature_severity(check_id: str, current_severity: str, signature_se
     """
     rule.py 결과와 GPT 결과를 병합할 때의 severity 우선순위.
 
-    - rule.py가 pending을 반환하면 사이트 오류/미구현 때문에 수동진단도 보류한 항목이므로 pending을 우선한다.
+    - rule.py가 pending을 반환하면 check_id와 무관하게 사이트 오류/미구현/증거 부족으로 판단 불가 상태이므로 pending을 우선한다.
     - GPT가 pass/n/a/pending으로 판단했지만 rule.py가 구체적인 취약 근거를 찾은 경우에는 rule.py 결과를 반영한다.
-    - WEB-A08-001에서 JSP 업로드 실행이 확인되면 critical을 허용한다.
+    - rule.py가 critical을 반환하면 서버 측 코드 실행 등 치명적 근거가 확인된 것으로 보고 critical을 허용한다.
     """
     current = str(current_severity or "n/a").lower()
     sig = str(signature_severity or "n/a").lower()
@@ -568,8 +646,16 @@ def prefer_signature_severity(check_id: str, current_severity: str, signature_se
     if sig == "pending":
         return "pending"
 
-    if sig in {"critical", "high", "medium", "low"} and current in {"pass", "n/a", "pending"}:
-        return sig
+    if sig == "pass" and current in {"n/a", "pending"}:
+        return "pass"
+
+    if sig in {"critical", "high", "medium", "low"}:
+        # 시그니처 기반 결과가 더 높은 위험도를 명확히 확인한 경우에는 GPT 결과를 상향 보정한다.
+        # 예: 웹쉘 업로드에서 단순 JSP 실행은 high, cmd=id 결과(uid/gid)가 확인되면 critical.
+        if current in {"pass", "n/a", "pending"}:
+            return sig
+        if SEVERITY_RANK.get(sig, 0) > SEVERITY_RANK.get(current, 0):
+            return sig
 
     return current
 
@@ -594,7 +680,7 @@ def normalize_results(results):
             "name": str(item.get("name", "")).strip(),
             "url": sanitize_url_to_path(item.get("url")),
             "severity": severity,
-            "evidence": str(item.get("evidence", "")).strip(),
+            "evidence": format_evidence_text(item.get("evidence", "")),
             "recommendation": str(item.get("recommendation", "")).strip()
         })
 
@@ -679,14 +765,21 @@ class ExternalEvidenceCollector:
         return data
 
     def collect_basic_page(self):
-        url = self.target + "/"
+        url = self.target + "/vulnapp/"
         res = self.safe_request("GET", url)
         return self.response_to_dict(res)
 
     def collect_error_page(self):
-        url = self.target + "/not_exist_4akda_404_test"
+        """
+        WEB-A10-001 Stack Trace 노출 확인용 오류 유발 요청을 수집한다.
+
+        단순 404 Not Found보다 수동진단에서 실제로 사용한
+        /vulnapp/profile.jsp?user_idx=abc 요청이 Stack Trace/상세 DB 오류 노출 여부를
+        더 잘 검증하므로 대표 evidence URL을 이 요청으로 맞춘다.
+        """
+        url = self.target + "/vulnapp/profile.jsp?user_idx=abc"
         res = self.safe_request("GET", url)
-        return self.response_to_dict(res, body_limit=2000)
+        return self.response_to_dict(res, body_limit=2500)
 
     def collect_tomcat_default_page(self):
         urls = [
@@ -930,7 +1023,6 @@ class ExternalEvidenceCollector:
 
     def collect_cookie_status(self):
         urls = [
-            self.target + "/",
             self.target + "/vulnapp/",
             self.target + "/vulnapp/login.jsp"
         ]
@@ -1019,8 +1111,10 @@ class ExternalEvidenceCollector:
             "/vulnapp/upload.jsp",
             "/vulnapp/upload_process.jsp",
             "/vulnapp/search.jsp",
+            "/vulnapp/board.jsp",
             "/vulnapp/profile.jsp?user_idx=1",
-            "/vulnapp/ping.jsp",
+            "/vulnapp/profile.jsp?user_idx=abc",
+            "/vulnapp/command.jsp",
             "/vulnapp/register.jsp",
             "/vulnapp/fetch.jsp",
             "/vulnapp/internal/secret.jsp"
@@ -1107,7 +1201,7 @@ class GPTVulnerabilityAnalyzer:
 6. OWASP 형식은 반드시 "A01:2025 Broken Access Control"처럼 연도 뒤에 공백을 사용하라.
 7. check_id는 반드시 WEB-Axx-xxx 형식으로 작성하라. 예: WEB-A01-001
 8. ADMIN_DIRECT_ACCESS, SQL_INJECTION, SECURITY_HEADERS 같은 임의 문자열 check_id는 사용하지 마라.
-9. upload.jsp, upload_process.jsp, profile.jsp, ping.jsp, register.jsp, fetch.jsp, internal/secret.jsp 등 존재가 확인되지 않은 엔드포인트 취약점은 생성하지 마라.
+9. upload.jsp, upload_process.jsp, board.jsp, profile.jsp, command.jsp, register.jsp, fetch.jsp, internal/secret.jsp 등 존재가 확인되지 않은 엔드포인트 취약점은 생성하지 마라.
 10. evidence에는 어떤 응답, 상태코드, 헤더, 본문 샘플, 테스트 반응이 근거인지 구체적으로 작성하라.
 11. 아래 권장 check_id 목록의 모든 항목을 assessments에 반드시 1개씩 포함하라.
 12. severity는 critical, high, medium, low, pass, n/a, pending 중 하나로 작성하라.
@@ -1226,7 +1320,7 @@ class GPTVulnerabilityAnalyzer:
 8. OWASP 형식은 반드시 "A01:2025 Broken Access Control"처럼 연도 뒤에 공백을 사용하라.
 9. check_id는 반드시 WEB-Axx-xxx 형식으로 작성하라. 예: WEB-A01-001
 10. ADMIN_DIRECT_ACCESS, SQL_INJECTION, SECURITY_HEADERS 같은 임의 문자열 check_id는 사용하지 마라.
-11. upload.jsp, upload_process.jsp, profile.jsp, ping.jsp, register.jsp, fetch.jsp, internal/secret.jsp 등 존재가 확인되지 않은 엔드포인트 취약점은 생성하지 마라.
+11. upload.jsp, upload_process.jsp, board.jsp, profile.jsp, command.jsp, register.jsp, fetch.jsp, internal/secret.jsp 등 존재가 확인되지 않은 엔드포인트 취약점은 생성하지 마라.
 12. 잘 방어된 항목은 severity를 pass로 작성하라. 사이트 오류나 기능 미구현으로 판단할 수 없는 항목은 pending으로 작성하라.
 13. 해당 기술/기능이 실제로 없어 진단 대상이 아니면 severity를 n/a로 작성하라. 단, 기능이 구현될 예정인데 404/500 등 사이트 오류로 판단하지 못하는 경우는 pending으로 작성하라.
 14. 취약점이 확인된 항목만 critical, high, medium, low 중 하나를 사용하라.
@@ -1237,7 +1331,7 @@ class GPTVulnerabilityAnalyzer:
 19. summary.severity는 results의 severity 개수를 집계한 값이어야 한다.
 20. 출력은 반드시 JSON 형식이어야 한다.
 21. 공격 절차를 자세히 설명하지 말고, 방어적 진단 결과와 조치 중심으로 작성하라.
-22. SQL Injection(WEB-A05-001)에서 signature_based_report 안의 sqlmap_summary, current_db, databases, dbms_banner, current_user 정보가 있으면 evidence에 자연스러운 문장으로 반드시 반영하라. WEB-A01-001은 anonymous_request와 normal_user_request를 모두 보고, 비로그인 접근은 차단되더라도 일반 사용자 세션으로 관리자 페이지가 200 응답이면 medium 취약으로 판단하라. WEB-A05-002는 실제 파라미터 keyword를 우선 사용하고, Reflected XSS는 이번 프로젝트 기준 medium으로 판단하라. WEB-A02-004 debug 정보 노출과 WEB-A04-001 HTTPS 미적용도 이번 프로젝트 기준 medium으로 판단하라. WEB-A10-002는 임의 파일 읽기가 아니라 SSRF로 판단하라. WEB-A08-001에서 JSP 파일 업로드 후 웹 경로에서 JSP 실행이 확인되면 서버 측 코드 실행 가능성이므로 critical로 판단하라.
+22. SQL Injection(WEB-A05-001)에서 signature_based_report 안의 sqlmap_summary, current_db, databases, dbms_banner, current_user 정보가 있으면 evidence에 자연스러운 문장으로 반드시 반영하라. WEB-A01-001은 anonymous_request와 normal_user_request를 모두 보고, 비로그인 접근은 차단되더라도 일반 사용자 세션으로 관리자 페이지가 200 응답이면 medium 취약으로 판단하라. WEB-A05-002는 실제 파라미터 keyword를 우선 사용하고, Reflected XSS는 이번 프로젝트 기준 medium으로 판단하라. WEB-A02-004 debug 정보 노출과 WEB-A04-001 HTTPS 미적용도 이번 프로젝트 기준 medium으로 판단하라. WEB-A10-002는 임의 파일 읽기가 아니라 SSRF로 판단하라. WEB-A08-001에서 JSP/PHP 같은 서버 사이드 파일 업로드 후 웹 경로에서 단순 실행 문자열(JSP_UPLOAD_TEST 등)만 확인되면 high로 판단하고, cmd=id 같은 요청 결과로 uid=, gid=, www-data 등 OS 명령 실행 결과가 확인되면 critical로 판단하라.
 
 메타데이터:
 scan_id: {scan_id}

@@ -57,7 +57,7 @@
 <%
     try {
         Class.forName("org.mariadb.jdbc.Driver");
-        conn = DriverManager.getConnection("jdbc:mariadb://localhost:3306/vuln_db", "vulnuser", "vulnpass1234");
+        conn = DriverManager.getConnection("jdbc:mariadb://mariadb.cinwlvqqoprv.ap-northeast-2.rds.amazonaws.com:3306/vuln_db", "vulnuser", "vulnpass1234");
 
         // 검색어가 있으면 필터링, 없으면 전체 조회 (SQL Injection 실습을 원하면 Statement로 변경 가능)
         String sql = "SELECT * FROM posts WHERE title LIKE ? OR content LIKE ? ORDER BY id DESC";

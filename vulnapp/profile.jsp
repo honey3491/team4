@@ -22,7 +22,7 @@
 
         try {
             Class.forName("org.mariadb.jdbc.Driver");
-            conn = DriverManager.getConnection("jdbc:mariadb://localhost:3306/vuln_db", "vulnuser", "vulnpass1234");
+            conn = DriverManager.getConnection("jdbc:mariadb://mariadb.cinwlvqqoprv.ap-northeast-2.rds.amazonaws.com:3306/vuln_db", "vulnuser", "vulnpass1234");
             stmt = conn.createStatement();
 
             // 🚨 취약점 포인트: 입력값(userIdx)을 검증 없이 쿼리에 직접 삽입 (IDOR 실습용)

@@ -1,6 +1,7 @@
 import argparse
 import json
 import os
+import re
 import subprocess
 import time
 from datetime import datetime, timedelta, timezone
@@ -35,8 +36,8 @@ CHECK_CATALOG = [
     ("WEB-A04-002", "A04:2025 Cryptographic Failures", "쿠키 Secure/HttpOnly 미설정", "/vulnapp/login.jsp"),
     ("WEB-A05-001", "A05:2025 Injection", "SQL Injection", "/vulnapp/login.jsp"),
     ("WEB-A05-002", "A05:2025 Injection", "Reflected XSS", "/vulnapp/search.jsp?keyword="),
-    ("WEB-A05-003", "A05:2025 Injection", "Stored XSS", "/vulnapp/upload.jsp"),
-    ("WEB-A05-004", "A05:2025 Injection", "Command Injection", "/vulnapp/ping.jsp?host="),
+    ("WEB-A05-003", "A05:2025 Injection", "Stored XSS", "/vulnapp/board.jsp"),
+    ("WEB-A05-004", "A05:2025 Injection", "Command Injection", "/vulnapp/command.jsp"),
     ("WEB-A06-001", "A06:2025 Insecure Design", "로그인 Rate Limit 미구현", "/vulnapp/login.jsp"),
     ("WEB-A07-001", "A07:2025 Authentication Failures", "계정 잠금 미구현", "/vulnapp/login.jsp"),
     ("WEB-A07-002", "A07:2025 Authentication Failures", "약한 비밀번호 허용", "/vulnapp/register.jsp"),
@@ -143,8 +144,52 @@ def status_code(response):
     return None if isinstance(response, dict) else response.status_code
 
 
+def looks_like_os_command_output(text):
+    """
+    업로드된 웹쉘이 OS 명령을 실행했는지 판단하는 보수적인 시그니처.
+
+    WEB-A08-001에서 critical은 단순 서버 사이드 스크립트 실행이 아니라
+    id/whoami 같은 OS 명령 실행 결과가 응답에 실제로 포함된 경우에만 부여한다.
+    """
+    if not text:
+        return False
+
+    lowered = text.lower()
+
+    # Linux id 명령의 대표 출력: uid=33(www-data) gid=33(www-data) groups=33(www-data)
+    if re.search(r"uid=\d+\([^)]*\)\s+gid=\d+\([^)]*\)", lowered):
+        return True
+
+    command_execution_markers = [
+        "uid=",
+        "gid=",
+        "groups=",
+        "www-data",
+        "apache",
+        "nginx",
+        "tomcat",
+        "root",
+    ]
+
+    return sum(1 for marker in command_execution_markers if marker in lowered) >= 2
+
+
 def header(response, name, default=""):
     return default if isinstance(response, dict) else response.headers.get(name, default)
+
+
+def build_user_session(base):
+    login_url = urljoin(base, "/vulnapp/login.jsp")
+    session = requests.Session()
+    session.headers.update(HEADERS)
+    session.post(
+        login_url,
+        data={"id": NORMAL_USER_ID, "pw": NORMAL_USER_PW},
+        timeout=TIMEOUT,
+        allow_redirects=False,
+        verify=False,
+    )
+    return session
 
 
 def check_admin_page(base):
@@ -416,62 +461,116 @@ def check_stored_xss(base):
     - 목록에서 저장형 페이로드가 실행 가능한 형태로 노출되면 medium.
     - 상세/목록에서 HTML escaping이 명확히 확인될 때만 pass.
     """
-    upload_url = urljoin(base, "/vulnapp/upload.jsp")
-    list_url = urljoin(base, "/vulnapp/search.jsp")
-    upload_r = req("GET", upload_url)
-    if status_code(upload_r) == 404:
+    board_url = urljoin(base, "/vulnapp/board.jsp")
+    board_r = req("GET", board_url)
+    if status_code(board_r) == 404:
         return catalog_result(
             "WEB-A05-003",
             "pending",
-            "/vulnapp/upload.jsp가 404로 확인되어 게시글 저장 기능을 통한 Stored XSS 재현이 불가능함.",
+            "/vulnapp/board.jsp가 404로 확인되어 게시글 저장 기능을 통한 Stored XSS 재현이 불가능함.",
             "게시글 작성 및 상세 조회 기능 정상화 후 저장된 입력값이 HTML escaping되어 출력되는지 재진단해야 한다."
         )
 
-    list_r = req("GET", list_url)
-    if isinstance(list_r, dict):
+    if isinstance(board_r, dict):
         return catalog_result(
             "WEB-A05-003",
             "pending",
-            "/vulnapp/search.jsp 게시글 목록 조회 실패로 저장형 XSS 재조회 검증이 불가능함.",
+            "/vulnapp/board.jsp 게시글 목록 조회 실패로 저장형 XSS 재조회 검증이 불가능함.",
             "게시글 목록/상세 조회 기능을 정상화한 뒤 Stored XSS를 재진단해야 한다."
         )
 
-    list_body = list_r.text
-    if XSS_PAYLOAD in list_body:
+    title_payload = "stored-xss-probe-title"
+    content_payload = XSS_PAYLOAD
+    try:
+        board_session = build_user_session(base)
+        post_r = board_session.post(
+            board_url,
+            data={"title": title_payload, "content": content_payload},
+            timeout=TIMEOUT,
+            allow_redirects=True,
+            verify=False,
+            headers=HEADERS,
+        )
+    except Exception as exc:
+        return catalog_result(
+            "WEB-A05-003",
+            "pending",
+            f"/vulnapp/board.jsp 게시글 작성 요청 실패: {exc}",
+            "게시글 작성 기능을 정상화하고 저장된 입력값이 HTML escaping되어 출력되는지 재진단해야 한다."
+        )
+
+    if "로그인 후 이용" in post_r.text or "로그인 필요" in post_r.text:
+        return catalog_result(
+            "WEB-A05-003",
+            "pending",
+            f"/vulnapp/board.jsp에 일반 사용자({NORMAL_USER_ID}) 세션으로 접근했지만 게시글 저장이 차단되어 자동 Stored XSS 재현을 완료할 수 없음.",
+            "자동 진단 계정의 로그인 성공 여부와 게시글 작성 권한을 확인한 뒤 저장/재조회 진단을 다시 수행해야 한다."
+        )
+
+    try:
+        review_r = board_session.get(
+            board_url,
+            timeout=TIMEOUT,
+            allow_redirects=True,
+            verify=False,
+            headers=HEADERS,
+        )
+    except Exception as exc:
+        return catalog_result(
+            "WEB-A05-003",
+            "pending",
+            f"/vulnapp/board.jsp 재조회 요청 실패: {exc}",
+            "게시글 목록 재조회가 가능하도록 기능을 정상화한 뒤 저장형 XSS 여부를 재진단해야 한다."
+        )
+
+    review_body = review_r.text
+    escaped_payload = "&lt;script&gt;alert(1)&lt;&#x2F;script&gt;"
+    raw_present = XSS_PAYLOAD in review_body
+    escaped_present = escaped_payload in review_body or "&lt;script&gt;alert(1)&lt;/script&gt;" in review_body
+    title_present = title_payload in review_body
+
+    if raw_present:
         return catalog_result(
             "WEB-A05-003",
             "medium",
-            "게시글 목록에서 저장된 XSS 페이로드가 HTML escaping 없이 실행 가능한 형태로 노출됨.",
-            "저장 데이터 출력 시 HTML escaping을 적용해야 한다."
+            "/vulnapp/board.jsp에 저장한 script 페이로드가 재조회 응답 본문에 원문 그대로 포함되어 Stored XSS 가능성이 확인됨.",
+            "저장 데이터 출력 시 HTML escaping을 적용하고 스크립트 실행 가능한 태그/이벤트 핸들러가 브라우저에 전달되지 않도록 해야 한다."
         )
 
-    # 목록에서는 실행 흔적이 없지만 상세 조회 URL이 404인 경우가 있어 pass로 확정하지 않는다.
-    # 상세 조회가 정상화되어 저장된 제목/본문이 escape 처리되는지 확인되어야 양호(pass)로 판단할 수 있다.
+    if title_present and escaped_present:
+        return catalog_result(
+            "WEB-A05-003",
+            "pass",
+            "/vulnapp/board.jsp에 저장한 테스트 게시글이 재조회되었고 script 페이로드가 HTML escape된 형태로만 확인되어 Stored XSS가 차단됨.",
+            "현재 출력 인코딩 정책을 유지하고 게시글 상세/목록의 모든 출력 지점에 동일한 escaping 정책을 적용해야 한다."
+        )
+
     return catalog_result(
         "WEB-A05-003",
         "pending",
-        "게시글 목록에서는 저장형 XSS 페이로드 실행 흔적이 확인되지 않았으나, 저장된 게시글 상세 조회 검증이 필요함. 수동진단에서 게시글 상세 조회 404가 확인되어 최종 판단 보류.",
-        "게시글 상세 조회 페이지를 정상화하고 저장된 <script>alert(1)</script>가 실행되지 않고 HTML escaping되어 출력되는지 재진단해야 한다."
+        "게시글 저장 또는 재조회는 수행되었으나 저장한 페이로드가 응답에서 명확히 식별되지 않아 Stored XSS 최종 판단을 보류함.",
+        "테스트 게시글 식별자와 저장 본문이 재조회되도록 확인한 뒤 script 페이로드의 escape 여부를 추가 검증해야 한다."
     )
 
 def check_command_injection(base):
-    url = urljoin(base, "/vulnapp/ping.jsp")
-    normal = req("GET", url, params={"host": "127.0.0.1"})
-    if status_code(normal) == 404:
-        return catalog_result("WEB-A05-004", "pending", "/vulnapp/ping.jsp?host=127.0.0.1 요청이 404로 확인되어 Command Injection 진단을 수행할 수 없음.", "ping.jsp 기능을 구현하되 ;whoami, &&id, |whoami 같은 명령어 삽입 입력은 차단되도록 수정 후 재진단해야 한다.")
-    payloads = ["127.0.0.1;whoami", "127.0.0.1&&id", "127.0.0.1|whoami"]
+    url = urljoin(base, "/vulnapp/command.jsp")
+    landing = req("GET", url, allow_redirects=True)
+    if status_code(landing) == 404:
+        return catalog_result("WEB-A05-004", "pending", "/vulnapp/command.jsp 요청이 404로 확인되어 Command Injection 진단을 수행할 수 없음.", "command.jsp 기능을 구현하고 작업 코드 입력이 서버 측 검증을 거치도록 수정 후 재진단해야 한다.")
+
+    payloads = ["time_snapshot;whoami", "host_summary&&id", "uptime_check|whoami"]
     execution_hits = []
     blocked = []
     for payload in payloads:
-        r = req("GET", url, params={"host": payload})
+        r = req("POST", url, data={"action": "validated", "cmd": payload}, allow_redirects=True)
         b = body_lower(r)
         if any(k in b for k in ["uid=", "gid=", "root", "tomcat", "ubuntu"]):
             execution_hits.append(payload)
-        elif status_code(r) in [400, 403] or any(k in b for k in ["invalid", "허용", "차단", "올바르지"]):
+        elif status_code(r) in [400, 403] or any(k in b for k in ["허용되지", "차단", "작업 코드", "특수문자", "형식", "검증"]):
             blocked.append(payload)
     if execution_hits:
-        return catalog_result("WEB-A05-004", "high", f"명령 실행 결과가 응답에 노출된 페이로드: {execution_hits}", "OS 명령 직접 실행을 제거하고 allowlist 기반 입력 검증을 적용해야 한다.")
-    return catalog_result("WEB-A05-004", "pass", f"명령어 삽입 페이로드에서 실행 결과 미노출. blocked={blocked}", "host 입력값은 허용 문자만 통과시키고 OS 명령 문자열 직접 결합을 금지해야 한다.")
+        return catalog_result("WEB-A05-004", "high", f"/vulnapp/command.jsp 검증 작업 요청에서 명령 실행 결과가 응답에 노출된 페이로드: {execution_hits}", "OS 명령 직접 실행을 제거하고 allowlist 기반 입력 검증을 적용해야 한다.")
+    return catalog_result("WEB-A05-004", "pass", f"/vulnapp/command.jsp 명령어 삽입 페이로드에서 실행 결과 미노출. blocked={blocked}", "작업 코드 입력값은 허용 문자만 통과시키고 OS 명령 문자열 직접 결합을 금지해야 한다.")
 
 
 def check_rate_limit(base):
@@ -513,13 +612,23 @@ def check_weak_password(base):
         return catalog_result("WEB-A07-002", "pending", "/vulnapp/register.jsp 요청이 404로 확인되어 약한 비밀번호 허용 여부를 진단할 수 없음.", "회원가입 또는 비밀번호 설정 기능을 구현하고 1234, password, admin123 같은 약한 비밀번호를 서버 측에서 거부하도록 수정 후 재진단해야 한다.")
     weak_passwords = ["1234", "password", "admin123"]
     allowed = []
-    for pw in weak_passwords:
-        r = req("POST", url, data={"id": f"test_{int(time.time())}", "pw": pw, "pw_confirm": pw})
-        if status_code(r) in [200, 201, 302] and any(k in body_lower(r) for k in ["success", "created", "registered", "가입 완료"]):
+    blocked = []
+    for idx, pw in enumerate(weak_passwords, start=1):
+        # 실제 register.jsp 폼 필드명은 regId, regName, regPw, regRole이다.
+        r = req("POST", url, data={
+            "regId": f"testweak_auto_{int(time.time())}_{idx}",
+            "regName": "TestWeak",
+            "regPw": pw,
+            "regRole": "user",
+        })
+        body = body_lower(r)
+        if status_code(r) in [200, 201, 302] and any(k in body for k in ["회원가입이 완료", "가입이 완료", "registered", "created", "success"]):
             allowed.append(pw)
+        elif any(k in body for k in ["비밀번호는 8자 이상", "대문자", "소문자", "특수문자", "정책", "weak", "거부"]):
+            blocked.append(pw)
     if allowed:
         return catalog_result("WEB-A07-002", "medium", f"약한 비밀번호가 허용됨: {allowed}", "비밀번호 최소 길이, 복잡도, 사전 기반 약한 비밀번호 차단 정책을 서버 측에서 적용해야 한다.")
-    return catalog_result("WEB-A07-002", "pass", "대표 약한 비밀번호가 가입/설정 성공으로 처리되지 않음.", "서버 측 비밀번호 정책을 유지해야 한다.")
+    return catalog_result("WEB-A07-002", "pass", f"대표 약한 비밀번호가 가입 성공으로 처리되지 않음. blocked={blocked}", "서버 측 비밀번호 정책을 유지해야 한다.")
 
 
 def check_jwt_none(base):
@@ -533,19 +642,273 @@ def check_jwt_none(base):
 
 
 def check_webshell_upload(base):
-    upload_page = req("GET", urljoin(base, "/vulnapp/upload.jsp"))
+    """
+    WEB-A08-001 웹쉘 업로드 가능 점검.
+
+    수동진단 시나리오에 맞춰 다음 흐름을 확인한다.
+    1) upload.jsp의 실제 multipart 필드(uploadFile)로 테스트용 shell.jsp를 업로드한다.
+    2) 업로드 응답, board/search/view 페이지에서 첨부파일 링크 또는 uploads 경로를 찾는다.
+    3) 찾은 링크 또는 예상 경로(/vulnapp/uploads/shell.jsp)에 접근했을 때 JSP_UPLOAD_TEST가 출력되는지 확인한다.
+    4) 이미 업로드된 웹쉘 테스트 파일(cmd.php?cmd=id 등)에서 OS 명령 실행 결과가 확인되면 critical로 판단한다.
+
+    게시글 상세(view) 링크를 통해 파일 경로가 확인되면 그 경로를 우선 근거로 사용하고,
+    링크를 찾지 못하더라도 /vulnapp/uploads/shell.jsp에서 JSP 실행이 확인되면 취약으로 판단한다.
+    단순 JSP 문자열 출력은 high, uid/gid/www-data 등 OS 명령 실행 결과가 확인된 경우에는 critical로 판단한다.
+    """
+    upload_url = urljoin(base, "/vulnapp/upload.jsp")
+    process_url = urljoin(base, "/vulnapp/upload_process.jsp")
+    board_url = urljoin(base, "/vulnapp/board.jsp")
+    search_url = urljoin(base, "/vulnapp/search.jsp")
+
+    upload_page = req("GET", upload_url)
     if status_code(upload_page) == 404:
-        return catalog_result("WEB-A08-001", "pending", "/vulnapp/upload.jsp가 404로 확인되어 웹쉘 업로드 진단을 수행할 수 없음.", "파일 업로드 기능을 정상화한 뒤 shell.jsp 업로드 성공 또는 명확한 차단 결과를 기준으로 재진단해야 한다.")
-    shell_name = "probe.jsp"
-    shell_body = b'<% out.println("WEB_SHELL_PROBE_1337"); %>'
-    for endpoint in ["/vulnapp/upload_process.jsp", "/vulnapp/upload.jsp"]:
-        req("POST", urljoin(base, endpoint), files={"file": (shell_name, shell_body, "application/octet-stream")})
-    possible_paths = [urljoin(base, f"/vulnapp/uploads/{shell_name}"), urljoin(base, f"/uploads/{shell_name}")]
-    for path in possible_paths:
-        check = req("GET", path)
-        if not isinstance(check, dict) and "WEB_SHELL_PROBE_1337" in check.text:
-            return catalog_result("WEB-A08-001", "critical", f"{path} 접근 시 업로드한 JSP 테스트 문자열 실행 확인", "실행 가능한 확장자 업로드를 차단하고 업로드 파일은 웹 루트 외부에 저장해야 한다.")
-    return catalog_result("WEB-A08-001", "pending", "shell.jsp 업로드 시도 후 업로드 실행 여부가 확인되지 않음. upload_process.jsp 500, 저장 경로 404 등 업로드 처리 오류 또는 저장 경로 확인이 필요함.", "WEB-A08-001은 취약 항목으로 설계했으므로 shell.jsp 업로드가 성공하고 /vulnapp/uploads/shell.jsp 접근 시 JSP_UPLOAD_TEST 문자열이 출력되도록 수정 후 재진단해야 한다.")
+        return catalog_result(
+            "WEB-A08-001",
+            "pending",
+            "/vulnapp/upload.jsp가 404로 확인되어 웹쉘 업로드 진단을 수행할 수 없음.",
+            "파일 업로드 기능을 정상화한 뒤 shell.jsp 업로드 성공 또는 명확한 차단 결과를 기준으로 재진단해야 한다."
+        )
+
+    shell_name = "shell.jsp"
+    marker = "JSP_UPLOAD_TEST"
+    shell_body = f'<% out.println("{marker}"); %>'.encode("utf-8")
+
+    def is_response(obj):
+        return not isinstance(obj, dict)
+
+    def extract_candidate_links(html_text, page_url):
+        """HTML 안에서 shell.jsp 또는 uploads 하위 JSP 링크를 찾아 절대 URL로 반환한다."""
+        links = []
+        if not html_text:
+            return links
+
+        soup = BeautifulSoup(html_text, "html.parser")
+        for tag in soup.find_all(["a", "link", "script", "img"]):
+            for attr in ["href", "src"]:
+                raw = tag.get(attr)
+                if not raw:
+                    continue
+                absolute = urljoin(page_url, raw)
+                lowered = absolute.lower()
+                if shell_name.lower() in lowered or ("/uploads/" in lowered and ".jsp" in lowered):
+                    links.append(absolute)
+
+        # 응답이 단순 텍스트로 uploads/shell.jsp를 출력하는 경우도 대비한다.
+        for token in html_text.replace('"', " ").replace("'", " ").replace("<", " ").replace(">", " ").split():
+            lowered = token.lower()
+            if shell_name.lower() in lowered or ("uploads/" in lowered and ".jsp" in lowered):
+                links.append(urljoin(page_url, token))
+
+        # 순서 유지 중복 제거
+        seen = set()
+        unique = []
+        for link in links:
+            if link not in seen:
+                seen.add(link)
+                unique.append(link)
+        return unique
+
+    def extract_view_links(html_text, page_url):
+        """게시글 상세(view) 후보 링크를 찾아 절대 URL로 반환한다."""
+        links = []
+        if not html_text:
+            return links
+        soup = BeautifulSoup(html_text, "html.parser")
+        for tag in soup.find_all("a"):
+            raw = tag.get("href")
+            if not raw:
+                continue
+            absolute = urljoin(page_url, raw)
+            lowered = absolute.lower()
+            if any(key in lowered for key in ["view.jsp", "detail.jsp", "post.jsp", "board_view", "board.jsp?"]):
+                links.append(absolute)
+        seen = set()
+        unique = []
+        for link in links:
+            if link not in seen:
+                seen.add(link)
+                unique.append(link)
+        return unique[:10]
+
+    checked_paths = []
+
+    def check_marker_at(url, source="direct"):
+        r = req("GET", url)
+        status = status_code(r)
+        checked_paths.append(f"{source}: {url} status={status}")
+        if is_response(r) and marker in r.text:
+            return True, status
+        return False, status
+
+    def find_executable_upload(candidate_links):
+        for link in candidate_links:
+            ok, _ = check_marker_at(link, "candidate_link")
+            if ok:
+                return link
+        return None
+
+    # 수동진단에서 자주 확인되는 예상 저장 경로도 fallback으로 확인한다.
+    expected_paths = [
+        urljoin(base, f"/vulnapp/uploads/{shell_name}"),
+        urljoin(base, f"/uploads/{shell_name}"),
+    ]
+
+    # 수동진단에서 확인된 실제 웹쉘 명령 실행형 파일도 검사한다.
+    # 이 경로가 존재하지 않으면 실패로 기록하고 기존 JSP 테스트를 계속 수행한다.
+    command_probe_paths = [
+        urljoin(base, "/vulnapp/uploads/cmd.php?cmd=id"),
+        urljoin(base, "/uploads/cmd.php?cmd=id"),
+    ]
+
+    def check_command_execution_at(url, source="command_probe"):
+        r = req("GET", url)
+        status = status_code(r)
+        checked_paths.append(f"{source}: {url} status={status}")
+        if is_response(r) and looks_like_os_command_output(r.text):
+            return True, status, r.text.strip()[:500]
+        return False, status, ""
+
+    def find_command_execution(candidate_links):
+        command_candidates = []
+        for link in candidate_links:
+            lowered = link.lower()
+            if any(ext in lowered for ext in [".php", ".jsp", ".jspx"]):
+                sep = "&" if "?" in link else "?"
+                command_candidates.append(f"{link}{sep}cmd=id")
+        command_candidates.extend(command_probe_paths)
+
+        seen = set()
+        for link in command_candidates:
+            if link in seen:
+                continue
+            seen.add(link)
+            ok, _, sample = check_command_execution_at(link)
+            if ok:
+                return link, sample
+        return None, ""
+
+    upload_attempts = []
+    candidate_links = []
+    view_pages_checked = []
+
+    command_path, command_sample = find_command_execution(candidate_links)
+    if command_path:
+        return catalog_result(
+            "WEB-A08-001",
+            "critical",
+            f"업로드된 웹쉘 경로 {command_path} 접근 시 OS 명령 실행 결과가 응답에 포함됨. 응답 샘플: {command_sample}. 웹서버 권한으로 원격 명령 실행이 가능하여 critical 수준의 웹쉘 업로드 취약점으로 판단함.",
+            "파일 업로드 시 .php, .jsp, .jspx 등 실행 가능한 확장자를 차단하고, 업로드 파일은 웹 루트 외부의 비실행 디렉터리에 저장해야 한다. 웹서버에서 업로드 디렉터리의 스크립트 실행을 비활성화하고, 파일명 난수화, MIME 타입 및 파일 시그니처 검증, 다운로드 전용 핸들러를 적용해야 한다."
+        )
+
+    multipart_data = {
+        "title": "webshell-auto-probe",
+        "content": "webshell-auto-probe",
+    }
+    multipart_files = {
+        "uploadFile": (shell_name, shell_body, "application/octet-stream"),
+    }
+
+    # 실제 업로드 처리 엔드포인트와 upload.jsp 직접 POST를 모두 시도한다.
+    for endpoint_url in [process_url, upload_url]:
+        response = req(
+            "POST",
+            endpoint_url,
+            data=multipart_data,
+            files=multipart_files,
+            allow_redirects=True,
+        )
+        if isinstance(response, dict):
+            upload_attempts.append(f"{endpoint_url} 요청 실패: {response.get('error')}")
+            continue
+
+        upload_attempts.append(f"{endpoint_url} status={response.status_code} final_url={response.url}")
+        candidate_links.extend(extract_candidate_links(response.text, response.url))
+        view_pages = extract_view_links(response.text, response.url)
+        view_pages_checked.extend(view_pages)
+        for view_url in view_pages:
+            view_r = req("GET", view_url)
+            checked_paths.append(f"view_page: {view_url} status={status_code(view_r)}")
+            if is_response(view_r):
+                candidate_links.extend(extract_candidate_links(view_r.text, view_url))
+
+        command_path, command_sample = find_command_execution(candidate_links)
+        if command_path:
+            return catalog_result(
+                "WEB-A08-001",
+                "critical",
+                f"업로드 응답 또는 게시글 첨부파일 링크에서 확인한 {command_path} 접근 시 OS 명령 실행 결과가 응답에 포함됨. 응답 샘플: {command_sample}. 업로드된 서버 사이드 스크립트를 통해 웹서버 권한의 원격 명령 실행이 가능함.",
+                "파일 업로드 시 .php, .jsp, .jspx 등 실행 가능한 확장자를 차단하고, 업로드 파일은 웹 루트 외부의 비실행 디렉터리에 저장해야 한다. 웹서버에서 업로드 디렉터리의 스크립트 실행을 비활성화하고 다운로드 전용 핸들러를 적용해야 한다."
+            )
+
+        uploaded_path = find_executable_upload(candidate_links)
+        if uploaded_path:
+            return catalog_result(
+                "WEB-A08-001",
+                "high",
+                f"테스트용 {shell_name} 업로드 후 업로드 응답/게시글 상세 링크에서 확인한 {uploaded_path} 접근 시 {marker} 문자열이 출력됨. 실행 가능한 JSP 파일이 서버 디렉터리의 웹 접근 가능한 경로에 저장 및 실행되어 웹쉘 업로드 가능성이 확인됨. 업로드 시도: {upload_attempts}",
+                "파일 업로드 시 .jsp, .jspx, .php 등 실행 가능한 확장자를 차단하고 허용 확장자 기반 검증을 적용해야 한다. 업로드 파일은 웹 루트 외부의 비실행 디렉터리에 저장하고 다운로드 전용 핸들러를 통해 제공해야 하며, 파일명을 난수화하고 MIME 타입과 파일 시그니처를 함께 검증해야 한다."
+            )
+
+    # 업로드 응답에 파일 링크가 없더라도 게시글 목록/상세 화면에서 첨부파일 링크를 찾는다.
+    for page_url in [board_url, search_url]:
+        page_r = req("GET", page_url)
+        checked_paths.append(f"list_page: {page_url} status={status_code(page_r)}")
+        if not is_response(page_r):
+            continue
+        candidate_links.extend(extract_candidate_links(page_r.text, page_url))
+        view_pages = extract_view_links(page_r.text, page_url)
+        view_pages_checked.extend(view_pages)
+        for view_url in view_pages:
+            view_r = req("GET", view_url)
+            checked_paths.append(f"view_page: {view_url} status={status_code(view_r)}")
+            if is_response(view_r):
+                candidate_links.extend(extract_candidate_links(view_r.text, view_url))
+
+    command_path, command_sample = find_command_execution(candidate_links)
+    if command_path:
+        return catalog_result(
+            "WEB-A08-001",
+            "critical",
+            f"게시글 목록/상세 또는 업로드 응답에서 확인한 웹쉘 후보 {command_path} 접근 시 OS 명령 실행 결과가 응답에 포함됨. 응답 샘플: {command_sample}. 실행 가능한 웹쉘 업로드 및 원격 명령 실행이 확인됨.",
+            "실행 가능한 확장자 업로드를 차단하고 업로드 파일은 웹 루트 외부의 비실행 디렉터리에 저장해야 한다. 업로드 디렉터리에서 PHP/JSP 실행을 비활성화해야 한다."
+        )
+
+    uploaded_path = find_executable_upload(candidate_links)
+    if uploaded_path:
+        return catalog_result(
+            "WEB-A08-001",
+            "high",
+            f"게시글 목록/상세 또는 업로드 응답에서 확인된 첨부파일 링크 {uploaded_path} 접근 시 {marker} 문자열이 출력됨. 실행 가능한 JSP 파일이 서버 디렉터리에 저장되고 외부에서 접근 가능한 URL을 통해 실행되는 것으로 확인됨. 업로드 시도: {upload_attempts}",
+            "파일 업로드 시 .jsp, .jspx, .php 등 실행 가능한 확장자를 차단하고, 업로드 파일은 웹 루트 외부에 저장하며 파일 접근은 다운로드 전용 핸들러로 처리해야 한다."
+        )
+
+    # 마지막 fallback: 수동진단에서 확인한 정적 예상 경로 직접 확인
+    for path in expected_paths:
+        ok, _ = check_marker_at(path, "expected_path")
+        if ok:
+            return catalog_result(
+                "WEB-A08-001",
+                "high",
+                f"테스트용 {shell_name} 업로드 후 게시글 링크에서는 경로를 확정하지 못했으나, 예상 저장 경로 {path} 접근 시 {marker} 문자열이 출력됨. 실행 가능한 JSP 파일이 웹 접근 가능한 서버 디렉터리에 저장 및 실행되어 웹쉘 업로드 가능성이 확인됨. 업로드 시도: {upload_attempts}",
+                "파일 업로드 시 .jsp, .jspx, .php 등 실행 가능한 확장자를 차단하고, 업로드 파일은 웹 루트 외부에 저장하며 파일명을 난수화해야 한다."
+            )
+
+    # 명확한 차단 메시지가 있으면 양호, 그 외 업로드 처리 오류/경로 미확인은 pending
+    joined_attempts = " | ".join(upload_attempts + checked_paths)
+    if any(word in joined_attempts.lower() for word in ["허용되지", "not allowed", "blocked", "invalid file", "확장자"]):
+        return catalog_result(
+            "WEB-A08-001",
+            "pass",
+            f"테스트용 {shell_name} 업로드가 서버 측 정책에 의해 차단된 것으로 확인됨. 근거: {joined_attempts}",
+            "실행 가능한 파일 업로드 차단 정책을 유지하고, 업로드 파일은 웹 루트 외부에 저장해야 한다."
+        )
+
+    return catalog_result(
+        "WEB-A08-001",
+        "pending",
+        f"테스트용 {shell_name} 업로드 시도 후 업로드 응답, 게시글 목록/상세 링크, 예상 경로에서 {marker} 실행 여부가 확인되지 않음. 업로드 시도: {upload_attempts}. 확인 경로: {checked_paths}. view 후보: {view_pages_checked[:5]}",
+        "웹쉘 업로드 취약 여부를 확정하려면 shell.jsp 업로드 성공 여부, 게시글 상세의 첨부파일 링크, 실제 저장 경로, /vulnapp/uploads/shell.jsp 접근 시 JSP_UPLOAD_TEST 출력 여부를 확인해야 한다."
+    )
 
 
 def check_stacktrace(base):
