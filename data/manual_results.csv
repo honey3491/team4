@@ -1,9 +1,0 @@
-check_id,category,item,manual_result,manual_evidence,tester,elapsed_time
-WEB-001,웹서버 설정,보안 헤더 미설정,취약,X-Frame-Options와 CSP 헤더 없음,준희,3
-WEB-002,웹서버 설정,서버 정보 노출,취약,Server 헤더에서 Tomcat/9.0.80 정보 확인,준희,2
-WEB-003,웹앱 취약점,SQL Injection,취약,admin'-- 입력 시 로그인 성공,세권,5
-WEB-004,웹앱 취약점,XSS,취약,<script>alert(1)</script> 입력 시 응답에 반사됨,하연,4
-WEB-005,웹앱 취약점,민감정보 노출,취약,debug.jsp에서 db_password와 api_key 확인,병헌,2
-WEB-006,웹앱 취약점,관리자 페이지 노출,취약,로그인 없이 /admin.jsp 접근 가능,채윤,2
-WEB-007,웹서버 설정,디렉터리 리스팅 노출,양호,/uploads/ 접근 시 403 Forbidden 확인,준희,3
-WEB-008,웹앱 취약점,불필요한 테스트 페이지 노출,취약,/test.jsp 페이지 접근 가능,병헌,2
