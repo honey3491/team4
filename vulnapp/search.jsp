@@ -57,7 +57,7 @@
 <%
     try {
         Class.forName("org.mariadb.jdbc.Driver");
-        conn = DriverManager.getConnection("jdbc:mariadb://localhost:3306/vuln_db", "vulnuser", "vulnpass1234");
+        conn = DriverManager.getConnection("jdbc:mariadb://mariadb.cinwlvqqoprv.ap-northeast-2.rds.amazonaws.com:3306/vuln_db", "vulnuser", "vulnpass1234");
 
         // 검색어가 있으면 필터링, 없으면 전체 조회 (SQL Injection 실습을 원하면 Statement로 변경 가능)
         String sql = "SELECT * FROM posts WHERE title LIKE ? OR content LIKE ? ORDER BY id DESC";
@@ -73,7 +73,7 @@
             <tr style="border-bottom: 1px solid #eee;">
                 <td style="padding: 12px; border: 1px solid #dee2e6; text-align: center;"><%= rs.getInt("id") %></td>
                 <td style="padding: 12px; border: 1px solid #dee2e6;">
-                    <a href="view.jsp?id=<%= rs.getInt("id") %>" style="color: #2c3e50; font-weight: bold; text-decoration: none;">
+                    <a href="view.jsp?postid=<%= rs.getInt("id") %>" style="color: #2c3e50; font-weight: bold; text-decoration: none;">
                         <%= rs.getString("title") %> </a>
                 </td>
                 <td style="padding: 12px; border: 1px solid #dee2e6; text-align: center;"><%= rs.getString("author") %></td>

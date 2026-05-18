@@ -19,7 +19,7 @@
 
     try {
         Class.forName("org.mariadb.jdbc.Driver");
-        conn = DriverManager.getConnection("jdbc:mariadb://localhost:3306/vuln_db", "vulnuser", "vulnpass1234");
+        conn = DriverManager.getConnection("jdbc:mariadb://mariadb.cinwlvqqoprv.ap-northeast-2.rds.amazonaws.com/vuln_db", "vulnuser", "vulnpass1234");
         stmt = conn.createStatement();
 
         // 모든 회원의 정보를 조회

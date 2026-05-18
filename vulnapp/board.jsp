@@ -98,7 +98,7 @@
     try {
         Class.forName("org.mariadb.jdbc.Driver");
         conn = DriverManager.getConnection(
-            "jdbc:mariadb://localhost:3306/vuln_db",
+            "jdbc:mariadb://mariadb.cinwlvqqoprv.ap-northeast-2.rds.amazonaws.com/vuln_db",
             "vulnuser",
             "vulnpass1234"
         );
