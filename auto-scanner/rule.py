@@ -1,6 +1,7 @@
 import argparse
 import json
 import os
+import re
 import subprocess
 import time
 from datetime import datetime, timedelta, timezone
@@ -141,6 +142,36 @@ def body_lower(response):
 
 def status_code(response):
     return None if isinstance(response, dict) else response.status_code
+
+
+def looks_like_os_command_output(text):
+    """
+    업로드된 웹쉘이 OS 명령을 실행했는지 판단하는 보수적인 시그니처.
+
+    WEB-A08-001에서 critical은 단순 서버 사이드 스크립트 실행이 아니라
+    id/whoami 같은 OS 명령 실행 결과가 응답에 실제로 포함된 경우에만 부여한다.
+    """
+    if not text:
+        return False
+
+    lowered = text.lower()
+
+    # Linux id 명령의 대표 출력: uid=33(www-data) gid=33(www-data) groups=33(www-data)
+    if re.search(r"uid=\d+\([^)]*\)\s+gid=\d+\([^)]*\)", lowered):
+        return True
+
+    command_execution_markers = [
+        "uid=",
+        "gid=",
+        "groups=",
+        "www-data",
+        "apache",
+        "nginx",
+        "tomcat",
+        "root",
+    ]
+
+    return sum(1 for marker in command_execution_markers if marker in lowered) >= 2
 
 
 def header(response, name, default=""):
@@ -618,10 +649,11 @@ def check_webshell_upload(base):
     1) upload.jsp의 실제 multipart 필드(uploadFile)로 테스트용 shell.jsp를 업로드한다.
     2) 업로드 응답, board/search/view 페이지에서 첨부파일 링크 또는 uploads 경로를 찾는다.
     3) 찾은 링크 또는 예상 경로(/vulnapp/uploads/shell.jsp)에 접근했을 때 JSP_UPLOAD_TEST가 출력되는지 확인한다.
+    4) 이미 업로드된 웹쉘 테스트 파일(cmd.php?cmd=id 등)에서 OS 명령 실행 결과가 확인되면 critical로 판단한다.
 
     게시글 상세(view) 링크를 통해 파일 경로가 확인되면 그 경로를 우선 근거로 사용하고,
     링크를 찾지 못하더라도 /vulnapp/uploads/shell.jsp에서 JSP 실행이 확인되면 취약으로 판단한다.
-    실제 명령 실행 코드는 사용하지 않고, 문자열 출력만으로 JSP 실행 가능 여부를 확인한다.
+    단순 JSP 문자열 출력은 high, uid/gid/www-data 등 OS 명령 실행 결과가 확인된 경우에는 critical로 판단한다.
     """
     upload_url = urljoin(base, "/vulnapp/upload.jsp")
     process_url = urljoin(base, "/vulnapp/upload_process.jsp")
@@ -721,9 +753,52 @@ def check_webshell_upload(base):
         urljoin(base, f"/uploads/{shell_name}"),
     ]
 
+    # 수동진단에서 확인된 실제 웹쉘 명령 실행형 파일도 검사한다.
+    # 이 경로가 존재하지 않으면 실패로 기록하고 기존 JSP 테스트를 계속 수행한다.
+    command_probe_paths = [
+        urljoin(base, "/vulnapp/uploads/cmd.php?cmd=id"),
+        urljoin(base, "/uploads/cmd.php?cmd=id"),
+    ]
+
+    def check_command_execution_at(url, source="command_probe"):
+        r = req("GET", url)
+        status = status_code(r)
+        checked_paths.append(f"{source}: {url} status={status}")
+        if is_response(r) and looks_like_os_command_output(r.text):
+            return True, status, r.text.strip()[:500]
+        return False, status, ""
+
+    def find_command_execution(candidate_links):
+        command_candidates = []
+        for link in candidate_links:
+            lowered = link.lower()
+            if any(ext in lowered for ext in [".php", ".jsp", ".jspx"]):
+                sep = "&" if "?" in link else "?"
+                command_candidates.append(f"{link}{sep}cmd=id")
+        command_candidates.extend(command_probe_paths)
+
+        seen = set()
+        for link in command_candidates:
+            if link in seen:
+                continue
+            seen.add(link)
+            ok, _, sample = check_command_execution_at(link)
+            if ok:
+                return link, sample
+        return None, ""
+
     upload_attempts = []
     candidate_links = []
     view_pages_checked = []
+
+    command_path, command_sample = find_command_execution(candidate_links)
+    if command_path:
+        return catalog_result(
+            "WEB-A08-001",
+            "critical",
+            f"업로드된 웹쉘 경로 {command_path} 접근 시 OS 명령 실행 결과가 응답에 포함됨. 응답 샘플: {command_sample}. 웹서버 권한으로 원격 명령 실행이 가능하여 critical 수준의 웹쉘 업로드 취약점으로 판단함.",
+            "파일 업로드 시 .php, .jsp, .jspx 등 실행 가능한 확장자를 차단하고, 업로드 파일은 웹 루트 외부의 비실행 디렉터리에 저장해야 한다. 웹서버에서 업로드 디렉터리의 스크립트 실행을 비활성화하고, 파일명 난수화, MIME 타입 및 파일 시그니처 검증, 다운로드 전용 핸들러를 적용해야 한다."
+        )
 
     multipart_data = {
         "title": "webshell-auto-probe",
@@ -756,6 +831,15 @@ def check_webshell_upload(base):
             if is_response(view_r):
                 candidate_links.extend(extract_candidate_links(view_r.text, view_url))
 
+        command_path, command_sample = find_command_execution(candidate_links)
+        if command_path:
+            return catalog_result(
+                "WEB-A08-001",
+                "critical",
+                f"업로드 응답 또는 게시글 첨부파일 링크에서 확인한 {command_path} 접근 시 OS 명령 실행 결과가 응답에 포함됨. 응답 샘플: {command_sample}. 업로드된 서버 사이드 스크립트를 통해 웹서버 권한의 원격 명령 실행이 가능함.",
+                "파일 업로드 시 .php, .jsp, .jspx 등 실행 가능한 확장자를 차단하고, 업로드 파일은 웹 루트 외부의 비실행 디렉터리에 저장해야 한다. 웹서버에서 업로드 디렉터리의 스크립트 실행을 비활성화하고 다운로드 전용 핸들러를 적용해야 한다."
+            )
+
         uploaded_path = find_executable_upload(candidate_links)
         if uploaded_path:
             return catalog_result(
@@ -779,6 +863,15 @@ def check_webshell_upload(base):
             checked_paths.append(f"view_page: {view_url} status={status_code(view_r)}")
             if is_response(view_r):
                 candidate_links.extend(extract_candidate_links(view_r.text, view_url))
+
+    command_path, command_sample = find_command_execution(candidate_links)
+    if command_path:
+        return catalog_result(
+            "WEB-A08-001",
+            "critical",
+            f"게시글 목록/상세 또는 업로드 응답에서 확인한 웹쉘 후보 {command_path} 접근 시 OS 명령 실행 결과가 응답에 포함됨. 응답 샘플: {command_sample}. 실행 가능한 웹쉘 업로드 및 원격 명령 실행이 확인됨.",
+            "실행 가능한 확장자 업로드를 차단하고 업로드 파일은 웹 루트 외부의 비실행 디렉터리에 저장해야 한다. 업로드 디렉터리에서 PHP/JSP 실행을 비활성화해야 한다."
+        )
 
     uploaded_path = find_executable_upload(candidate_links)
     if uploaded_path:

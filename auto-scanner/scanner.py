@@ -70,7 +70,6 @@ MANUAL_CALIBRATED_SEVERITY = {
     "WEB-A07-001": "medium",
     "WEB-A07-002": "pass",
     "WEB-A07-003": "n/a",
-    "WEB-A08-001": "high",
     "WEB-A10-001": "pass",
 }
 
@@ -636,8 +635,13 @@ def prefer_signature_severity(check_id: str, current_severity: str, signature_se
     if sig == "pass" and current in {"n/a", "pending"}:
         return "pass"
 
-    if sig in {"critical", "high", "medium", "low"} and current in {"pass", "n/a", "pending"}:
-        return sig
+    if sig in {"critical", "high", "medium", "low"}:
+        # 시그니처 기반 결과가 더 높은 위험도를 명확히 확인한 경우에는 GPT 결과를 상향 보정한다.
+        # 예: 웹쉘 업로드에서 단순 JSP 실행은 high, cmd=id 결과(uid/gid)가 확인되면 critical.
+        if current in {"pass", "n/a", "pending"}:
+            return sig
+        if SEVERITY_RANK.get(sig, 0) > SEVERITY_RANK.get(current, 0):
+            return sig
 
     return current
 
@@ -1305,7 +1309,7 @@ class GPTVulnerabilityAnalyzer:
 19. summary.severity는 results의 severity 개수를 집계한 값이어야 한다.
 20. 출력은 반드시 JSON 형식이어야 한다.
 21. 공격 절차를 자세히 설명하지 말고, 방어적 진단 결과와 조치 중심으로 작성하라.
-22. SQL Injection(WEB-A05-001)에서 signature_based_report 안의 sqlmap_summary, current_db, databases, dbms_banner, current_user 정보가 있으면 evidence에 자연스러운 문장으로 반드시 반영하라. WEB-A01-001은 anonymous_request와 normal_user_request를 모두 보고, 비로그인 접근은 차단되더라도 일반 사용자 세션으로 관리자 페이지가 200 응답이면 medium 취약으로 판단하라. WEB-A05-002는 실제 파라미터 keyword를 우선 사용하고, Reflected XSS는 이번 프로젝트 기준 medium으로 판단하라. WEB-A02-004 debug 정보 노출과 WEB-A04-001 HTTPS 미적용도 이번 프로젝트 기준 medium으로 판단하라. WEB-A10-002는 임의 파일 읽기가 아니라 SSRF로 판단하라. WEB-A08-001에서 JSP 파일 업로드 후 웹 경로에서 JSP 실행이 확인되면 이번 프로젝트 수동진단 기준에 맞춰 high로 판단하라.
+22. SQL Injection(WEB-A05-001)에서 signature_based_report 안의 sqlmap_summary, current_db, databases, dbms_banner, current_user 정보가 있으면 evidence에 자연스러운 문장으로 반드시 반영하라. WEB-A01-001은 anonymous_request와 normal_user_request를 모두 보고, 비로그인 접근은 차단되더라도 일반 사용자 세션으로 관리자 페이지가 200 응답이면 medium 취약으로 판단하라. WEB-A05-002는 실제 파라미터 keyword를 우선 사용하고, Reflected XSS는 이번 프로젝트 기준 medium으로 판단하라. WEB-A02-004 debug 정보 노출과 WEB-A04-001 HTTPS 미적용도 이번 프로젝트 기준 medium으로 판단하라. WEB-A10-002는 임의 파일 읽기가 아니라 SSRF로 판단하라. WEB-A08-001에서 JSP/PHP 같은 서버 사이드 파일 업로드 후 웹 경로에서 단순 실행 문자열(JSP_UPLOAD_TEST 등)만 확인되면 high로 판단하고, cmd=id 같은 요청 결과로 uid=, gid=, www-data 등 OS 명령 실행 결과가 확인되면 critical로 판단하라.
 
 메타데이터:
 scan_id: {scan_id}

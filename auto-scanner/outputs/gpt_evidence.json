@@ -1,7 +1,7 @@
 {
   "project": "4악다 생성형 AI 기반 웹 취약점 자동 진단",
   "target": "http://15.164.60.79",
-  "collected_at": "2026-05-17T23:44:55+09:00",
+  "collected_at": "2026-05-18T09:59:42+09:00",
   "analysis_policy": {
     "phase_1": "GPT first analyzes collected HTTP evidence only.",
     "phase_2": "If GPT marks a finding as 보류 or low confidence, signature-based result.json may be used as supporting evidence.",
@@ -13,27 +13,27 @@
       "status_code": 200,
       "headers": {
         "Server": "nginx/1.28.3 (Ubuntu)",
-        "Date": "Sun, 17 May 2026 14:44:55 GMT",
+        "Date": "Mon, 18 May 2026 00:59:42 GMT",
         "Content-Type": "text/html;charset=UTF-8",
         "Transfer-Encoding": "chunked",
         "Connection": "keep-alive",
-        "Set-Cookie": "JSESSIONID=BF23AB8A677F1519152ABCE26B47CD10; Path=/vulnapp; HttpOnly",
+        "Set-Cookie": "JSESSIONID=3FA15DD368435E06BDCC511D87B39DAF; Path=/vulnapp; HttpOnly",
         "Content-Encoding": "gzip"
       },
-      "body_sample": "\n\n<style>\n    .test-list { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 15px; }\n    .test-card { \n        display: block; padding: 20px; background-color: #fff; border: 1px solid #e0e0e0; \n        border-radius: 8px; transition: all 0.2s ease-in-out; text-decoration: none; color: inherit;\n    }\n    .test-card:hover { \n        border-color: #3498db; box-shadow: 0 4px 12px rgba(52, 152, 219, 0.15); transform: translateY(-2px);\n    }\n    .test-title { font-size: 1.25rem; font-weight: bold; margin-bottom: 5px; }\n    .test-desc { color: #7f8c8d; font-size: 0.95rem; margin: 0; }\n</style>\n\n\n\n\n<!DOCTYPE html>\n<html lang=\"ko\">\n<head>\n    <meta charset=\"UTF-8\">\n    <link rel=\"stylesheet\" href=\"/vulnapp/css/style.css\">\n</head>\n<body>\n    <nav class=\"navbar\">\n        <div class=\"logo\" href=\"index.jsp\">\n\t\t<a href=\"/vulnapp/\" style=\"text-decoration: none; color: inherit;\">\n\t\t\t🛡️ VulnApp\n\t\t</a>\n\t</div>\n        <ul class=\"nav-links\">\n            <li><a href=\"search.jsp\">통합 검색</a></li>\n            <li><a href=\"download.jsp\">자료실</a></li>\n            \n            \n                <li><a href=\"login.jsp\">로그인</a></li>\n            \n        </ul>\n    </nav>\n    <main class=\"container\">\n        <div class=\"card\">\n\n\n    <div style=\"text-align: center; margin-bottom: 2.5rem; padding-top: 1rem;\">\n        <h1 style=\"color: #2c3e50; font-size: 2.2rem; margin-bottom: 10px;\">🛡️ 4악다 Vulnerable Web App</h1>\n        <p style=\"color: #7f8c8d; font-size: 1.1rem;\">\n            수동 진단과"
+      "body_sample": "\n\n<style>\n    .test-list { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 15px; }\n    .test-card { \n        display: block; padding: 20px; background-color: #fff; border: 1px solid #e0e0e0; \n        border-radius: 8px; transition: all 0.2s ease-in-out; text-decoration: none; color: inherit;\n    }\n    .test-card:hover { \n        border-color: #3498db; box-shadow: 0 4px 12px rgba(52, 152, 219, 0.15); transform: translateY(-2px);\n    }\n    .test-title { font-size: 1.25rem; font-weight: bold; margin-bottom: 5px; }\n    .test-desc { color: #7f8c8d; font-size: 0.95rem; margin: 0; }\n</style>\n\n\n\n\n<!DOCTYPE html>\n<html lang=\"ko\">\n<head>\n    <meta charset=\"UTF-8\">\n    <title>VulnApp</title>\n    <link rel=\"stylesheet\" href=\"/vulnapp/css/style.css\">\n</head>\n<body>\n    <nav class=\"navbar\">\n        <div class=\"logo\">\n            <a href=\"/vulnapp/\" style=\"text-decoration: none; color: inherit;\">\n                🛡️ VulnApp\n            </a>\n        </div>\n        <ul class=\"nav-links\">\n            <li><a href=\"search.jsp\">통합 검색</a></li>\n            <li><a href=\"download.jsp\">자료실</a></li>\n\n            \n                <li><a href=\"login.jsp\">로그인</a></li>\n            \n        </ul>\n    </nav>\n    <main class=\"container\">\n        <div class=\"card\">\n\n\n    <div style=\"text-align: center; margin-bottom: 2.5rem; padding-top: 1rem;\">\n        <h1 style=\"color: #2c3e50; font-size: 2.2rem; margin-bottom: 10px;\">🛡️ 4악다 Vulnerable Web App</h1>\n        <p style=\"color: #7f8c8d; f"
     },
     "error_page": {
       "url": "http://15.164.60.79/vulnapp/not_exist_4akda_404_test",
       "status_code": 404,
       "headers": {
         "Server": "nginx/1.28.3 (Ubuntu)",
-        "Date": "Sun, 17 May 2026 14:44:55 GMT",
+        "Date": "Mon, 18 May 2026 00:59:42 GMT",
         "Content-Type": "text/html;charset=UTF-8",
         "Transfer-Encoding": "chunked",
         "Connection": "keep-alive",
         "Content-Encoding": "gzip"
       },
-      "body_sample": "\n\n\n\n\n<!DOCTYPE html>\n<html lang=\"ko\">\n<head>\n    <meta charset=\"UTF-8\">\n    <link rel=\"stylesheet\" href=\"/vulnapp/css/style.css\">\n</head>\n<body>\n    <nav class=\"navbar\">\n        <div class=\"logo\" href=\"index.jsp\">\n\t\t<a href=\"/vulnapp/\" style=\"text-decoration: none; color: inherit;\">\n\t\t\t🛡️ VulnApp\n\t\t</a>\n\t</div>\n        <ul class=\"nav-links\">\n            <li><a href=\"search.jsp\">통합 검색</a></li>\n            <li><a href=\"download.jsp\">자료실</a></li>\n            \n            \n                <li><a href=\"login.jsp\">로그인</a></li>\n            \n        </ul>\n    </nav>\n    <main class=\"container\">\n        <div class=\"card\">\n\n\n    <section class=\"command-hero\">\n        <div class=\"command-hero-main\">\n            <span class=\"board-badge\">Service Error</span>\n            <h2>요청을 처리하지 못했습니다</h2>\n            <p>일시적인 오류가 발생했습니다. 잠시 후 다시 시도해 주세요. 문제가 계속되면 운영 담당자에게 문의해 주세요.</p>\n        </div>\n        <aside class=\"command-hero-side\">\n            <div class=\"command-hero-side-label\">Status</div>\n            <strong>HTTP 404</strong>\n            <p>/vulnapp/not_exist_4akda_404_test 요청 처리 중 오류가 발생했습니다.</p>\n        </aside>\n    </section>\n\n    <section class=\"command-guidance\">\n        <h3>다음 단계</h3>\n        <ul>\n            <li>입력값이나 접근 경로를 다시 확인한 뒤 재시도해 주세요.</li>\n            <li>동일한 오류가 반복되면 서버 로그와 애플리케이션 설정을 점검해 주세요.</li>\n            <li>메인 페이지로 돌아가 다른 기능은 정상 동작하는지 확인할 수 있습니다.</li>\n        </ul>\n    </section>\n\n    <div class=\"board-form-panel command-panel\">\n        <div class=\"board-panel-heading\">\n            <h3>바로가기</h3>\n            <p>필요한 페이지로 이동해 작업을 계속할 수 있습니다.</p>\n        </div>\n        <div class=\"command-code-list\">\n            <span><a href=\"/vulnapp/\">메인 페이지</a></span>\n            <span><a href=\"/vulnapp/board.jsp\">안전 게시판</a></span>\n            <span><a href=\"/vulnapp/command.jsp\">운영 상태 센터</a></span>\n        </div>\n    </div>\n\n</div> </main>\n    <footer>\n        &copy; 2026 VulnApp Security Test Environment. All rights reserved.\n    </footer>\n</body>\n</html>\n\n\n"
+      "body_sample": "\n\n\n\n\n<!DOCTYPE html>\n<html lang=\"ko\">\n<head>\n    <meta charset=\"UTF-8\">\n    <title>VulnApp</title>\n    <link rel=\"stylesheet\" href=\"/vulnapp/css/style.css\">\n</head>\n<body>\n    <nav class=\"navbar\">\n        <div class=\"logo\">\n            <a href=\"/vulnapp/\" style=\"text-decoration: none; color: inherit;\">\n                🛡️ VulnApp\n            </a>\n        </div>\n        <ul class=\"nav-links\">\n            <li><a href=\"search.jsp\">통합 검색</a></li>\n            <li><a href=\"download.jsp\">자료실</a></li>\n\n            \n                <li><a href=\"login.jsp\">로그인</a></li>\n            \n        </ul>\n    </nav>\n    <main class=\"container\">\n        <div class=\"card\">\n\n\n    <section class=\"command-hero\">\n        <div class=\"command-hero-main\">\n            <span class=\"board-badge\">Service Error</span>\n            <h2>요청을 처리하지 못했습니다</h2>\n            <p>일시적인 오류가 발생했습니다. 잠시 후 다시 시도해 주세요. 문제가 계속되면 운영 담당자에게 문의해 주세요.</p>\n        </div>\n        <aside class=\"command-hero-side\">\n            <div class=\"command-hero-side-label\">Status</div>\n            <strong>HTTP 404</strong>\n            <p>/vulnapp/not_exist_4akda_404_test 요청 처리 중 오류가 발생했습니다.</p>\n        </aside>\n    </section>\n\n    <section class=\"command-guidance\">\n        <h3>다음 단계</h3>\n        <ul>\n            <li>입력값이나 접근 경로를 다시 확인한 뒤 재시도해 주세요.</li>\n            <li>동일한 오류가 반복되면 서버 로그와 애플리케이션 설정을 점검해 주세요.</li>\n            <li>메인 페이지로 돌아가 다른 기능은 정상 동작하는지 확인할 수 있습니다.</li>\n        </ul>\n    </section>\n\n    <div class=\"board-form-panel command-panel\">\n        <div class=\"board-panel-heading\">\n            <h3>바로가기</h3>\n            <p>필요한 페이지로 이동해 작업을 계속할 수 있습니다.</p>\n        </div>\n        <div class=\"command-code-list\">\n            <span><a href=\"/vulnapp/\">메인 페이지</a></span>\n            <span><a href=\"/vulnapp/board.jsp\">안전 게시판</a></span>\n            <span><a href=\"/vulnapp/command.jsp\">운영 상태 센터</a></span>\n        </div>\n    </div>\n\n</div> </main>\n    <footer>\n        &copy; 2026 VulnApp Security Test Environment. All rights reserved.\n    <"
     },
     "tomcat_default_page": [
       {
@@ -42,7 +42,7 @@
         "headers": {
           "Content-Type": "text/html;charset=UTF-8",
           "Transfer-Encoding": "chunked",
-          "Date": "Sun, 17 May 2026 14:44:55 GMT",
+          "Date": "Mon, 18 May 2026 00:59:42 GMT",
           "Keep-Alive": "timeout=20",
           "Connection": "keep-alive"
         },
@@ -53,7 +53,7 @@
         "status_code": 200,
         "headers": {
           "Server": "nginx/1.28.3 (Ubuntu)",
-          "Date": "Sun, 17 May 2026 14:44:55 GMT",
+          "Date": "Mon, 18 May 2026 00:59:42 GMT",
           "Content-Type": "text/html;charset=UTF-8",
           "Transfer-Encoding": "chunked",
           "Connection": "keep-alive",
@@ -69,7 +69,7 @@
         "headers": {
           "Content-Type": "text/html;charset=ISO-8859-1",
           "Content-Length": "3523",
-          "Date": "Sun, 17 May 2026 14:44:55 GMT",
+          "Date": "Mon, 18 May 2026 00:59:42 GMT",
           "Keep-Alive": "timeout=20",
           "Connection": "keep-alive"
         },
@@ -80,7 +80,7 @@
         "status_code": 401,
         "headers": {
           "Server": "nginx/1.28.3 (Ubuntu)",
-          "Date": "Sun, 17 May 2026 14:44:55 GMT",
+          "Date": "Mon, 18 May 2026 00:59:42 GMT",
           "Content-Type": "text/html;charset=ISO-8859-1",
           "Content-Length": "2576",
           "Connection": "keep-alive",
@@ -96,11 +96,11 @@
         "status_code": 302,
         "headers": {
           "Server": "nginx/1.28.3 (Ubuntu)",
-          "Date": "Sun, 17 May 2026 14:44:56 GMT",
+          "Date": "Mon, 18 May 2026 00:59:42 GMT",
           "Content-Type": "text/html;charset=UTF-8",
           "Content-Length": "0",
           "Connection": "keep-alive",
-          "Set-Cookie": "JSESSIONID=894CAD9E694520464685ADD390E4183C; Path=/vulnapp; HttpOnly",
+          "Set-Cookie": "JSESSIONID=29ABA40754DE33CA43B5E7EC84A1FF7D; Path=/vulnapp; HttpOnly",
           "Location": "http://15.164.60.79/vulnapp/admin.jsp"
         },
         "body_sample": "",
@@ -122,11 +122,11 @@
         "status_code": 302,
         "headers": {
           "Server": "nginx/1.28.3 (Ubuntu)",
-          "Date": "Sun, 17 May 2026 14:44:56 GMT",
+          "Date": "Mon, 18 May 2026 00:59:42 GMT",
           "Content-Type": "text/html;charset=UTF-8",
           "Content-Length": "0",
           "Connection": "keep-alive",
-          "Set-Cookie": "JSESSIONID=D11092500A77E329A700E5E107C0E29B; Path=/vulnapp; HttpOnly",
+          "Set-Cookie": "JSESSIONID=246E421F434151F1D028B9DC2EA4E3C6; Path=/vulnapp; HttpOnly",
           "Location": "http://15.164.60.79/vulnapp/admin.jsp"
         },
         "body_sample": "",
@@ -148,11 +148,11 @@
         "status_code": 302,
         "headers": {
           "Server": "nginx/1.28.3 (Ubuntu)",
-          "Date": "Sun, 17 May 2026 14:44:56 GMT",
+          "Date": "Mon, 18 May 2026 00:59:42 GMT",
           "Content-Type": "text/html;charset=UTF-8",
           "Content-Length": "0",
           "Connection": "keep-alive",
-          "Set-Cookie": "JSESSIONID=EDE3AD77F21C9EEEDCA9E76C03DC209D; Path=/vulnapp; HttpOnly",
+          "Set-Cookie": "JSESSIONID=1BFB37F2055050F66A5416C4C169C417; Path=/vulnapp; HttpOnly",
           "Location": "http://15.164.60.79/vulnapp/admin.jsp"
         },
         "body_sample": "",
@@ -176,13 +176,13 @@
         "status_code": 200,
         "headers": {
           "Server": "nginx/1.28.3 (Ubuntu)",
-          "Date": "Sun, 17 May 2026 14:44:56 GMT",
+          "Date": "Mon, 18 May 2026 00:59:42 GMT",
           "Content-Type": "text/html;charset=UTF-8",
           "Transfer-Encoding": "chunked",
           "Connection": "keep-alive",
           "Content-Encoding": "gzip"
         },
-        "body_sample": "\n\n\n\n\n\n\n<!DOCTYPE html>\n<html lang=\"ko\">\n<head>\n    <meta charset=\"UTF-8\">\n    <link rel=\"stylesheet\" href=\"/vulnapp/css/style.css\">\n</head>\n<body>\n    <nav class=\"navbar\">\n        <div class=\"logo\" href=\"index.jsp\">\n\t\t<a href=\"/vulnapp/\" style=\"text-decoration: none; color: inherit;\">\n\t\t\t🛡️ VulnApp\n\t\t</a>\n\t</div>\n        <ul class=\"nav-links\">\n            <li><a href=\"search.jsp\">통합 검색</a></li>\n            <li><a href=\"download.jsp\">자료실</a></li>\n            \n            \n                <li><a href=\"login.jsp\">로그인</a></li>\n            \n        </ul>\n    </nav>\n    <main class=\"container\">\n        <div class=\"card\">\n\n\n\n\n    <div style=\"border-bottom: 2px solid #ecf0f1; padding-bottom: 10px; margin-bottom: 20px;\">\n        <h2 style=\"margin: 0; color: #2980b9;\">🔍 통합 검색 및 게시판</h2>\n    </div>\n\n    <div style=\"margin-bottom: 30px; background: #f8f9fa; padding: 20px; border-radius: 8px;\">\n        <form action=\"search.jsp\" method=\"GET\" style=\"display: flex; gap: 10px;\">\n            <input type=\"text\" name=\"keyword\" value=\"<script>alert(1337)</script>\" placeholder=\"검색어를 입력하세요...\" \n                   style=\"flex-grow: 1; padding: 10px; border: 1px solid #ccc; border-radius: 4px;\">\n            <button type=\"submit\" style=\"background: #3498db; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-weight: bold;\">\n                검색\n            </button>\n        </form>\n        \n        \n            <p style=\"margin-top: 15px; color: #555;\">\n                <strong>'<script>alert(1337)</script>'</strong> 에 대한 검색 결과입니다. \n                <span style=\"col",
+        "body_sample": "\n\n\n\n\n\n\n<!DOCTYPE html>\n<html lang=\"ko\">\n<head>\n    <meta charset=\"UTF-8\">\n    <title>VulnApp</title>\n    <link rel=\"stylesheet\" href=\"/vulnapp/css/style.css\">\n</head>\n<body>\n    <nav class=\"navbar\">\n        <div class=\"logo\">\n            <a href=\"/vulnapp/\" style=\"text-decoration: none; color: inherit;\">\n                🛡️ VulnApp\n            </a>\n        </div>\n        <ul class=\"nav-links\">\n            <li><a href=\"search.jsp\">통합 검색</a></li>\n            <li><a href=\"download.jsp\">자료실</a></li>\n\n            \n                <li><a href=\"login.jsp\">로그인</a></li>\n            \n        </ul>\n    </nav>\n    <main class=\"container\">\n        <div class=\"card\">\n\n\n\n\n    <div style=\"border-bottom: 2px solid #ecf0f1; padding-bottom: 10px; margin-bottom: 20px;\">\n        <h2 style=\"margin: 0; color: #2980b9;\">🔍 통합 검색 및 게시판</h2>\n    </div>\n\n    <div style=\"margin-bottom: 30px; background: #f8f9fa; padding: 20px; border-radius: 8px;\">\n        <form action=\"search.jsp\" method=\"GET\" style=\"display: flex; gap: 10px;\">\n            <input type=\"text\" name=\"keyword\" value=\"<script>alert(1337)</script>\" placeholder=\"검색어를 입력하세요...\" \n                   style=\"flex-grow: 1; padding: 10px; border: 1px solid #ccc; border-radius: 4px;\">\n            <button type=\"submit\" style=\"background: #3498db; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-weight: bold;\">\n                검색\n            </button>\n        </form>\n        \n        \n            <p style=\"margin-top: 15px; color: #555;\">\n                <strong>'<script>alert(1337)</script>'</strong> 에 대한 검색 결과",
         "test_type": "Reflected XSS test",
         "test_payload": "<script>alert(1337)</script>",
         "signature_hints": {
@@ -195,13 +195,13 @@
         "status_code": 200,
         "headers": {
           "Server": "nginx/1.28.3 (Ubuntu)",
-          "Date": "Sun, 17 May 2026 14:44:56 GMT",
+          "Date": "Mon, 18 May 2026 00:59:42 GMT",
           "Content-Type": "text/html;charset=UTF-8",
           "Transfer-Encoding": "chunked",
           "Connection": "keep-alive",
           "Content-Encoding": "gzip"
         },
-        "body_sample": "\n\n\n\n\n\n\n<!DOCTYPE html>\n<html lang=\"ko\">\n<head>\n    <meta charset=\"UTF-8\">\n    <link rel=\"stylesheet\" href=\"/vulnapp/css/style.css\">\n</head>\n<body>\n    <nav class=\"navbar\">\n        <div class=\"logo\" href=\"index.jsp\">\n\t\t<a href=\"/vulnapp/\" style=\"text-decoration: none; color: inherit;\">\n\t\t\t🛡️ VulnApp\n\t\t</a>\n\t</div>\n        <ul class=\"nav-links\">\n            <li><a href=\"search.jsp\">통합 검색</a></li>\n            <li><a href=\"download.jsp\">자료실</a></li>\n            \n            \n                <li><a href=\"login.jsp\">로그인</a></li>\n            \n        </ul>\n    </nav>\n    <main class=\"container\">\n        <div class=\"card\">\n\n\n\n\n    <div style=\"border-bottom: 2px solid #ecf0f1; padding-bottom: 10px; margin-bottom: 20px;\">\n        <h2 style=\"margin: 0; color: #2980b9;\">🔍 통합 검색 및 게시판</h2>\n    </div>\n\n    <div style=\"margin-bottom: 30px; background: #f8f9fa; padding: 20px; border-radius: 8px;\">\n        <form action=\"search.jsp\" method=\"GET\" style=\"display: flex; gap: 10px;\">\n            <input type=\"text\" name=\"keyword\" value=\"<script>alert(1)</script>\" placeholder=\"검색어를 입력하세요...\" \n                   style=\"flex-grow: 1; padding: 10px; border: 1px solid #ccc; border-radius: 4px;\">\n            <button type=\"submit\" style=\"background: #3498db; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-weight: bold;\">\n                검색\n            </button>\n        </form>\n        \n        \n            <p style=\"margin-top: 15px; color: #555;\">\n                <strong>'<script>alert(1)</script>'</strong> 에 대한 검색 결과입니다. \n                <span style=\"color: #e",
+        "body_sample": "\n\n\n\n\n\n\n<!DOCTYPE html>\n<html lang=\"ko\">\n<head>\n    <meta charset=\"UTF-8\">\n    <title>VulnApp</title>\n    <link rel=\"stylesheet\" href=\"/vulnapp/css/style.css\">\n</head>\n<body>\n    <nav class=\"navbar\">\n        <div class=\"logo\">\n            <a href=\"/vulnapp/\" style=\"text-decoration: none; color: inherit;\">\n                🛡️ VulnApp\n            </a>\n        </div>\n        <ul class=\"nav-links\">\n            <li><a href=\"search.jsp\">통합 검색</a></li>\n            <li><a href=\"download.jsp\">자료실</a></li>\n\n            \n                <li><a href=\"login.jsp\">로그인</a></li>\n            \n        </ul>\n    </nav>\n    <main class=\"container\">\n        <div class=\"card\">\n\n\n\n\n    <div style=\"border-bottom: 2px solid #ecf0f1; padding-bottom: 10px; margin-bottom: 20px;\">\n        <h2 style=\"margin: 0; color: #2980b9;\">🔍 통합 검색 및 게시판</h2>\n    </div>\n\n    <div style=\"margin-bottom: 30px; background: #f8f9fa; padding: 20px; border-radius: 8px;\">\n        <form action=\"search.jsp\" method=\"GET\" style=\"display: flex; gap: 10px;\">\n            <input type=\"text\" name=\"keyword\" value=\"<script>alert(1)</script>\" placeholder=\"검색어를 입력하세요...\" \n                   style=\"flex-grow: 1; padding: 10px; border: 1px solid #ccc; border-radius: 4px;\">\n            <button type=\"submit\" style=\"background: #3498db; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-weight: bold;\">\n                검색\n            </button>\n        </form>\n        \n        \n            <p style=\"margin-top: 15px; color: #555;\">\n                <strong>'<script>alert(1)</script>'</strong> 에 대한 검색 결과입니다. \n",
         "test_type": "Reflected XSS test",
         "test_payload": "<script>alert(1)</script>",
         "signature_hints": {
@@ -214,13 +214,13 @@
         "status_code": 200,
         "headers": {
           "Server": "nginx/1.28.3 (Ubuntu)",
-          "Date": "Sun, 17 May 2026 14:44:56 GMT",
+          "Date": "Mon, 18 May 2026 00:59:42 GMT",
           "Content-Type": "text/html;charset=UTF-8",
           "Transfer-Encoding": "chunked",
           "Connection": "keep-alive",
           "Content-Encoding": "gzip"
         },
-        "body_sample": "\n\n\n\n\n\n\n<!DOCTYPE html>\n<html lang=\"ko\">\n<head>\n    <meta charset=\"UTF-8\">\n    <link rel=\"stylesheet\" href=\"/vulnapp/css/style.css\">\n</head>\n<body>\n    <nav class=\"navbar\">\n        <div class=\"logo\" href=\"index.jsp\">\n\t\t<a href=\"/vulnapp/\" style=\"text-decoration: none; color: inherit;\">\n\t\t\t🛡️ VulnApp\n\t\t</a>\n\t</div>\n        <ul class=\"nav-links\">\n            <li><a href=\"search.jsp\">통합 검색</a></li>\n            <li><a href=\"download.jsp\">자료실</a></li>\n            \n            \n                <li><a href=\"login.jsp\">로그인</a></li>\n            \n        </ul>\n    </nav>\n    <main class=\"container\">\n        <div class=\"card\">\n\n\n\n\n    <div style=\"border-bottom: 2px solid #ecf0f1; padding-bottom: 10px; margin-bottom: 20px;\">\n        <h2 style=\"margin: 0; color: #2980b9;\">🔍 통합 검색 및 게시판</h2>\n    </div>\n\n    <div style=\"margin-bottom: 30px; background: #f8f9fa; padding: 20px; border-radius: 8px;\">\n        <form action=\"search.jsp\" method=\"GET\" style=\"display: flex; gap: 10px;\">\n            <input type=\"text\" name=\"keyword\" value=\"\"><script>alert(1)</script>\" placeholder=\"검색어를 입력하세요...\" \n                   style=\"flex-grow: 1; padding: 10px; border: 1px solid #ccc; border-radius: 4px;\">\n            <button type=\"submit\" style=\"background: #3498db; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-weight: bold;\">\n                검색\n            </button>\n        </form>\n        \n        \n            <p style=\"margin-top: 15px; color: #555;\">\n                <strong>'\"><script>alert(1)</script>'</strong> 에 대한 검색 결과입니다. \n                <span style=\"color",
+        "body_sample": "\n\n\n\n\n\n\n<!DOCTYPE html>\n<html lang=\"ko\">\n<head>\n    <meta charset=\"UTF-8\">\n    <title>VulnApp</title>\n    <link rel=\"stylesheet\" href=\"/vulnapp/css/style.css\">\n</head>\n<body>\n    <nav class=\"navbar\">\n        <div class=\"logo\">\n            <a href=\"/vulnapp/\" style=\"text-decoration: none; color: inherit;\">\n                🛡️ VulnApp\n            </a>\n        </div>\n        <ul class=\"nav-links\">\n            <li><a href=\"search.jsp\">통합 검색</a></li>\n            <li><a href=\"download.jsp\">자료실</a></li>\n\n            \n                <li><a href=\"login.jsp\">로그인</a></li>\n            \n        </ul>\n    </nav>\n    <main class=\"container\">\n        <div class=\"card\">\n\n\n\n\n    <div style=\"border-bottom: 2px solid #ecf0f1; padding-bottom: 10px; margin-bottom: 20px;\">\n        <h2 style=\"margin: 0; color: #2980b9;\">🔍 통합 검색 및 게시판</h2>\n    </div>\n\n    <div style=\"margin-bottom: 30px; background: #f8f9fa; padding: 20px; border-radius: 8px;\">\n        <form action=\"search.jsp\" method=\"GET\" style=\"display: flex; gap: 10px;\">\n            <input type=\"text\" name=\"keyword\" value=\"\"><script>alert(1)</script>\" placeholder=\"검색어를 입력하세요...\" \n                   style=\"flex-grow: 1; padding: 10px; border: 1px solid #ccc; border-radius: 4px;\">\n            <button type=\"submit\" style=\"background: #3498db; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-weight: bold;\">\n                검색\n            </button>\n        </form>\n        \n        \n            <p style=\"margin-top: 15px; color: #555;\">\n                <strong>'\"><script>alert(1)</script>'</strong> 에 대한 검색 결과입니",
         "test_type": "Reflected XSS test",
         "test_payload": "\"><script>alert(1)</script>",
         "signature_hints": {
@@ -233,13 +233,13 @@
         "status_code": 200,
         "headers": {
           "Server": "nginx/1.28.3 (Ubuntu)",
-          "Date": "Sun, 17 May 2026 14:44:56 GMT",
+          "Date": "Mon, 18 May 2026 00:59:42 GMT",
           "Content-Type": "text/html;charset=UTF-8",
           "Transfer-Encoding": "chunked",
           "Connection": "keep-alive",
           "Content-Encoding": "gzip"
         },
-        "body_sample": "\n\n\n\n\n\n\n<!DOCTYPE html>\n<html lang=\"ko\">\n<head>\n    <meta charset=\"UTF-8\">\n    <link rel=\"stylesheet\" href=\"/vulnapp/css/style.css\">\n</head>\n<body>\n    <nav class=\"navbar\">\n        <div class=\"logo\" href=\"index.jsp\">\n\t\t<a href=\"/vulnapp/\" style=\"text-decoration: none; color: inherit;\">\n\t\t\t🛡️ VulnApp\n\t\t</a>\n\t</div>\n        <ul class=\"nav-links\">\n            <li><a href=\"search.jsp\">통합 검색</a></li>\n            <li><a href=\"download.jsp\">자료실</a></li>\n            \n            \n                <li><a href=\"login.jsp\">로그인</a></li>\n            \n        </ul>\n    </nav>\n    <main class=\"container\">\n        <div class=\"card\">\n\n\n\n\n    <div style=\"border-bottom: 2px solid #ecf0f1; padding-bottom: 10px; margin-bottom: 20px;\">\n        <h2 style=\"margin: 0; color: #2980b9;\">🔍 통합 검색 및 게시판</h2>\n    </div>\n\n    <div style=\"margin-bottom: 30px; background: #f8f9fa; padding: 20px; border-radius: 8px;\">\n        <form action=\"search.jsp\" method=\"GET\" style=\"display: flex; gap: 10px;\">\n            <input type=\"text\" name=\"keyword\" value=\"<img src=x onerror=alert(1)>\" placeholder=\"검색어를 입력하세요...\" \n                   style=\"flex-grow: 1; padding: 10px; border: 1px solid #ccc; border-radius: 4px;\">\n            <button type=\"submit\" style=\"background: #3498db; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-weight: bold;\">\n                검색\n            </button>\n        </form>\n        \n        \n            <p style=\"margin-top: 15px; color: #555;\">\n                <strong>'<img src=x onerror=alert(1)>'</strong> 에 대한 검색 결과입니다. \n                <span style=\"col",
+        "body_sample": "\n\n\n\n\n\n\n<!DOCTYPE html>\n<html lang=\"ko\">\n<head>\n    <meta charset=\"UTF-8\">\n    <title>VulnApp</title>\n    <link rel=\"stylesheet\" href=\"/vulnapp/css/style.css\">\n</head>\n<body>\n    <nav class=\"navbar\">\n        <div class=\"logo\">\n            <a href=\"/vulnapp/\" style=\"text-decoration: none; color: inherit;\">\n                🛡️ VulnApp\n            </a>\n        </div>\n        <ul class=\"nav-links\">\n            <li><a href=\"search.jsp\">통합 검색</a></li>\n            <li><a href=\"download.jsp\">자료실</a></li>\n\n            \n                <li><a href=\"login.jsp\">로그인</a></li>\n            \n        </ul>\n    </nav>\n    <main class=\"container\">\n        <div class=\"card\">\n\n\n\n\n    <div style=\"border-bottom: 2px solid #ecf0f1; padding-bottom: 10px; margin-bottom: 20px;\">\n        <h2 style=\"margin: 0; color: #2980b9;\">🔍 통합 검색 및 게시판</h2>\n    </div>\n\n    <div style=\"margin-bottom: 30px; background: #f8f9fa; padding: 20px; border-radius: 8px;\">\n        <form action=\"search.jsp\" method=\"GET\" style=\"display: flex; gap: 10px;\">\n            <input type=\"text\" name=\"keyword\" value=\"<img src=x onerror=alert(1)>\" placeholder=\"검색어를 입력하세요...\" \n                   style=\"flex-grow: 1; padding: 10px; border: 1px solid #ccc; border-radius: 4px;\">\n            <button type=\"submit\" style=\"background: #3498db; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-weight: bold;\">\n                검색\n            </button>\n        </form>\n        \n        \n            <p style=\"margin-top: 15px; color: #555;\">\n                <strong>'<img src=x onerror=alert(1)>'</strong> 에 대한 검색 결과",
         "test_type": "Reflected XSS test",
         "test_payload": "<img src=x onerror=alert(1)>",
         "signature_hints": {
@@ -253,7 +253,7 @@
       "status_code": 200,
       "headers": {
         "Server": "nginx/1.28.3 (Ubuntu)",
-        "Date": "Sun, 17 May 2026 14:44:56 GMT",
+        "Date": "Mon, 18 May 2026 00:59:42 GMT",
         "Content-Type": "application/json;charset=UTF-8",
         "Content-Length": "144",
         "Connection": "keep-alive"
@@ -276,11 +276,11 @@
         "status_code": 302,
         "headers": {
           "Server": "nginx/1.28.3 (Ubuntu)",
-          "Date": "Sun, 17 May 2026 14:44:56 GMT",
+          "Date": "Mon, 18 May 2026 00:59:42 GMT",
           "Content-Type": "text/html;charset=UTF-8",
           "Content-Length": "0",
           "Connection": "keep-alive",
-          "Set-Cookie": "JSESSIONID=41FA029FB99D6A2B2A6E25F38013CB0F; Path=/vulnapp; HttpOnly",
+          "Set-Cookie": "JSESSIONID=5938F649D65C41B4DD5FCB4CE19F4DFE; Path=/vulnapp; HttpOnly",
           "Location": "http://15.164.60.79/vulnapp/login.jsp"
         },
         "body_sample": "",
@@ -296,11 +296,11 @@
         "status_code": 302,
         "headers": {
           "Server": "nginx/1.28.3 (Ubuntu)",
-          "Date": "Sun, 17 May 2026 14:44:56 GMT",
+          "Date": "Mon, 18 May 2026 00:59:42 GMT",
           "Content-Type": "text/html;charset=UTF-8",
           "Content-Length": "0",
           "Connection": "keep-alive",
-          "Set-Cookie": "JSESSIONID=D7794451187BB444C112A7F9182883CC; Path=/vulnapp; HttpOnly",
+          "Set-Cookie": "JSESSIONID=945627AF309007FF239560035E9638EA; Path=/vulnapp; HttpOnly",
           "Location": "http://15.164.60.79/vulnapp/"
         },
         "body_sample": "",
@@ -312,13 +312,13 @@
         "status_code": 200,
         "headers": {
           "Server": "nginx/1.28.3 (Ubuntu)",
-          "Date": "Sun, 17 May 2026 14:44:56 GMT",
+          "Date": "Mon, 18 May 2026 00:59:42 GMT",
           "Content-Type": "text/html;charset=UTF-8",
           "Transfer-Encoding": "chunked",
           "Connection": "keep-alive",
           "Content-Encoding": "gzip"
         },
-        "body_sample": "\n\n\n\n\n\n<!DOCTYPE html>\n<html lang=\"ko\">\n<head>\n    <meta charset=\"UTF-8\">\n    <link rel=\"stylesheet\" href=\"/vulnapp/css/style.css\">\n</head>\n<body>\n    <nav class=\"navbar\">\n        <div class=\"logo\" href=\"index.jsp\">\n\t\t<a href=\"/vulnapp/\" style=\"text-decoration: none; color: inherit;\">\n\t\t\t🛡️ VulnApp\n\t\t</a>\n\t</div>\n        <ul class=\"nav-links\">\n            <li><a href=\"search.jsp\">통합 검색</a></li>\n            <li><a href=\"download.jsp\">자료실</a></li>\n            \n            \n                <li><a href=\"profile.jsp?user_idx=2\">프로필 (user1)</a></li>\n                <li><a href=\"logout.jsp\">로그아웃</a></li>\n            \n        </ul>\n    </nav>\n    <main class=\"container\">\n        <div class=\"card\">\n\n\n    <div style=\"display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #ecf0f1; padding-bottom: 10px; margin-bottom: 20px;\">\n        <h2 style=\"margin: 0; color: #8e44ad;\">⚙️ 시스템 관리자 대시보드</h2>\n        <span style=\"background-color: #e74c3c; color: white; padding: 4px 8px; border-radius: 4px; font-size: 0.8em; font-weight: bold;\">\n            Admin Only\n        </span>\n    </div>\n\n    <p style=\"margin-bottom: 1.5rem; color: #7f8c8d;\">\n        현재 서버에 가입된 모든 회원",
+        "body_sample": "\n\n\n\n\n\n<!DOCTYPE html>\n<html lang=\"ko\">\n<head>\n    <meta charset=\"UTF-8\">\n    <title>VulnApp</title>\n    <link rel=\"stylesheet\" href=\"/vulnapp/css/style.css\">\n</head>\n<body>\n    <nav class=\"navbar\">\n        <div class=\"logo\">\n            <a href=\"/vulnapp/\" style=\"text-decoration: none; color: inherit;\">\n                🛡️ VulnApp\n            </a>\n        </div>\n        <ul class=\"nav-links\">\n            <li><a href=\"search.jsp\">통합 검색</a></li>\n            <li><a href=\"download.jsp\">자료실</a></li>\n\n            \n                \n                <li><a href=\"profile.jsp?user_idx=2\">프로필 (user1)</a></li>\n                <li><a href=\"logout.jsp\">로그아웃</a></li>\n            \n        </ul>\n    </nav>\n    <main class=\"container\">\n        <div class=\"card\">\n\n\n    <div style=\"display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #ecf0f1; padding-bottom: 10px; margin-bottom: 20px;\">\n        <h2 style=\"margin: 0; color: #8e44ad;\">⚙️ 시스템 관리자 대시보드</h2>\n        <span style=\"background-color: #e74c3c; color: white; padding: 4px 8px; border-radius: 4px; font-size: 0.8em; font-weight: bold;\">\n            Admin Only\n        </span>\n    </div>\n\n    <p style=\"margin-bot",
         "redirect_location": "",
         "test_account": "user1",
         "signature_hints": {
@@ -334,7 +334,7 @@
         "status_code": 200,
         "headers": {
           "Server": "nginx/1.28.3 (Ubuntu)",
-          "Date": "Sun, 17 May 2026 14:44:56 GMT",
+          "Date": "Mon, 18 May 2026 00:59:42 GMT",
           "Content-Type": "text/html;charset=UTF-8",
           "Transfer-Encoding": "chunked",
           "Connection": "keep-alive",
@@ -343,7 +343,7 @@
       },
       "https": {
         "url": "https://15.164.60.79",
-        "error": "HTTPSConnectionPool(host='15.164.60.79', port=443): Max retries exceeded with url: / (Caused by ConnectTimeoutError(<HTTPSConnection(host='15.164.60.79', port=443) at 0x228ca23ab90>, 'Connection to 15.164.60.79 timed out. (connect timeout=5)'))"
+        "error": "HTTPSConnectionPool(host='15.164.60.79', port=443): Max retries exceeded with url: / (Caused by ConnectTimeoutError(<HTTPSConnection(host='15.164.60.79', port=443) at 0x2116996ba90>, 'Connection to 15.164.60.79 timed out. (connect timeout=5)'))"
       },
       "https_available": false,
       "redirect_to_https": false
@@ -380,52 +380,52 @@
         {
           "url": "http://15.164.60.79/vulnapp/login.jsp",
           "status_code": 200,
-          "body_sample": "\n\n\n\n\n\n\n<!DOCTYPE html>\n<html lang=\"ko\">\n<head>\n    <meta charset=\"UTF-8\">\n    <link rel=\"stylesheet\" href=\"/vulnapp/css/style.css\">\n</head>\n<body>\n    <nav class=\"navbar\">\n        <div class=\"logo\" href=\"index.jsp\">\n\t\t<a href=\"/vulnapp/\" style=\"text-decoration: none; color: inherit;\">\n\t\t\t🛡️ VulnApp\n"
+          "body_sample": "\n\n\n\n\n\n\n<!DOCTYPE html>\n<html lang=\"ko\">\n<head>\n    <meta charset=\"UTF-8\">\n    <title>VulnApp</title>\n    <link rel=\"stylesheet\" href=\"/vulnapp/css/style.css\">\n</head>\n<body>\n    <nav class=\"navbar\">\n        <div class=\"logo\">\n            <a href=\"/vulnapp/\" style=\"text-decoration: none; color: inher"
         },
         {
           "url": "http://15.164.60.79/vulnapp/login.jsp",
           "status_code": 200,
-          "body_sample": "\n\n\n\n\n\n\n<!DOCTYPE html>\n<html lang=\"ko\">\n<head>\n    <meta charset=\"UTF-8\">\n    <link rel=\"stylesheet\" href=\"/vulnapp/css/style.css\">\n</head>\n<body>\n    <nav class=\"navbar\">\n        <div class=\"logo\" href=\"index.jsp\">\n\t\t<a href=\"/vulnapp/\" style=\"text-decoration: none; color: inherit;\">\n\t\t\t🛡️ VulnApp\n"
+          "body_sample": "\n\n\n\n\n\n\n<!DOCTYPE html>\n<html lang=\"ko\">\n<head>\n    <meta charset=\"UTF-8\">\n    <title>VulnApp</title>\n    <link rel=\"stylesheet\" href=\"/vulnapp/css/style.css\">\n</head>\n<body>\n    <nav class=\"navbar\">\n        <div class=\"logo\">\n            <a href=\"/vulnapp/\" style=\"text-decoration: none; color: inher"
         },
         {
           "url": "http://15.164.60.79/vulnapp/login.jsp",
           "status_code": 200,
-          "body_sample": "\n\n\n\n\n\n\n<!DOCTYPE html>\n<html lang=\"ko\">\n<head>\n    <meta charset=\"UTF-8\">\n    <link rel=\"stylesheet\" href=\"/vulnapp/css/style.css\">\n</head>\n<body>\n    <nav class=\"navbar\">\n        <div class=\"logo\" href=\"index.jsp\">\n\t\t<a href=\"/vulnapp/\" style=\"text-decoration: none; color: inherit;\">\n\t\t\t🛡️ VulnApp\n"
+          "body_sample": "\n\n\n\n\n\n\n<!DOCTYPE html>\n<html lang=\"ko\">\n<head>\n    <meta charset=\"UTF-8\">\n    <title>VulnApp</title>\n    <link rel=\"stylesheet\" href=\"/vulnapp/css/style.css\">\n</head>\n<body>\n    <nav class=\"navbar\">\n        <div class=\"logo\">\n            <a href=\"/vulnapp/\" style=\"text-decoration: none; color: inher"
         },
         {
           "url": "http://15.164.60.79/vulnapp/login.jsp",
           "status_code": 200,
-          "body_sample": "\n\n\n\n\n\n\n<!DOCTYPE html>\n<html lang=\"ko\">\n<head>\n    <meta charset=\"UTF-8\">\n    <link rel=\"stylesheet\" href=\"/vulnapp/css/style.css\">\n</head>\n<body>\n    <nav class=\"navbar\">\n        <div class=\"logo\" href=\"index.jsp\">\n\t\t<a href=\"/vulnapp/\" style=\"text-decoration: none; color: inherit;\">\n\t\t\t🛡️ VulnApp\n"
+          "body_sample": "\n\n\n\n\n\n\n<!DOCTYPE html>\n<html lang=\"ko\">\n<head>\n    <meta charset=\"UTF-8\">\n    <title>VulnApp</title>\n    <link rel=\"stylesheet\" href=\"/vulnapp/css/style.css\">\n</head>\n<body>\n    <nav class=\"navbar\">\n        <div class=\"logo\">\n            <a href=\"/vulnapp/\" style=\"text-decoration: none; color: inher"
         },
         {
           "url": "http://15.164.60.79/vulnapp/login.jsp",
           "status_code": 200,
-          "body_sample": "\n\n\n\n\n\n\n<!DOCTYPE html>\n<html lang=\"ko\">\n<head>\n    <meta charset=\"UTF-8\">\n    <link rel=\"stylesheet\" href=\"/vulnapp/css/style.css\">\n</head>\n<body>\n    <nav class=\"navbar\">\n        <div class=\"logo\" href=\"index.jsp\">\n\t\t<a href=\"/vulnapp/\" style=\"text-decoration: none; color: inherit;\">\n\t\t\t🛡️ VulnApp\n"
+          "body_sample": "\n\n\n\n\n\n\n<!DOCTYPE html>\n<html lang=\"ko\">\n<head>\n    <meta charset=\"UTF-8\">\n    <title>VulnApp</title>\n    <link rel=\"stylesheet\" href=\"/vulnapp/css/style.css\">\n</head>\n<body>\n    <nav class=\"navbar\">\n        <div class=\"logo\">\n            <a href=\"/vulnapp/\" style=\"text-decoration: none; color: inher"
         },
         {
           "url": "http://15.164.60.79/vulnapp/login.jsp",
           "status_code": 200,
-          "body_sample": "\n\n\n\n\n\n\n<!DOCTYPE html>\n<html lang=\"ko\">\n<head>\n    <meta charset=\"UTF-8\">\n    <link rel=\"stylesheet\" href=\"/vulnapp/css/style.css\">\n</head>\n<body>\n    <nav class=\"navbar\">\n        <div class=\"logo\" href=\"index.jsp\">\n\t\t<a href=\"/vulnapp/\" style=\"text-decoration: none; color: inherit;\">\n\t\t\t🛡️ VulnApp\n"
+          "body_sample": "\n\n\n\n\n\n\n<!DOCTYPE html>\n<html lang=\"ko\">\n<head>\n    <meta charset=\"UTF-8\">\n    <title>VulnApp</title>\n    <link rel=\"stylesheet\" href=\"/vulnapp/css/style.css\">\n</head>\n<body>\n    <nav class=\"navbar\">\n        <div class=\"logo\">\n            <a href=\"/vulnapp/\" style=\"text-decoration: none; color: inher"
         },
         {
           "url": "http://15.164.60.79/vulnapp/login.jsp",
           "status_code": 200,
-          "body_sample": "\n\n\n\n\n\n\n<!DOCTYPE html>\n<html lang=\"ko\">\n<head>\n    <meta charset=\"UTF-8\">\n    <link rel=\"stylesheet\" href=\"/vulnapp/css/style.css\">\n</head>\n<body>\n    <nav class=\"navbar\">\n        <div class=\"logo\" href=\"index.jsp\">\n\t\t<a href=\"/vulnapp/\" style=\"text-decoration: none; color: inherit;\">\n\t\t\t🛡️ VulnApp\n"
+          "body_sample": "\n\n\n\n\n\n\n<!DOCTYPE html>\n<html lang=\"ko\">\n<head>\n    <meta charset=\"UTF-8\">\n    <title>VulnApp</title>\n    <link rel=\"stylesheet\" href=\"/vulnapp/css/style.css\">\n</head>\n<body>\n    <nav class=\"navbar\">\n        <div class=\"logo\">\n            <a href=\"/vulnapp/\" style=\"text-decoration: none; color: inher"
         },
         {
           "url": "http://15.164.60.79/vulnapp/login.jsp",
           "status_code": 200,
-          "body_sample": "\n\n\n\n\n\n\n<!DOCTYPE html>\n<html lang=\"ko\">\n<head>\n    <meta charset=\"UTF-8\">\n    <link rel=\"stylesheet\" href=\"/vulnapp/css/style.css\">\n</head>\n<body>\n    <nav class=\"navbar\">\n        <div class=\"logo\" href=\"index.jsp\">\n\t\t<a href=\"/vulnapp/\" style=\"text-decoration: none; color: inherit;\">\n\t\t\t🛡️ VulnApp\n"
+          "body_sample": "\n\n\n\n\n\n\n<!DOCTYPE html>\n<html lang=\"ko\">\n<head>\n    <meta charset=\"UTF-8\">\n    <title>VulnApp</title>\n    <link rel=\"stylesheet\" href=\"/vulnapp/css/style.css\">\n</head>\n<body>\n    <nav class=\"navbar\">\n        <div class=\"logo\">\n            <a href=\"/vulnapp/\" style=\"text-decoration: none; color: inher"
         },
         {
           "url": "http://15.164.60.79/vulnapp/login.jsp",
           "status_code": 200,
-          "body_sample": "\n\n\n\n\n\n\n<!DOCTYPE html>\n<html lang=\"ko\">\n<head>\n    <meta charset=\"UTF-8\">\n    <link rel=\"stylesheet\" href=\"/vulnapp/css/style.css\">\n</head>\n<body>\n    <nav class=\"navbar\">\n        <div class=\"logo\" href=\"index.jsp\">\n\t\t<a href=\"/vulnapp/\" style=\"text-decoration: none; color: inherit;\">\n\t\t\t🛡️ VulnApp\n"
+          "body_sample": "\n\n\n\n\n\n\n<!DOCTYPE html>\n<html lang=\"ko\">\n<head>\n    <meta charset=\"UTF-8\">\n    <title>VulnApp</title>\n    <link rel=\"stylesheet\" href=\"/vulnapp/css/style.css\">\n</head>\n<body>\n    <nav class=\"navbar\">\n        <div class=\"logo\">\n            <a href=\"/vulnapp/\" style=\"text-decoration: none; color: inher"
         },
         {
           "url": "http://15.164.60.79/vulnapp/login.jsp",
           "status_code": 200,
-          "body_sample": "\n\n\n\n\n\n\n<!DOCTYPE html>\n<html lang=\"ko\">\n<head>\n    <meta charset=\"UTF-8\">\n    <link rel=\"stylesheet\" href=\"/vulnapp/css/style.css\">\n</head>\n<body>\n    <nav class=\"navbar\">\n        <div class=\"logo\" href=\"index.jsp\">\n\t\t<a href=\"/vulnapp/\" style=\"text-decoration: none; color: inherit;\">\n\t\t\t🛡️ VulnApp\n"
+          "body_sample": "\n\n\n\n\n\n\n<!DOCTYPE html>\n<html lang=\"ko\">\n<head>\n    <meta charset=\"UTF-8\">\n    <title>VulnApp</title>\n    <link rel=\"stylesheet\" href=\"/vulnapp/css/style.css\">\n</head>\n<body>\n    <nav class=\"navbar\">\n        <div class=\"logo\">\n            <a href=\"/vulnapp/\" style=\"text-decoration: none; color: inher"
         }
       ]
     },
@@ -437,52 +437,52 @@
         {
           "url": "http://15.164.60.79/vulnapp/login.jsp",
           "status_code": 200,
-          "body_sample": "\n\n\n\n\n\n\n<!DOCTYPE html>\n<html lang=\"ko\">\n<head>\n    <meta charset=\"UTF-8\">\n    <link rel=\"stylesheet\" href=\"/vulnapp/css/style.css\">\n</head>\n<body>\n    <nav class=\"navbar\">\n        <div class=\"logo\" href=\"index.jsp\">\n\t\t<a href=\"/vulnapp/\" style=\"text-decoration: none; color: inherit;\">\n\t\t\t🛡️ VulnApp\n"
+          "body_sample": "\n\n\n\n\n\n\n<!DOCTYPE html>\n<html lang=\"ko\">\n<head>\n    <meta charset=\"UTF-8\">\n    <title>VulnApp</title>\n    <link rel=\"stylesheet\" href=\"/vulnapp/css/style.css\">\n</head>\n<body>\n    <nav class=\"navbar\">\n        <div class=\"logo\">\n            <a href=\"/vulnapp/\" style=\"text-decoration: none; color: inher"
         },
         {
           "url": "http://15.164.60.79/vulnapp/login.jsp",
           "status_code": 200,
-          "body_sample": "\n\n\n\n\n\n\n<!DOCTYPE html>\n<html lang=\"ko\">\n<head>\n    <meta charset=\"UTF-8\">\n    <link rel=\"stylesheet\" href=\"/vulnapp/css/style.css\">\n</head>\n<body>\n    <nav class=\"navbar\">\n        <div class=\"logo\" href=\"index.jsp\">\n\t\t<a href=\"/vulnapp/\" style=\"text-decoration: none; color: inherit;\">\n\t\t\t🛡️ VulnApp\n"
+          "body_sample": "\n\n\n\n\n\n\n<!DOCTYPE html>\n<html lang=\"ko\">\n<head>\n    <meta charset=\"UTF-8\">\n    <title>VulnApp</title>\n    <link rel=\"stylesheet\" href=\"/vulnapp/css/style.css\">\n</head>\n<body>\n    <nav class=\"navbar\">\n        <div class=\"logo\">\n            <a href=\"/vulnapp/\" style=\"text-decoration: none; color: inher"
         },
         {
           "url": "http://15.164.60.79/vulnapp/login.jsp",
           "status_code": 200,
-          "body_sample": "\n\n\n\n\n\n\n<!DOCTYPE html>\n<html lang=\"ko\">\n<head>\n    <meta charset=\"UTF-8\">\n    <link rel=\"stylesheet\" href=\"/vulnapp/css/style.css\">\n</head>\n<body>\n    <nav class=\"navbar\">\n        <div class=\"logo\" href=\"index.jsp\">\n\t\t<a href=\"/vulnapp/\" style=\"text-decoration: none; color: inherit;\">\n\t\t\t🛡️ VulnApp\n"
+          "body_sample": "\n\n\n\n\n\n\n<!DOCTYPE html>\n<html lang=\"ko\">\n<head>\n    <meta charset=\"UTF-8\">\n    <title>VulnApp</title>\n    <link rel=\"stylesheet\" href=\"/vulnapp/css/style.css\">\n</head>\n<body>\n    <nav class=\"navbar\">\n        <div class=\"logo\">\n            <a href=\"/vulnapp/\" style=\"text-decoration: none; color: inher"
         },
         {
           "url": "http://15.164.60.79/vulnapp/login.jsp",
           "status_code": 200,
-          "body_sample": "\n\n\n\n\n\n\n<!DOCTYPE html>\n<html lang=\"ko\">\n<head>\n    <meta charset=\"UTF-8\">\n    <link rel=\"stylesheet\" href=\"/vulnapp/css/style.css\">\n</head>\n<body>\n    <nav class=\"navbar\">\n        <div class=\"logo\" href=\"index.jsp\">\n\t\t<a href=\"/vulnapp/\" style=\"text-decoration: none; color: inherit;\">\n\t\t\t🛡️ VulnApp\n"
+          "body_sample": "\n\n\n\n\n\n\n<!DOCTYPE html>\n<html lang=\"ko\">\n<head>\n    <meta charset=\"UTF-8\">\n    <title>VulnApp</title>\n    <link rel=\"stylesheet\" href=\"/vulnapp/css/style.css\">\n</head>\n<body>\n    <nav class=\"navbar\">\n        <div class=\"logo\">\n            <a href=\"/vulnapp/\" style=\"text-decoration: none; color: inher"
         },
         {
           "url": "http://15.164.60.79/vulnapp/login.jsp",
           "status_code": 200,
-          "body_sample": "\n\n\n\n\n\n\n<!DOCTYPE html>\n<html lang=\"ko\">\n<head>\n    <meta charset=\"UTF-8\">\n    <link rel=\"stylesheet\" href=\"/vulnapp/css/style.css\">\n</head>\n<body>\n    <nav class=\"navbar\">\n        <div class=\"logo\" href=\"index.jsp\">\n\t\t<a href=\"/vulnapp/\" style=\"text-decoration: none; color: inherit;\">\n\t\t\t🛡️ VulnApp\n"
+          "body_sample": "\n\n\n\n\n\n\n<!DOCTYPE html>\n<html lang=\"ko\">\n<head>\n    <meta charset=\"UTF-8\">\n    <title>VulnApp</title>\n    <link rel=\"stylesheet\" href=\"/vulnapp/css/style.css\">\n</head>\n<body>\n    <nav class=\"navbar\">\n        <div class=\"logo\">\n            <a href=\"/vulnapp/\" style=\"text-decoration: none; color: inher"
         },
         {
           "url": "http://15.164.60.79/vulnapp/login.jsp",
           "status_code": 200,
-          "body_sample": "\n\n\n\n\n\n\n<!DOCTYPE html>\n<html lang=\"ko\">\n<head>\n    <meta charset=\"UTF-8\">\n    <link rel=\"stylesheet\" href=\"/vulnapp/css/style.css\">\n</head>\n<body>\n    <nav class=\"navbar\">\n        <div class=\"logo\" href=\"index.jsp\">\n\t\t<a href=\"/vulnapp/\" style=\"text-decoration: none; color: inherit;\">\n\t\t\t🛡️ VulnApp\n"
+          "body_sample": "\n\n\n\n\n\n\n<!DOCTYPE html>\n<html lang=\"ko\">\n<head>\n    <meta charset=\"UTF-8\">\n    <title>VulnApp</title>\n    <link rel=\"stylesheet\" href=\"/vulnapp/css/style.css\">\n</head>\n<body>\n    <nav class=\"navbar\">\n        <div class=\"logo\">\n            <a href=\"/vulnapp/\" style=\"text-decoration: none; color: inher"
         },
         {
           "url": "http://15.164.60.79/vulnapp/login.jsp",
           "status_code": 200,
-          "body_sample": "\n\n\n\n\n\n\n<!DOCTYPE html>\n<html lang=\"ko\">\n<head>\n    <meta charset=\"UTF-8\">\n    <link rel=\"stylesheet\" href=\"/vulnapp/css/style.css\">\n</head>\n<body>\n    <nav class=\"navbar\">\n        <div class=\"logo\" href=\"index.jsp\">\n\t\t<a href=\"/vulnapp/\" style=\"text-decoration: none; color: inherit;\">\n\t\t\t🛡️ VulnApp\n"
+          "body_sample": "\n\n\n\n\n\n\n<!DOCTYPE html>\n<html lang=\"ko\">\n<head>\n    <meta charset=\"UTF-8\">\n    <title>VulnApp</title>\n    <link rel=\"stylesheet\" href=\"/vulnapp/css/style.css\">\n</head>\n<body>\n    <nav class=\"navbar\">\n        <div class=\"logo\">\n            <a href=\"/vulnapp/\" style=\"text-decoration: none; color: inher"
         },
         {
           "url": "http://15.164.60.79/vulnapp/login.jsp",
           "status_code": 200,
-          "body_sample": "\n\n\n\n\n\n\n<!DOCTYPE html>\n<html lang=\"ko\">\n<head>\n    <meta charset=\"UTF-8\">\n    <link rel=\"stylesheet\" href=\"/vulnapp/css/style.css\">\n</head>\n<body>\n    <nav class=\"navbar\">\n        <div class=\"logo\" href=\"index.jsp\">\n\t\t<a href=\"/vulnapp/\" style=\"text-decoration: none; color: inherit;\">\n\t\t\t🛡️ VulnApp\n"
+          "body_sample": "\n\n\n\n\n\n\n<!DOCTYPE html>\n<html lang=\"ko\">\n<head>\n    <meta charset=\"UTF-8\">\n    <title>VulnApp</title>\n    <link rel=\"stylesheet\" href=\"/vulnapp/css/style.css\">\n</head>\n<body>\n    <nav class=\"navbar\">\n        <div class=\"logo\">\n            <a href=\"/vulnapp/\" style=\"text-decoration: none; color: inher"
         },
         {
           "url": "http://15.164.60.79/vulnapp/login.jsp",
           "status_code": 200,
-          "body_sample": "\n\n\n\n\n\n\n<!DOCTYPE html>\n<html lang=\"ko\">\n<head>\n    <meta charset=\"UTF-8\">\n    <link rel=\"stylesheet\" href=\"/vulnapp/css/style.css\">\n</head>\n<body>\n    <nav class=\"navbar\">\n        <div class=\"logo\" href=\"index.jsp\">\n\t\t<a href=\"/vulnapp/\" style=\"text-decoration: none; color: inherit;\">\n\t\t\t🛡️ VulnApp\n"
+          "body_sample": "\n\n\n\n\n\n\n<!DOCTYPE html>\n<html lang=\"ko\">\n<head>\n    <meta charset=\"UTF-8\">\n    <title>VulnApp</title>\n    <link rel=\"stylesheet\" href=\"/vulnapp/css/style.css\">\n</head>\n<body>\n    <nav class=\"navbar\">\n        <div class=\"logo\">\n            <a href=\"/vulnapp/\" style=\"text-decoration: none; color: inher"
         },
         {
           "url": "http://15.164.60.79/vulnapp/login.jsp",
           "status_code": 200,
-          "body_sample": "\n\n\n\n\n\n\n<!DOCTYPE html>\n<html lang=\"ko\">\n<head>\n    <meta charset=\"UTF-8\">\n    <link rel=\"stylesheet\" href=\"/vulnapp/css/style.css\">\n</head>\n<body>\n    <nav class=\"navbar\">\n        <div class=\"logo\" href=\"index.jsp\">\n\t\t<a href=\"/vulnapp/\" style=\"text-decoration: none; color: inherit;\">\n\t\t\t🛡️ VulnApp\n"
+          "body_sample": "\n\n\n\n\n\n\n<!DOCTYPE html>\n<html lang=\"ko\">\n<head>\n    <meta charset=\"UTF-8\">\n    <title>VulnApp</title>\n    <link rel=\"stylesheet\" href=\"/vulnapp/css/style.css\">\n</head>\n<body>\n    <nav class=\"navbar\">\n        <div class=\"logo\">\n            <a href=\"/vulnapp/\" style=\"text-decoration: none; color: inher"
         }
       ]
     },
@@ -492,7 +492,7 @@
         "status_code": 200,
         "headers": {
           "Server": "nginx/1.28.3 (Ubuntu)",
-          "Date": "Sun, 17 May 2026 14:45:01 GMT",
+          "Date": "Mon, 18 May 2026 00:59:47 GMT",
           "Content-Type": "application/json;charset=UTF-8",
           "Content-Length": "144",
           "Connection": "keep-alive"
@@ -507,7 +507,7 @@
         "status_code": 200,
         "headers": {
           "Server": "nginx/1.28.3 (Ubuntu)",
-          "Date": "Sun, 17 May 2026 14:45:01 GMT",
+          "Date": "Mon, 18 May 2026 00:59:47 GMT",
           "Content-Type": "application/json;charset=UTF-8",
           "Content-Length": "144",
           "Connection": "keep-alive"
@@ -524,56 +524,56 @@
         "url": "http://15.164.60.79/vulnapp/upload.jsp",
         "reachable": true,
         "status_code": 200,
-        "body_sample": "\n\n\n\n\n\n<!DOCTYPE html>\n<html lang=\"ko\">\n<head>\n    <meta charset=\"UTF-8\">\n    <link rel=\"stylesheet\" href=\"/vulnapp/css/style.css\">\n</head>\n<body>\n    <nav class=\"navbar\">\n        <div class=\"logo\" href=\"index.jsp\">\n\t\t<a href=\"/vulnapp/\" style=\"text-decoration: none; color: inherit;\">\n\t\t\t🛡️ VulnApp\n\t"
+        "body_sample": "\n\n\n\n\n\n<!DOCTYPE html>\n<html lang=\"ko\">\n<head>\n    <meta charset=\"UTF-8\">\n    <title>VulnApp</title>\n    <link rel=\"stylesheet\" href=\"/vulnapp/css/style.css\">\n</head>\n<body>\n    <nav class=\"navbar\">\n        <div class=\"logo\">\n            <a href=\"/vulnapp/\" style=\"text-decoration: none; color: inheri"
       },
       {
         "endpoint": "/vulnapp/upload_process.jsp",
         "url": "http://15.164.60.79/vulnapp/upload_process.jsp",
         "reachable": true,
         "status_code": 500,
-        "body_sample": "\n\n\n\n\n<!DOCTYPE html>\n<html lang=\"ko\">\n<head>\n    <meta charset=\"UTF-8\">\n    <link rel=\"stylesheet\" href=\"/vulnapp/css/style.css\">\n</head>\n<body>\n    <nav class=\"navbar\">\n        <div class=\"logo\" href=\"index.jsp\">\n\t\t<a href=\"/vulnapp/\" style=\"text-decoration: none; color: inherit;\">\n\t\t\t🛡️ VulnApp\n\t\t"
+        "body_sample": "\n\n\n\n\n<!DOCTYPE html>\n<html lang=\"ko\">\n<head>\n    <meta charset=\"UTF-8\">\n    <title>VulnApp</title>\n    <link rel=\"stylesheet\" href=\"/vulnapp/css/style.css\">\n</head>\n<body>\n    <nav class=\"navbar\">\n        <div class=\"logo\">\n            <a href=\"/vulnapp/\" style=\"text-decoration: none; color: inherit"
       },
       {
         "endpoint": "/vulnapp/search.jsp",
         "url": "http://15.164.60.79/vulnapp/search.jsp",
         "reachable": true,
         "status_code": 200,
-        "body_sample": "\n\n\n\n\n\n\n<!DOCTYPE html>\n<html lang=\"ko\">\n<head>\n    <meta charset=\"UTF-8\">\n    <link rel=\"stylesheet\" href=\"/vulnapp/css/style.css\">\n</head>\n<body>\n    <nav class=\"navbar\">\n        <div class=\"logo\" href=\"index.jsp\">\n\t\t<a href=\"/vulnapp/\" style=\"text-decoration: none; color: inherit;\">\n\t\t\t🛡️ VulnApp\n"
+        "body_sample": "\n\n\n\n\n\n\n<!DOCTYPE html>\n<html lang=\"ko\">\n<head>\n    <meta charset=\"UTF-8\">\n    <title>VulnApp</title>\n    <link rel=\"stylesheet\" href=\"/vulnapp/css/style.css\">\n</head>\n<body>\n    <nav class=\"navbar\">\n        <div class=\"logo\">\n            <a href=\"/vulnapp/\" style=\"text-decoration: none; color: inher"
       },
       {
         "endpoint": "/vulnapp/board.jsp",
         "url": "http://15.164.60.79/vulnapp/board.jsp",
         "reachable": true,
         "status_code": 200,
-        "body_sample": "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n<!DOCTYPE html>\n<html lang=\"ko\">\n<head>\n    <meta charset=\"UTF-8\">\n    <link rel=\"stylesheet\" href=\"/vulnapp/css/style.css\">\n</head>\n<body>\n    <nav class=\"navbar\">\n        <div class=\"logo\" href=\"index.jsp\">\n\t\t<a href=\"/vulnapp/\" style=\"text-decoration: none; color: inherit;\">\n\t\t\t"
+        "body_sample": "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n<!DOCTYPE html>\n<html lang=\"ko\">\n<head>\n    <meta charset=\"UTF-8\">\n    <title>VulnApp</title>\n    <link rel=\"stylesheet\" href=\"/vulnapp/css/style.css\">\n</head>\n<body>\n    <nav class=\"navbar\">\n        <div class=\"logo\">\n            <a href=\"/vulnapp/\" style=\"text-decoration: none; c"
       },
       {
         "endpoint": "/vulnapp/profile.jsp?user_idx=1",
         "url": "http://15.164.60.79/vulnapp/profile.jsp?user_idx=1",
         "reachable": true,
         "status_code": 200,
-        "body_sample": "\n\n\n\n\n\n\n<!DOCTYPE html>\n<html lang=\"ko\">\n<head>\n    <meta charset=\"UTF-8\">\n    <link rel=\"stylesheet\" href=\"/vulnapp/css/style.css\">\n</head>\n<body>\n    <nav class=\"navbar\">\n        <div class=\"logo\" href=\"index.jsp\">\n\t\t<a href=\"/vulnapp/\" style=\"text-decoration: none; color: inherit;\">\n\t\t\t🛡️ VulnApp\n"
+        "body_sample": "\n\n\n\n\n\n\n<!DOCTYPE html>\n<html lang=\"ko\">\n<head>\n    <meta charset=\"UTF-8\">\n    <title>VulnApp</title>\n    <link rel=\"stylesheet\" href=\"/vulnapp/css/style.css\">\n</head>\n<body>\n    <nav class=\"navbar\">\n        <div class=\"logo\">\n            <a href=\"/vulnapp/\" style=\"text-decoration: none; color: inher"
       },
       {
         "endpoint": "/vulnapp/command.jsp",
         "url": "http://15.164.60.79/vulnapp/command.jsp",
         "reachable": true,
         "status_code": 200,
-        "body_sample": "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n<!DOCTYPE html>\n<html lang=\"ko\">\n<head>\n    <meta charset=\"UTF-8\">\n    <link rel=\"stylesheet\" href=\"/vulnapp/css/style.css\">\n</head>\n<body>\n    <nav class=\"navbar\">\n        <div class=\"logo\" href=\"index.jsp\">\n\t\t<a href=\"/vulnapp/\" style=\"text-decoration: none; color: inherit;\">\n\t"
+        "body_sample": "\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n<!DOCTYPE html>\n<html lang=\"ko\">\n<head>\n    <meta charset=\"UTF-8\">\n    <title>VulnApp</title>\n    <link rel=\"stylesheet\" href=\"/vulnapp/css/style.css\">\n</head>\n<body>\n    <nav class=\"navbar\">\n        <div class=\"logo\">\n            <a href=\"/vulnapp/\" style=\"text-decoration: none;"
       },
       {
         "endpoint": "/vulnapp/register.jsp",
         "url": "http://15.164.60.79/vulnapp/register.jsp",
         "reachable": true,
         "status_code": 200,
-        "body_sample": "\n\n\n\n\n\n\n\n\n\n<!DOCTYPE html>\n<html lang=\"ko\">\n<head>\n    <meta charset=\"UTF-8\">\n    <link rel=\"stylesheet\" href=\"/vulnapp/css/style.css\">\n</head>\n<body>\n    <nav class=\"navbar\">\n        <div class=\"logo\" href=\"index.jsp\">\n\t\t<a href=\"/vulnapp/\" style=\"text-decoration: none; color: inherit;\">\n\t\t\t🛡️ VulnA"
+        "body_sample": "\n\n\n\n\n\n\n\n\n\n<!DOCTYPE html>\n<html lang=\"ko\">\n<head>\n    <meta charset=\"UTF-8\">\n    <title>VulnApp</title>\n    <link rel=\"stylesheet\" href=\"/vulnapp/css/style.css\">\n</head>\n<body>\n    <nav class=\"navbar\">\n        <div class=\"logo\">\n            <a href=\"/vulnapp/\" style=\"text-decoration: none; color: in"
       },
       {
         "endpoint": "/vulnapp/fetch.jsp",
         "url": "http://15.164.60.79/vulnapp/fetch.jsp",
         "reachable": true,
         "status_code": 200,
-        "body_sample": "\n\n\n\n\n\n\n<!DOCTYPE html>\n<html lang=\"ko\">\n<head>\n    <meta charset=\"UTF-8\">\n    <link rel=\"stylesheet\" href=\"/vulnapp/css/style.css\">\n</head>\n<body>\n    <nav class=\"navbar\">\n        <div class=\"logo\" href=\"index.jsp\">\n\t\t<a href=\"/vulnapp/\" style=\"text-decoration: none; color: inherit;\">\n\t\t\t🛡️ VulnApp\n"
+        "body_sample": "\n\n\n\n\n\n\n<!DOCTYPE html>\n<html lang=\"ko\">\n<head>\n    <meta charset=\"UTF-8\">\n    <title>VulnApp</title>\n    <link rel=\"stylesheet\" href=\"/vulnapp/css/style.css\">\n</head>\n<body>\n    <nav class=\"navbar\">\n        <div class=\"logo\">\n            <a href=\"/vulnapp/\" style=\"text-decoration: none; color: inher"
       },
       {
         "endpoint": "/vulnapp/internal/secret.jsp",
