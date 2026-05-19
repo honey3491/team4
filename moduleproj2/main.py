@@ -32,7 +32,7 @@ else:
 client = OpenAI(api_key=OPENAI_API_KEY)
 
 class ScanRequest(BaseModel):
-    target_url: str
+    target: str
 
 def fetch_website_content(url: str) -> str:
     """타겟 URL에 접속해서 HTML 소스코드를 가져옵니다."""
