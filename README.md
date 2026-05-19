@@ -9,18 +9,43 @@
 
 AI 기반 웹사이트 취약점 진단 툴입니다.
 
-1. URL 기반 실시간 자동진단
-<img width="1880" height="958" alt="image" src="https://github.com/user-attachments/assets/94924e12-d91c-457c-96c4-49c444d30e0e" />
-<img width="1846" height="1246" alt="image" src="https://github.com/user-attachments/assets/b5c2bd80-5705-4201-ad54-f30828b1866f" />
-<img width="1844" height="1252" alt="image" src="https://github.com/user-attachments/assets/3dbd6e18-0de7-4e68-9014-4afd949ec7fd" />
+#### 1. URL 기반 실시간 자동진단
 
-2. 자동진단 수동진단 비교
-<img width="1845" height="1072" alt="image" src="https://github.com/user-attachments/assets/b3350575-a10a-4171-83b4-9de27f391e97" />
-<img width="1879" height="1003" alt="image" src="https://github.com/user-attachments/assets/6e332ce6-bc10-4ff5-b825-57bae4b3a35e" />
-<img width="1877" height="1161" alt="image" src="https://github.com/user-attachments/assets/195b5bfa-df89-408e-a750-194529e61fb2" />
-<img width="2070" height="1165" alt="image" src="https://github.com/user-attachments/assets/4b6d99ed-f9ea-4dbc-92e3-d08a14f244e6" />
-<img width="2068" height="1238" alt="image" src="https://github.com/user-attachments/assets/0748ca90-3524-4b49-8686-52b506b50b86" />
+<p align="center">
+  <img width="800" alt="image" src="https://github.com/user-attachments/assets/94924e12-d91c-457c-96c4-49c444d30e0e" />
+</p>
 
+<p align="center">
+  <img width="800" alt="image" src="https://github.com/user-attachments/assets/b5c2bd80-5705-4201-ad54-f30828b1866f" />
+</p>
+
+<p align="center">
+  <img width="800" alt="image" src="https://github.com/user-attachments/assets/3dbd6e18-0de7-4e68-9014-4afd949ec7fd" />
+</p>
+
+---
+
+#### 2. 자동진단 수동진단 비교
+
+<p align="center">
+  <img width="850" alt="image" src="https://github.com/user-attachments/assets/b3350575-a10a-4171-83b4-9de27f391e97" />
+</p>
+
+<p align="center">
+  <img width="850" alt="image" src="https://github.com/user-attachments/assets/6e332ce6-bc10-4ff5-b825-57bae4b3a35e" />
+</p>
+
+<p align="center">
+  <img width="850" alt="image" src="https://github.com/user-attachments/assets/195b5bfa-df89-408e-a750-194529e61fb2" />
+</p>
+
+<p align="center">
+  <img width="850" alt="image" src="https://github.com/user-attachments/assets/4b6d99ed-f9ea-4dbc-92e3-d08a14f244e6" />
+</p>
+
+<p align="center">
+  <img width="850" alt="image" src="https://github.com/user-attachments/assets/0748ca90-3524-4b49-8686-52b506b50b86" />
+</p>
 
 ## 구조도
 
