@@ -23,7 +23,7 @@ AI 기반 웹사이트 취약점 진단 툴입니다.
 취약한 웹서버 환경<br>
 <img width="60%" alt="image" src="https://github.com/user-attachments/assets/6da87d6f-a9f7-4742-ab4f-f391e13fc27d" />
 
-<br>취약점 진단 시스템 구조도<br>
+취약점 진단 시스템 구조도<br>
 <img width="60%" alt="image" src="https://github.com/user-attachments/assets/cabd2936-a75d-42b6-9caf-5233d58d0871" />
 
 
