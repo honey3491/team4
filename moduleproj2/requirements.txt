@@ -1,0 +1,7 @@
+streamlit
+plotly
+openpyxl
+pandas
+fastapi
+openai
+dotenv
