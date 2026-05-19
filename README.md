@@ -20,10 +20,10 @@ AI 기반 웹사이트 취약점 진단 툴입니다.
 
 ## 구조도
 
-취약한 웹서버 환경
+취약한 웹서버 환경<br>
 <img width="60%" alt="image" src="https://github.com/user-attachments/assets/6da87d6f-a9f7-4742-ab4f-f391e13fc27d" />
 
-취약점 진단 시스템 구조도
+<br>취약점 진단 시스템 구조도<br>
 <img width="60%" alt="image" src="https://github.com/user-attachments/assets/cabd2936-a75d-42b6-9caf-5233d58d0871" />
 
 
@@ -42,6 +42,7 @@ Notion [[링크]](https://www.notion.so/4-2-360b3aca18a480aa826ddada7d8fa87b?sou
 - Server: NGINX
 - WAS: Tomcat
 - 취약한 웹사이트: JSP
+- 클라우드 서버: EC2 t3.medium
 
 ## 팀 정보
 
